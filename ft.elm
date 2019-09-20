@@ -244,14 +244,14 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div []
-        [ svg [ width "1000", height "500" ] [ (draw_zones model.zones) ]
+        [ svg [ width "800", height "800" ] [ (draw_zones model.zones) ]
         ]
 
 gutter: Float
 gutter = 4.0
 
 square_size: Float
-square_size = 30.0
+square_size = 35.0
 
 zone_height: Float
 zone_height = 7 * square_size
