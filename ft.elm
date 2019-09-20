@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
+import Dict
 import List
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -27,7 +28,7 @@ type SquareKind
     | DoorStep
     | HideyHole
     | Base
-    
+
 type alias Square =
     { x : Float, y : Float, kind: SquareKind, id: String }
 
@@ -55,7 +56,7 @@ init =
 
 
 zone_config : List Zone
-zone_config = 
+zone_config =
     [
         { squares = config_squares
         , color = "green"
@@ -210,7 +211,7 @@ config_squares =
         , y = 3
         , kind = Normal
         , id = "R3"
-        }, 
+        },
 
         { x = 2
         , y = 4
@@ -279,6 +280,58 @@ draw_zone zone =
     in
         g [transform transform_] drawn_squares
 
+type alias ZonePieceDict = Dict.Dict String String
+type alias PieceDict = Dict.Dict String ZonePieceDict
+type alias PieceConfig =
+    { zone_color: String
+    , color: String
+    , id: String
+    }
+
+assign_piece: PieceDict -> PieceConfig -> PieceDict
+assign_piece dct config =
+    let
+        key = config.zone_color
+        sub_key = config.id
+        val = config.color
+
+        maybe_sub_dict = Dict.get key dct
+
+        sub_dict = case maybe_sub_dict of
+            Just sd -> sd
+            Nothing -> Dict.empty
+
+        new_sub_dict = Dict.insert sub_key val sub_dict
+
+    in
+        Dict.insert key new_sub_dict dct
+
+deep_get: PieceDict -> String -> String -> Maybe String
+deep_get dct key sub_key =
+    case Dict.get key dct of
+        Just sub_dict -> Dict.get sub_key sub_dict
+        other -> Nothing
+
+
+config_zone_pieces: String -> PieceDict -> PieceDict
+config_zone_pieces color_ dct =
+    let
+        assign id_ dct =
+            assign_piece dct {zone_color = color_, color = color_, id = id_}
+
+        squares = ["HP1", "HP2", "HP3", "HP4"]
+    in
+        List.foldr assign dct squares
+
+the_pieces: PieceDict
+the_pieces =
+    let
+        dct = Dict.empty
+
+        colors = ["red", "blue", "green", "purple"]
+    in
+        List.foldr config_zone_pieces dct colors
+
 draw_square: String -> Square -> Html Msg
 draw_square zone_color square =
     let
@@ -293,20 +346,40 @@ draw_square zone_color square =
             HideyHole -> "gray"
             other -> "black"
 
-        xpos =
-            square.x * square_size - w / 2
+        cx_ = square.x * square_size
 
-        ypos =
-            zone_height - (square.y * square_size) - h / 2
+        cy_ = zone_height - (square.y * square_size)
 
-        events =
-            []
+        xpos = cx_ - w / 2
+        ypos = cy_ - h / 2
 
-        contents =
-            g events
-                [ rect [ x (toString xpos), y (toString ypos), fill "white", stroke color, width (toString w), height (toString h) ] []
-                ]
+        my_piece = deep_get the_pieces zone_color square.id
+
+        my_pieces = case my_piece of
+            Just piece_color -> [piece_color]
+            other -> []
+
+        draw_piece color =
+            let
+                radius = "5"
+            in
+                circle [
+                    cx (toString cx_),
+                    cy (toString cy_),
+                    fill color,
+                    stroke color,
+                    r radius
+                ] []
+
+        s_pieces = List.map draw_piece my_pieces
+
+        s_square = rect [ x (toString xpos), y (toString ypos), fill "white", stroke color, width (toString w), height (toString h)] []
+
+        contents = List.concat
+            [ [s_square]
+            , s_pieces
+            ]
 
     in
-        g [] [contents]
+        g [] contents
 
