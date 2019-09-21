@@ -49,6 +49,7 @@ type alias PieceConfig =
 type alias Model =
     { zones: List Zone
     , piece_map: PieceDict
+    , status: String
     }
 
 init : ( Model, Cmd Msg )
@@ -59,6 +60,7 @@ init =
         model =
             { zones = zones
             , piece_map = config_pieces
+            , status = "beginning"
             }
 
     in
@@ -291,9 +293,13 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ svg [ width "800", height "800" ] [ (draw_zones model.piece_map model.zones) ]
-        ]
+    let
+        heading = div [] [ Html.text model.status ]
+    in
+        div []
+            [ heading
+            , svg [ width "800", height "800" ] [ (draw_zones model.piece_map model.zones) ]
+            ]
 
 gutter: Float
 gutter = 4.0
