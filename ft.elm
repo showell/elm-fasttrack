@@ -38,16 +38,17 @@ type alias Zone =
     , angle: Float
     }
 
-type alias Model =
-    { zones: List Zone
-    }
-
 type alias ZonePieceDict = Dict.Dict String String
 type alias PieceDict = Dict.Dict String ZonePieceDict
 type alias PieceConfig =
     { zone_color: String
     , color: String
     , id: String
+    }
+
+type alias Model =
+    { zones: List Zone
+    , piece_map: PieceDict
     }
 
 init : ( Model, Cmd Msg )
@@ -57,6 +58,7 @@ init =
 
         model =
             { zones = zones
+            , piece_map = config_pieces
             }
 
     in
@@ -239,8 +241,8 @@ config_zone_pieces color_ dct =
     in
         List.foldr assign dct squares
 
-the_pieces: PieceDict
-the_pieces =
+config_pieces: PieceDict
+config_pieces =
     let
         dct = Dict.empty
 
@@ -290,7 +292,7 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div []
-        [ svg [ width "800", height "800" ] [ (draw_zones model.zones) ]
+        [ svg [ width "800", height "800" ] [ (draw_zones model.piece_map model.zones) ]
         ]
 
 gutter: Float
@@ -302,13 +304,13 @@ square_size = 35.0
 zone_height: Float
 zone_height = 7 * square_size
 
-draw_zones: List Zone -> Html Msg
-draw_zones zones =
-    g [] (List.map draw_zone zones)
+draw_zones: PieceDict -> List Zone -> Html Msg
+draw_zones piece_map zones =
+    g [] (List.map (draw_zone piece_map) zones)
 
 
-draw_zone: Zone -> Html Msg
-draw_zone zone =
+draw_zone: PieceDict -> Zone -> Html Msg
+draw_zone piece_map zone =
     let
         squares = zone.squares
         angle = zone.angle
@@ -320,7 +322,7 @@ draw_zone zone =
         rotate = "rotate(" ++ (toString angle) ++ ")"
         transform_ = translate ++ " " ++ rotate
 
-        drawn_squares = List.map (draw_square color) squares
+        drawn_squares = List.map (draw_square piece_map color) squares
 
     in
         g [transform transform_] drawn_squares
@@ -332,8 +334,8 @@ deep_get dct key sub_key =
         other -> Nothing
 
 
-draw_square: String -> Square -> Html Msg
-draw_square zone_color square =
+draw_square: PieceDict -> String -> Square -> Html Msg
+draw_square piece_map zone_color square =
     let
         w = square_size - gutter
 
@@ -353,7 +355,7 @@ draw_square zone_color square =
         xpos = cx_ - w / 2
         ypos = cy_ - h / 2
 
-        my_piece = deep_get the_pieces zone_color square.id
+        my_piece = deep_get piece_map zone_color square.id
 
         my_pieces = case my_piece of
             Just piece_color -> [piece_color]
