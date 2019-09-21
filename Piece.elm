@@ -1,6 +1,7 @@
 module Piece exposing
     ( PieceDict
     , config_pieces
+    , get_piece
     , assign_piece
     , unassign_piece
     )
@@ -23,6 +24,12 @@ type alias PieceConfig =
     , color: String
     , id: String
     }
+
+get_piece: PieceDict -> String -> String -> Maybe String
+get_piece dct key sub_key =
+    case Dict.get key dct of
+        Just sub_dict -> Dict.get sub_key sub_dict
+        other -> Nothing
 
 config_zone_pieces: String -> PieceDict -> PieceDict
 config_zone_pieces color_ dct =

@@ -1,7 +1,6 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Dict
 import List
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -17,9 +16,11 @@ import Config exposing
     )
 import Piece exposing
     ( PieceDict
+    , get_piece
     , config_pieces
-    , assign_piece
-    , unassign_piece
+    )
+import Move exposing
+    ( perform_move
     )
 
 main: Program Never Model Msg
@@ -34,18 +35,6 @@ main =
 
 -- MODEL
 
-
-type alias Move =
-    { prev: SquareKey
-    , next: SquareKey
-    , piece_map: PieceDict
-    }
-
-type alias MoveStatus =
-    { piece_map: PieceDict
-    , status: String
-    , active_square: Maybe SquareKey
-    }
 
 type alias Model =
     { zones: List Zone
@@ -83,38 +72,6 @@ square_status piece_map info =
                 square_info_str ++ " (" ++ color ++ " piece)"
             other ->
                 square_info_str
-
-perform_move: Move -> MoveStatus
-perform_move move =
-    let
-        piece_map = move.piece_map
-        prev = move.prev
-        next = move.next
-
-        piece_color = get_piece piece_map prev.zone_color prev.id
-    in
-        case piece_color of
-            Nothing ->
-                { piece_map = piece_map
-                , status = "program failure"
-                , active_square = Nothing
-                }
-            Just piece_color_ ->
-                let
-                    new_config =
-                        { zone_color = next.zone_color
-                        , color = piece_color_
-                        , id = next.id
-                        }
-                    new_map = piece_map
-                        -- TODO: banish piece we're landing on
-                        |> unassign_piece prev
-                        |> assign_piece new_config
-                in
-                    { piece_map = new_map
-                    , status = "moved!"
-                    , active_square = Nothing
-                    }
 
 -- UPDATE
 
@@ -210,13 +167,6 @@ draw_zone piece_map zone =
 
     in
         g [transform transform_] drawn_squares
-
-get_piece: PieceDict -> String -> String -> Maybe String
-get_piece dct key sub_key =
-    case Dict.get key dct of
-        Just sub_dict -> Dict.get sub_key sub_dict
-        other -> Nothing
-
 
 draw_square: PieceDict -> String -> Square -> Html Msg
 draw_square piece_map zone_color square =
