@@ -32,6 +32,9 @@ type SquareKind
 type alias Square =
     { x : Float, y : Float, kind: SquareKind, id: String }
 
+type alias SquareKey =
+    { zone_color : String, id: String }
+
 type alias Zone =
     { squares: List Square
     , color: String
@@ -274,13 +277,20 @@ assign_piece dct config =
 
 
 type Msg
-    = ClickSquare
+    = ClickSquare SquareKey
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ClickSquare ->
-            ( { model | status = "click" } , Cmd.none)
+        ClickSquare info ->
+            let
+                info_str = info.zone_color ++ " " ++ info.id
+                model_ =
+                    { model
+                    | status = "clicked " ++ info_str
+                    }
+            in
+                (model_, Cmd.none)
 
 -- SUBSCRIPTIONS
 
@@ -345,6 +355,11 @@ deep_get dct key sub_key =
 draw_square: PieceDict -> String -> Square -> Html Msg
 draw_square piece_map zone_color square =
     let
+        square_info =
+            { zone_color  = zone_color
+            , id = square.id
+            }
+
         w = square_size - gutter
 
         h = square_size - gutter
@@ -373,12 +388,13 @@ draw_square piece_map zone_color square =
             let
                 radius = "5"
             in
-                circle [
-                    cx (toString cx_),
-                    cy (toString cy_),
-                    fill color,
-                    stroke color,
-                    r radius
+                circle
+                [ cx (toString cx_)
+                , cy (toString cy_)
+                , fill color
+                , stroke color
+                , r radius
+                , onClick (ClickSquare square_info)
                 ] []
 
         s_pieces = List.map draw_piece my_pieces
@@ -390,7 +406,7 @@ draw_square piece_map zone_color square =
             , stroke color
             , width (toString w)
             , height (toString h)
-            , onClick ClickSquare
+            , onClick (ClickSquare square_info)
             ] []
 
         contents = List.concat
