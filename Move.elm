@@ -33,14 +33,48 @@ validate_move move =
         prev = move.prev
         next = move.next
 
-        source_piece_color = get_piece piece_map prev.zone_color prev.id
-        target_piece_color = get_piece piece_map next.zone_color next.id
+        spc = get_piece piece_map prev.zone_color prev.id
+        tpc = get_piece piece_map next.zone_color next.id
 
     in
-        if source_piece_color == target_piece_color then
-            Err "You cannot land on your own piece"
-        else
-            Ok "success"
+        case spc of
+            Nothing ->
+                Err "No source piece color"
+            Just source_piece_color ->
+                if prev == next then
+                    Err "You must move somewhere else"
+                else if same_color source_piece_color tpc then
+                    Err "You cannot land on your own piece"
+                else if wrong_holding_pen source_piece_color next then
+                    Err "You cannot move to their holding pen"
+                else if wrong_base source_piece_color next then
+                    Err "You cannot move to their base"
+                else
+                    Ok "success"
+
+same_color: String -> Maybe String -> Bool
+same_color source_piece_color tpc =
+    case tpc of
+        Nothing ->
+            False
+        Just target_piece_color ->
+            source_piece_color == target_piece_color
+
+wrong_holding_pen: String -> SquareKey -> Bool
+wrong_holding_pen piece_color next =
+    case next.kind of
+        HoldingPen ->
+            next.zone_color /= piece_color
+        other ->
+            False
+
+wrong_base: String -> SquareKey -> Bool
+wrong_base piece_color next =
+    case next.kind of
+        Base ->
+            next.zone_color /= piece_color
+        other ->
+            False
 
 perform_move: Move -> MoveStatus
 perform_move move =

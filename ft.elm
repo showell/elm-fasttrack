@@ -187,8 +187,9 @@ draw_square: PieceDict -> String -> Square -> Html Msg
 draw_square piece_map zone_color square =
     let
         square_info =
-            { zone_color  = zone_color
+            { zone_color = zone_color
             , id = square.id
+            , kind = square.kind
             }
 
         w = square_size - gutter

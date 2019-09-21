@@ -23,5 +23,9 @@ type alias Zone =
     }
 
 type alias SquareKey =
-    { zone_color : String, id: String }
+    { zone_color : String
+    , id: String
+    -- kind is actually not an attribute, not part of the key
+    , kind: SquareKind
+    }
 
