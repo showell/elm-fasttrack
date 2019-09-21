@@ -13,10 +13,11 @@ import Type exposing
     )
 import Config exposing
     ( zone_config
-    , zone_colors
-    , holding_pen_squares
     )
-
+import Piece exposing
+    ( PieceDict
+    , config_pieces
+    )
 
 main: Program Never Model Msg
 main =
@@ -33,14 +34,6 @@ main =
 
 type alias SquareKey =
     { zone_color : String, id: String }
-
-type alias ZonePieceDict = Dict.Dict String String
-type alias PieceDict = Dict.Dict String ZonePieceDict
-type alias PieceConfig =
-    { zone_color: String
-    , color: String
-    , id: String
-    }
 
 type alias Model =
     { zones: List Zone
@@ -63,49 +56,12 @@ init =
         ( model, Cmd.none )
 
 
-config_zone_pieces: String -> PieceDict -> PieceDict
-config_zone_pieces color_ dct =
-    let
-        assign id_ dct =
-            assign_piece dct {zone_color = color_, color = color_, id = id_}
-
-        squares = holding_pen_squares
-    in
-        List.foldr assign dct squares
-
-config_pieces: PieceDict
-config_pieces =
-    let
-        dct = Dict.empty
-
-        colors = zone_colors
-    in
-        List.foldr config_zone_pieces dct colors
-
-assign_piece: PieceDict -> PieceConfig -> PieceDict
-assign_piece dct config =
-    let
-        key = config.zone_color
-        sub_key = config.id
-        val = config.color
-
-        maybe_sub_dict = Dict.get key dct
-
-        sub_dict = case maybe_sub_dict of
-            Just sd -> sd
-            Nothing -> Dict.empty
-
-        new_sub_dict = Dict.insert sub_key val sub_dict
-
-    in
-        Dict.insert key new_sub_dict dct
-
 square_status: PieceDict -> SquareKey -> String
 square_status piece_map info =
     let
         square_info_str = info.zone_color ++ " " ++ info.id
 
-        piece_color = deep_get piece_map info.zone_color info.id
+        piece_color = get_piece piece_map info.zone_color info.id
 
     in
         case piece_color of
@@ -183,8 +139,8 @@ draw_zone piece_map zone =
     in
         g [transform transform_] drawn_squares
 
-deep_get: PieceDict -> String -> String -> Maybe String
-deep_get dct key sub_key =
+get_piece: PieceDict -> String -> String -> Maybe String
+get_piece dct key sub_key =
     case Dict.get key dct of
         Just sub_dict -> Dict.get sub_key sub_dict
         other -> Nothing
@@ -216,7 +172,7 @@ draw_square piece_map zone_color square =
         xpos = cx_ - w / 2
         ypos = cy_ - h / 2
 
-        my_piece = deep_get piece_map zone_color square.id
+        my_piece = get_piece piece_map zone_color square.id
 
         my_pieces = case my_piece of
             Just piece_color -> [piece_color]
