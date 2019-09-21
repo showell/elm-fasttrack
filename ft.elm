@@ -224,10 +224,12 @@ draw_square piece_map zone_color active_square square =
             Just piece_color -> [piece_color]
             other -> []
 
+        is_active = is_active_square square_info active_square
+
         draw_piece color =
             let
                 radius =
-                    if is_active_square square_info active_square then
+                    if is_active then
                         "7"
                     else
                         "5"
@@ -243,10 +245,16 @@ draw_square piece_map zone_color active_square square =
 
         s_pieces = List.map draw_piece my_pieces
 
+        fill_color =
+            if is_active then
+                "lightblue"
+            else
+                "white"
+
         s_square = rect
             [ x (toString xpos)
             , y (toString ypos)
-            , fill "white"
+            , fill fill_color
             , stroke color
             , width (toString w)
             , height (toString h)
