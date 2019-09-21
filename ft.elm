@@ -273,6 +273,20 @@ assign_piece dct config =
     in
         Dict.insert key new_sub_dict dct
 
+square_status: PieceDict -> SquareKey -> String
+square_status piece_map info =
+    let
+        square_info_str = info.zone_color ++ " " ++ info.id
+
+        piece_color = deep_get piece_map info.zone_color info.id
+
+    in
+        case piece_color of
+            Just color ->
+                square_info_str ++ " (" ++ color ++ " piece)"
+            other ->
+                square_info_str
+
 -- UPDATE
 
 
@@ -284,11 +298,8 @@ update msg model =
     case msg of
         ClickSquare info ->
             let
-                info_str = info.zone_color ++ " " ++ info.id
-                model_ =
-                    { model
-                    | status = "clicked " ++ info_str
-                    }
+                status = square_status model.piece_map info
+                model_ = { model | status = status }
             in
                 (model_, Cmd.none)
 
