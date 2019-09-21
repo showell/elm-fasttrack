@@ -72,6 +72,14 @@ square_desc piece_map info piece_color =
             other ->
                 square_info_str
 
+is_active_square: SquareKey -> Maybe SquareKey -> Bool
+is_active_square square_info active_square =
+    case active_square of
+        Nothing ->
+            False
+        Just active ->
+            square_info.zone_color == active.zone_color && square_info.id == active.id
+
 -- UPDATE
 
 
@@ -148,7 +156,7 @@ view model =
     in
         div []
             [ heading
-            , svg [ width "800", height "800" ] [ (draw_zones model.piece_map model.zones) ]
+            , svg [ width "800", height "800" ] [ (draw_zones model.piece_map model.zones model.active_square) ]
             ]
 
 gutter: Float
@@ -160,13 +168,13 @@ square_size = 35.0
 zone_height: Float
 zone_height = 7 * square_size
 
-draw_zones: PieceDict -> List Zone -> Html Msg
-draw_zones piece_map zones =
-    g [] (List.map (draw_zone piece_map) zones)
+draw_zones: PieceDict -> List Zone -> Maybe SquareKey -> Html Msg
+draw_zones piece_map zones active_square =
+    g [] (List.map (draw_zone piece_map active_square) zones)
 
 
-draw_zone: PieceDict -> Zone -> Html Msg
-draw_zone piece_map zone =
+draw_zone: PieceDict -> Maybe SquareKey -> Zone -> Html Msg
+draw_zone piece_map active_square zone =
     let
         squares = zone.squares
         angle = zone.angle
@@ -178,13 +186,13 @@ draw_zone piece_map zone =
         rotate = "rotate(" ++ (toString angle) ++ ")"
         transform_ = translate ++ " " ++ rotate
 
-        drawn_squares = List.map (draw_square piece_map color) squares
+        drawn_squares = List.map (draw_square piece_map color active_square) squares
 
     in
         g [transform transform_] drawn_squares
 
-draw_square: PieceDict -> String -> Square -> Html Msg
-draw_square piece_map zone_color square =
+draw_square: PieceDict -> String -> Maybe SquareKey -> Square -> Html Msg
+draw_square piece_map zone_color active_square square =
     let
         square_info =
             { zone_color = zone_color
@@ -218,7 +226,11 @@ draw_square piece_map zone_color square =
 
         draw_piece color =
             let
-                radius = "5"
+                radius =
+                    if is_active_square square_info active_square then
+                        "7"
+                    else
+                        "5"
             in
                 circle
                 [ cx (toString cx_)
