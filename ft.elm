@@ -5,6 +5,7 @@ import Dict
 import List
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
+import Svg.Events exposing (onClick)
 
 
 main: Program Never Model Msg
@@ -15,7 +16,6 @@ main =
         , update = update
         , subscriptions = subscriptions
         }
-
 
 
 -- MODEL
@@ -274,11 +274,13 @@ assign_piece dct config =
 
 
 type Msg
-    = Never
+    = ClickSquare
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none)
+    case msg of
+        ClickSquare ->
+            ( { model | status = "click" } , Cmd.none)
 
 -- SUBSCRIPTIONS
 
@@ -381,7 +383,15 @@ draw_square piece_map zone_color square =
 
         s_pieces = List.map draw_piece my_pieces
 
-        s_square = rect [ x (toString xpos), y (toString ypos), fill "white", stroke color, width (toString w), height (toString h)] []
+        s_square = rect
+            [ x (toString xpos)
+            , y (toString ypos)
+            , fill "white"
+            , stroke color
+            , width (toString w)
+            , height (toString h)
+            , onClick ClickSquare
+            ] []
 
         contents = List.concat
             [ [s_square]
