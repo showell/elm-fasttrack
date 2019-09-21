@@ -10,6 +10,7 @@ import Type exposing
     ( SquareKind(..)
     , Zone
     , Square
+    , SquareKey
     )
 import Config exposing
     ( zone_config
@@ -17,6 +18,8 @@ import Config exposing
 import Piece exposing
     ( PieceDict
     , config_pieces
+    , assign_piece
+    , unassign_piece
     )
 
 main: Program Never Model Msg
@@ -32,13 +35,23 @@ main =
 -- MODEL
 
 
-type alias SquareKey =
-    { zone_color : String, id: String }
+type alias Move =
+    { prev: SquareKey
+    , next: SquareKey
+    , piece_map: PieceDict
+    }
+
+type alias MoveStatus =
+    { piece_map: PieceDict
+    , status: String
+    , active_square: Maybe SquareKey
+    }
 
 type alias Model =
     { zones: List Zone
     , piece_map: PieceDict
     , status: String
+    , active_square: Maybe SquareKey
     }
 
 init : ( Model, Cmd Msg )
@@ -50,6 +63,7 @@ init =
             { zones = zones
             , piece_map = config_pieces
             , status = "beginning"
+            , active_square = Nothing
             }
 
     in
@@ -70,6 +84,38 @@ square_status piece_map info =
             other ->
                 square_info_str
 
+perform_move: Move -> MoveStatus
+perform_move move =
+    let
+        piece_map = move.piece_map
+        prev = move.prev
+        next = move.next
+
+        piece_color = get_piece piece_map prev.zone_color prev.id
+    in
+        case piece_color of
+            Nothing ->
+                { piece_map = piece_map
+                , status = "program failure"
+                , active_square = Nothing
+                }
+            Just piece_color_ ->
+                let
+                    new_config =
+                        { zone_color = next.zone_color
+                        , color = piece_color_
+                        , id = next.id
+                        }
+                    new_map = piece_map
+                        -- TODO: banish piece we're landing on
+                        |> unassign_piece prev
+                        |> assign_piece new_config
+                in
+                    { piece_map = new_map
+                    , status = "moved!"
+                    , active_square = Nothing
+                    }
+
 -- UPDATE
 
 
@@ -80,9 +126,35 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ClickSquare info ->
-            let
-                status = square_status model.piece_map info
-                model_ = { model | status = status }
+            let model_ =
+                case model.active_square of
+                    Nothing ->
+                        let
+                            status = square_status model.piece_map info
+                            piece_color = get_piece model.piece_map info.zone_color info.id
+                            active_square = case piece_color of
+                                Nothing -> Nothing
+                                Just _ -> Just info
+                        in
+                            { model
+                            | status = status
+                            , active_square = active_square
+                            }
+                    Just prev ->
+                        let
+                            move =
+                                { prev = prev
+                                , next = info
+                                , piece_map = model.piece_map
+                                }
+
+                            move_results = perform_move move
+                        in
+                            { model
+                            | status = move_results.status
+                            , piece_map = move_results.piece_map
+                            , active_square = move_results.active_square
+                            }
             in
                 (model_, Cmd.none)
 

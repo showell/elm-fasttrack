@@ -2,6 +2,7 @@ module Type exposing
     ( SquareKind(..)
     , Square
     , Zone
+    , SquareKey
     )
 
 type SquareKind
@@ -20,4 +21,7 @@ type alias Zone =
     , color: String
     , angle: Float
     }
+
+type alias SquareKey =
+    { zone_color : String, id: String }
 
