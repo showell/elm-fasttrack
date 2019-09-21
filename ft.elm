@@ -42,6 +42,14 @@ type alias Model =
     { zones: List Zone
     }
 
+type alias ZonePieceDict = Dict.Dict String String
+type alias PieceDict = Dict.Dict String ZonePieceDict
+type alias PieceConfig =
+    { zone_color: String
+    , color: String
+    , id: String
+    }
+
 init : ( Model, Cmd Msg )
 init =
     let
@@ -221,6 +229,43 @@ config_squares =
     ]
 
 
+config_zone_pieces: String -> PieceDict -> PieceDict
+config_zone_pieces color_ dct =
+    let
+        assign id_ dct =
+            assign_piece dct {zone_color = color_, color = color_, id = id_}
+
+        squares = ["HP1", "HP2", "HP3", "HP4"]
+    in
+        List.foldr assign dct squares
+
+the_pieces: PieceDict
+the_pieces =
+    let
+        dct = Dict.empty
+
+        colors = ["red", "blue", "green", "purple"]
+    in
+        List.foldr config_zone_pieces dct colors
+
+assign_piece: PieceDict -> PieceConfig -> PieceDict
+assign_piece dct config =
+    let
+        key = config.zone_color
+        sub_key = config.id
+        val = config.color
+
+        maybe_sub_dict = Dict.get key dct
+
+        sub_dict = case maybe_sub_dict of
+            Just sd -> sd
+            Nothing -> Dict.empty
+
+        new_sub_dict = Dict.insert sub_key val sub_dict
+
+    in
+        Dict.insert key new_sub_dict dct
+
 -- UPDATE
 
 
@@ -280,57 +325,12 @@ draw_zone zone =
     in
         g [transform transform_] drawn_squares
 
-type alias ZonePieceDict = Dict.Dict String String
-type alias PieceDict = Dict.Dict String ZonePieceDict
-type alias PieceConfig =
-    { zone_color: String
-    , color: String
-    , id: String
-    }
-
-assign_piece: PieceDict -> PieceConfig -> PieceDict
-assign_piece dct config =
-    let
-        key = config.zone_color
-        sub_key = config.id
-        val = config.color
-
-        maybe_sub_dict = Dict.get key dct
-
-        sub_dict = case maybe_sub_dict of
-            Just sd -> sd
-            Nothing -> Dict.empty
-
-        new_sub_dict = Dict.insert sub_key val sub_dict
-
-    in
-        Dict.insert key new_sub_dict dct
-
 deep_get: PieceDict -> String -> String -> Maybe String
 deep_get dct key sub_key =
     case Dict.get key dct of
         Just sub_dict -> Dict.get sub_key sub_dict
         other -> Nothing
 
-
-config_zone_pieces: String -> PieceDict -> PieceDict
-config_zone_pieces color_ dct =
-    let
-        assign id_ dct =
-            assign_piece dct {zone_color = color_, color = color_, id = id_}
-
-        squares = ["HP1", "HP2", "HP3", "HP4"]
-    in
-        List.foldr assign dct squares
-
-the_pieces: PieceDict
-the_pieces =
-    let
-        dct = Dict.empty
-
-        colors = ["red", "blue", "green", "purple"]
-    in
-        List.foldr config_zone_pieces dct colors
 
 draw_square: String -> Square -> Html Msg
 draw_square zone_color square =
