@@ -44,8 +44,8 @@ config_squares: List Square
 config_squares =
     [
         -- holding pen
-        { x = -3.2
-        , y = 0.7
+        { x = -4.2
+        , y = 1.7
         , kind = HoldingPen
         , id = "HP1"
         },
@@ -62,8 +62,8 @@ config_squares =
         , id = "HP3"
         },
 
-        { x = -4.2
-        , y = 1.7
+        { x = -3.2
+        , y = 0.7
         , kind = HoldingPen
         , id = "HP4"
         },
