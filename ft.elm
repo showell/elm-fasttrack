@@ -41,6 +41,7 @@ type alias Model =
     , piece_map: PieceDict
     , status: String
     , active_square: Maybe SquareKey
+    , active_color: String
     }
 
 init : ( Model, Cmd Msg )
@@ -53,19 +54,17 @@ init =
             , piece_map = config_pieces
             , status = "beginning"
             , active_square = Nothing
+            , active_color = "green"
             }
 
     in
         ( model, Cmd.none )
 
 
-square_status: PieceDict -> SquareKey -> String
-square_status piece_map info =
+square_desc: PieceDict -> SquareKey -> Maybe String -> String
+square_desc piece_map info piece_color =
     let
         square_info_str = info.zone_color ++ " " ++ info.id
-
-        piece_color = get_piece piece_map info.zone_color info.id
-
     in
         case piece_color of
             Just color ->
@@ -82,38 +81,54 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        ClickSquare info ->
-            let model_ =
-                case model.active_square of
-                    Nothing ->
-                        let
-                            status = square_status model.piece_map info
-                            piece_color = get_piece model.piece_map info.zone_color info.id
-                            active_square = case piece_color of
-                                Nothing -> Nothing
-                                Just _ -> Just info
-                        in
-                            { model
-                            | status = status
-                            , active_square = active_square
-                            }
-                    Just prev ->
-                        let
-                            move =
-                                { prev = prev
-                                , next = info
-                                , piece_map = model.piece_map
-                                }
+        ClickSquare clicked_square ->
+            let
+                model_ = handle_square_click model clicked_square
 
-                            move_results = perform_move move
-                        in
-                            { model
-                            | status = move_results.status
-                            , piece_map = move_results.piece_map
-                            , active_square = move_results.active_square
-                            }
+
             in
                 (model_, Cmd.none)
+
+handle_square_click: Model -> SquareKey -> Model
+handle_square_click model clicked_square =
+    case model.active_square of
+        Nothing ->
+            let
+                piece_color = get_piece model.piece_map clicked_square.zone_color clicked_square.id
+                active_square = case piece_color of
+                    Nothing ->
+                        Nothing
+                    Just piece_color_ ->
+                        if piece_color_ == model.active_color then
+                            Just clicked_square
+                        else
+                            Nothing
+                desc = square_desc model.piece_map clicked_square piece_color
+                status = case active_square of
+                    Just _ ->
+                        desc ++ " (CLICK square to move piece)"
+                    Nothing ->
+                        desc
+            in
+                { model
+                | status = status
+                , active_square = active_square
+                }
+        Just prev ->
+            let
+                move =
+                    { prev = prev
+                    , next = clicked_square
+                    , piece_map = model.piece_map
+                    }
+
+                move_results = perform_move move
+            in
+                { model
+                | status = move_results.status
+                , piece_map = move_results.piece_map
+                , active_square = move_results.active_square
+                }
 
 -- SUBSCRIPTIONS
 
