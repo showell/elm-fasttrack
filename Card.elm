@@ -37,7 +37,6 @@ type alias PlayerCards =
     { deck : List Card
     , hand: List Card
     , active_card : Maybe Card
-    , get_out_pile : List Card
     , discard_pile : List Card
     }
 
@@ -53,7 +52,6 @@ config_player =
             { deck = full_deck
             , hand = []
             , active_card = Nothing
-            , get_out_pile = []
             , discard_pile = []
             }
     in
