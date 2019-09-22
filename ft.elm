@@ -13,6 +13,8 @@ import Type exposing
     )
 import Config exposing
     ( zone_config
+    , gutter_size
+    , square_size
     )
 import Piece exposing
     ( PieceDict
@@ -159,12 +161,6 @@ view model =
             , svg [ width "800", height "800" ] [ (draw_zones model.piece_map model.zones model.active_square) ]
             ]
 
-gutter: Float
-gutter = 4.0
-
-square_size: Float
-square_size = 35.0
-
 zone_height: Float
 zone_height = 7 * square_size
 
@@ -200,9 +196,9 @@ draw_square piece_map zone_color active_square square =
             , kind = square.kind
             }
 
-        w = square_size - gutter
+        w = square_size - gutter_size
 
-        h = square_size - gutter
+        h = square_size - gutter_size
 
         color = case square.kind of
             FastTrack -> zone_color

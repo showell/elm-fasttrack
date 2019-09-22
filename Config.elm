@@ -2,6 +2,8 @@ module Config exposing
     ( zone_config
     , holding_pen_squares
     , zone_colors
+    , gutter_size
+    , square_size
     )
 
 import Type exposing
@@ -9,6 +11,12 @@ import Type exposing
     , Square
     , SquareKind(..)
     )
+
+gutter_size: Float
+gutter_size = 3.0
+
+square_size: Float
+square_size = 26.0
 
 zone_colors: List String
 zone_colors = ["red", "blue", "green", "purple"]
