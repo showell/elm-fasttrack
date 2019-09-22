@@ -6,6 +6,7 @@ module Card
         , draw_card_cmd
         , draw_card
         , activate_card
+        , finish_card
         )
 
 import Html exposing (..)
@@ -99,22 +100,46 @@ card_view all_cards color =
         deckCount =
             List.length player.deck
 
-        buttonText =
-            "Deck (" ++ (toString deckCount) ++ ")"
+        handCount =
+            List.length player.hand
+
+        deck =
+            let
+                buttonText =
+                    "Deck (" ++ (toString deckCount) ++ ")"
+            in
+
+                if (handCount < 5) && (player.active_card == Nothing) then
+                    button
+                        [ onClick (DrawCard color) ]
+                        [ Html.text buttonText ]
+                else
+                    button
+                        [ disabled True ]
+                        [ Html.text buttonText]
 
         hand_cards = List.indexedMap (view_hand_card color player) player.hand
 
         hand = div [] hand_cards
+
+        finish_button =
+            button
+                [ onClick (FinishCard color) ]
+                [ Html.text "Done" ]
 
         active_card =
             case player.active_card of
                 Nothing ->
                     div [] [ Html.text "click a card above" ]
                 Just active_card_ ->
-                    div [] [ Html.text ("play now: " ++ active_card_) ]
+                    div []
+                    [ Html.text ("play now: " ++ active_card_)
+                    , Html.text "\x00A0"
+                    , finish_button
+                    ]
     in
         div []
-            [ button [ onClick (DrawCard color) ] [ Html.text buttonText]
+            [ deck
             , hand
             , active_card
             ]
@@ -176,6 +201,21 @@ draw_card all_cards color idx =
             }
     in
         Dict.insert color new_player all_cards
+
+finish_card: AllCards -> Color -> AllCards
+finish_card all_cards color =
+    let
+        player =
+            get_player all_cards color
+
+        new_player =
+            { player
+            | active_card = Nothing
+            }
+    in
+        Dict.insert color new_player all_cards
+
+
 
 -- We ignore suits in FastTrack, since they don't affect game play.
 -- Also, we never truly shuffle the deck; instead, we remove cards

@@ -32,6 +32,7 @@ import Card exposing
     , draw_card_cmd
     , draw_card
     , activate_card
+    , finish_card
     )
 import Msg exposing
     ( Msg(..)
@@ -127,7 +128,14 @@ update msg model =
                     }
             in
                 (model_, Cmd.none)
-
+        FinishCard player_color ->
+            let
+                model_ =
+                    { model
+                    | all_cards = finish_card model.all_cards player_color
+                    }
+            in
+                (model_, Cmd.none)
 
 handle_square_click: Model -> SquareKey -> Model
 handle_square_click model clicked_square =

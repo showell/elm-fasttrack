@@ -14,4 +14,5 @@ type Msg
     | DrawCard Color
     | DrawCardResult Color Int
     | ActivateCard Color Int
+    | FinishCard Color
 
