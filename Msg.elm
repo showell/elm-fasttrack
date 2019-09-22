@@ -13,4 +13,5 @@ type Msg
     = ClickSquare SquareKey
     | DrawCard Color
     | DrawCardResult Color Int
+    | ActivateCard Color Int
 

@@ -31,6 +31,7 @@ import Card exposing
     , card_view
     , draw_card_cmd
     , draw_card
+    , activate_card
     )
 import Msg exposing
     ( Msg(..)
@@ -115,6 +116,14 @@ update msg model =
                 model_ =
                     { model
                     | all_cards = draw_card model.all_cards player_color idx
+                    }
+            in
+                (model_, Cmd.none)
+        ActivateCard player_color idx ->
+            let
+                model_ =
+                    { model
+                    | all_cards = activate_card model.all_cards player_color idx
                     }
             in
                 (model_, Cmd.none)
