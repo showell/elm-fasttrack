@@ -4,8 +4,15 @@ module Type
         , Square
         , Zone
         , SquareKey
+        , Color
         )
 
+
+-- TODO: use this more places (even though it
+-- doesn't really guarantee much type safety, it
+-- at least documents our intent)
+type alias Color =
+    String
 
 type SquareKind
     = HoldingPen

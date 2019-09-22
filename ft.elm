@@ -15,6 +15,7 @@ import Config exposing
     ( zone_config
     , gutter_size
     , square_size
+    , board_size
     )
 import Piece exposing
     ( PieceDict
@@ -23,6 +24,16 @@ import Piece exposing
     )
 import Move exposing
     ( perform_move
+    )
+import Card exposing
+    ( AllCards
+    , config_all_cards
+    , card_view
+    , draw_card_cmd
+    , draw_card
+    )
+import Msg exposing
+    ( Msg(..)
     )
 
 main: Program Never Model Msg
@@ -44,6 +55,7 @@ type alias Model =
     , status: String
     , active_square: Maybe SquareKey
     , active_color: String
+    , all_cards: AllCards
     }
 
 init : ( Model, Cmd Msg )
@@ -57,6 +69,7 @@ init =
             , status = "beginning"
             , active_square = Nothing
             , active_color = "green"
+            , all_cards = config_all_cards
             }
 
     in
@@ -85,19 +98,27 @@ is_active_square square_info active_square =
 -- UPDATE
 
 
-type Msg
-    = ClickSquare SquareKey
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ClickSquare clicked_square ->
             let
                 model_ = handle_square_click model clicked_square
-
-
             in
                 (model_, Cmd.none)
+        DrawCard player_color ->
+            ( model
+            , draw_card_cmd model.all_cards player_color
+            )
+        DrawCardResult player_color idx ->
+            let
+                model_ =
+                    { model
+                    | all_cards = draw_card model.all_cards player_color idx
+                    }
+            in
+                (model_, Cmd.none)
+
 
 handle_square_click: Model -> SquareKey -> Model
 handle_square_click model clicked_square =
@@ -155,10 +176,14 @@ view : Model -> Html Msg
 view model =
     let
         heading = div [] [ Html.text model.status ]
+        board = svg
+            [ width board_size, height board_size]
+            [ (draw_zones model.piece_map model.zones model.active_square) ]
     in
         div []
             [ heading
-            , svg [ width "800", height "800" ] [ (draw_zones model.piece_map model.zones model.active_square) ]
+            , div [] [board]
+            , card_view model.all_cards model.active_color
             ]
 
 zone_height: Float
