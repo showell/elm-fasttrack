@@ -24,7 +24,7 @@ import Type
         , Card
         )
 import Deck exposing (full_deck)
-import ListExtra
+import List.Extra
 
 
 type alias PlayerCards =
@@ -106,10 +106,10 @@ activate_card all_cards color idx =
         (\player ->
             let
                 active_card =
-                    ListExtra.getAt idx player.hand
+                    List.Extra.getAt idx player.hand
 
                 new_hand =
-                    ListExtra.removeAt idx player.hand
+                    List.Extra.removeAt idx player.hand
             in
                 { player
                     | active_card = active_card
@@ -126,7 +126,7 @@ draw_card all_cards color idx =
         (\player ->
             let
                 card =
-                    case ListExtra.getAt idx player.deck of
+                    case List.Extra.getAt idx player.deck of
                         Nothing ->
                             "bogus"
 
@@ -137,7 +137,7 @@ draw_card all_cards color idx =
                     List.append player.hand [ card ]
 
                 new_deck =
-                    ListExtra.removeAt idx player.deck
+                    List.Extra.removeAt idx player.deck
             in
                 { player
                     | deck = new_deck
