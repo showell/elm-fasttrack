@@ -5,6 +5,7 @@ module Type
         , Zone
         , SquareKey
         , Color
+        , Card
         )
 
 
@@ -12,6 +13,9 @@ module Type
 -- doesn't really guarantee much type safety, it
 -- at least documents our intent)
 type alias Color =
+    String
+
+type alias Card =
     String
 
 type SquareKind

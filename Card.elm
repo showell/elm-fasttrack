@@ -26,11 +26,10 @@ import Msg
 import Type
     exposing
         ( Color
+        , Card
         )
+import Deck exposing (full_deck)
 import ListExtra
-
-type alias Card =
-    String
 
 
 type alias PlayerCards =
@@ -212,69 +211,3 @@ finish_card all_cards color =
             }
     in
         Dict.insert color new_player all_cards
-
-
-
--- We ignore suits in FastTrack, since they don't affect game play.
--- Also, we never truly shuffle the deck; instead, we remove cards
--- from random positions in the remaining deck when players draw
--- cards.
-
-
-full_deck : List Card
-full_deck =
-    [ "2"
-    , "3"
-    , "4"
-    , "5"
-    , "6"
-    , "7"
-    , "8"
-    , "9"
-    , "10"
-    , "J"
-    , "Q"
-    , "K"
-    , "A"
-    , "2"
-    , "3"
-    , "4"
-    , "5"
-    , "6"
-    , "7"
-    , "8"
-    , "9"
-    , "10"
-    , "J"
-    , "Q"
-    , "K"
-    , "A"
-    , "2"
-    , "3"
-    , "4"
-    , "5"
-    , "6"
-    , "7"
-    , "8"
-    , "9"
-    , "10"
-    , "J"
-    , "Q"
-    , "K"
-    , "A"
-    , "2"
-    , "3"
-    , "4"
-    , "5"
-    , "6"
-    , "7"
-    , "8"
-    , "9"
-    , "10"
-    , "J"
-    , "Q"
-    , "K"
-    , "A"
-    , "joker"
-    , "joker"
-    ]
