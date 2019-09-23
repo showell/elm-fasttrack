@@ -1,9 +1,14 @@
 module Board
     exposing
         ( board_view
+        , board_rotate_button
+        , rotate_board
         )
 
 import Html exposing (..)
+import Html.Events exposing (
+    onClick
+    )
 import Msg exposing (..)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -23,6 +28,12 @@ import Square exposing
 import Piece exposing
     ( PieceDict
     )
+
+rotate_board : List Color -> List Color
+rotate_board zones =
+    (List.drop 1 zones) ++ (List.take 1 zones)
+
+-- VIEW
 
 board_size: String
 board_size = toString (square_size * 16)
@@ -72,3 +83,12 @@ draw_zone piece_map active_square zone_colors zone_color =
     in
         g [transform transform_] drawn_squares
 
+board_rotate_button : Html Msg
+board_rotate_button =
+    div
+        []
+        [ hr [] []
+        , button
+            [ onClick RotateBoard ]
+            [ Html.text "Rotate" ]
+        ]

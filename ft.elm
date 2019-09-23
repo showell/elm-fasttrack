@@ -13,6 +13,8 @@ import Config exposing
     )
 import Board exposing
     ( board_view
+    , board_rotate_button
+    , rotate_board
     )
 import Piece exposing
     ( PieceDict
@@ -119,6 +121,14 @@ update msg model =
                     }
             in
                 (model_, Cmd.none)
+        RotateBoard ->
+            let
+                model_ =
+                    { model
+                    | zone_colors = rotate_board model.zone_colors
+                    }
+            in
+                (model_, Cmd.none)
 
 handle_square_click: Model -> SquareKey -> Model
 handle_square_click model clicked_square =
@@ -189,5 +199,6 @@ view model =
             [ heading
             , board
             , cards
+            , board_rotate_button
             ]
 

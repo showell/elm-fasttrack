@@ -15,4 +15,5 @@ type Msg
     | DrawCardResult Color Int
     | ActivateCard Color Int
     | FinishCard Color
+    | RotateBoard
 
