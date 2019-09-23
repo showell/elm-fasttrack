@@ -89,31 +89,36 @@ view_hand_card color player idx card =
                 [ Html.text card ]
 
 
-card_view : AllCards -> Color -> Html Msg
-card_view all_cards color =
+deck_view : PlayerCards -> Color -> Html Msg
+deck_view player color =
     let
-        player =
-            get_player all_cards color
-
         deckCount =
             List.length player.deck
 
         handCount =
             List.length player.hand
 
+        buttonText =
+            "Deck (" ++ (toString deckCount) ++ ")"
+    in
+        if (handCount < 5) && (player.active_card == Nothing) then
+            button
+                [ onClick (DrawCard color) ]
+                [ Html.text buttonText ]
+        else
+            button
+                [ disabled True ]
+                [ Html.text buttonText ]
+
+
+card_view : AllCards -> Color -> Html Msg
+card_view all_cards color =
+    let
+        player =
+            get_player all_cards color
+
         deck =
-            let
-                buttonText =
-                    "Deck (" ++ (toString deckCount) ++ ")"
-            in
-                if (handCount < 5) && (player.active_card == Nothing) then
-                    button
-                        [ onClick (DrawCard color) ]
-                        [ Html.text buttonText ]
-                else
-                    button
-                        [ disabled True ]
-                        [ Html.text buttonText ]
+            deck_view player color
 
         hand_cards =
             List.indexedMap (view_hand_card color player) player.hand
