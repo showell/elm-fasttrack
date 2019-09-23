@@ -188,21 +188,30 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     let
-        heading = div [] [ Html.text model.status ]
-        board = svg
-            [ width board_size, height board_size]
-            [ (draw_zones model.piece_map model.zones model.active_square) ]
+        heading = div
+            []
+            [ Html.text model.status ]
+
+        board = div
+            []
+            [ board_view model.piece_map model.zones model.active_square]
+
+        cards = card_view model.all_cards model.active_color
     in
         div []
             [ heading
-            , div [] [board]
-            , card_view model.all_cards model.active_color
+            , board
+            , cards
             ]
 
-draw_zones: PieceDict -> List Zone -> Maybe SquareKey -> Html Msg
-draw_zones piece_map zones active_square =
-    g [] (List.map (draw_zone piece_map active_square) zones)
-
+board_view: PieceDict -> List Zone -> Maybe SquareKey -> Html Msg
+board_view piece_map zones active_square =
+    let
+        content = List.map (draw_zone piece_map active_square) zones
+    in
+        svg
+            [ width board_size, height board_size]
+            content
 
 draw_zone: PieceDict -> Maybe SquareKey -> Zone -> Html Msg
 draw_zone piece_map active_square zone =
