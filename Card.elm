@@ -75,81 +75,6 @@ get_player all_cards color =
         |> Maybe.withDefault config_player
 
 
-view_hand_card : Color -> PlayerCards -> Int -> Card -> Html Msg
-view_hand_card color player idx card =
-    case player.active_card of
-        Nothing ->
-            button
-                [ onClick (ActivateCard color idx) ]
-                [ Html.text card ]
-
-        other ->
-            button
-                [ disabled True ]
-                [ Html.text card ]
-
-
-deck_view : PlayerCards -> Color -> Html Msg
-deck_view player color =
-    let
-        deckCount =
-            List.length player.deck
-
-        handCount =
-            List.length player.hand
-
-        buttonText =
-            "Deck (" ++ (toString deckCount) ++ ")"
-    in
-        if (handCount < 5) && (player.active_card == Nothing) then
-            button
-                [ onClick (DrawCard color) ]
-                [ Html.text buttonText ]
-        else
-            button
-                [ disabled True ]
-                [ Html.text buttonText ]
-
-
-card_view : AllCards -> Color -> Html Msg
-card_view all_cards color =
-    let
-        player =
-            get_player all_cards color
-
-        deck =
-            deck_view player color
-
-        hand_cards =
-            List.indexedMap (view_hand_card color player) player.hand
-
-        hand =
-            div [] hand_cards
-
-        finish_button =
-            button
-                [ onClick (FinishCard color) ]
-                [ Html.text "Done" ]
-
-        active_card =
-            case player.active_card of
-                Nothing ->
-                    div [] [ Html.text "click a card above" ]
-
-                Just active_card_ ->
-                    div []
-                        [ Html.text ("play now: " ++ active_card_)
-                        , Html.text " "
-                        , finish_button
-                        ]
-    in
-        div []
-            [ deck
-            , hand
-            , active_card
-            ]
-
-
 draw_card_cmd : AllCards -> Color -> Cmd Msg
 draw_card_cmd all_cards color =
     let
@@ -235,3 +160,82 @@ finish_card all_cards color =
                 | active_card = Nothing
             }
         )
+
+
+
+-- VIEW
+
+
+view_hand_card : Color -> PlayerCards -> Int -> Card -> Html Msg
+view_hand_card color player idx card =
+    case player.active_card of
+        Nothing ->
+            button
+                [ onClick (ActivateCard color idx) ]
+                [ Html.text card ]
+
+        other ->
+            button
+                [ disabled True ]
+                [ Html.text card ]
+
+
+deck_view : PlayerCards -> Color -> Html Msg
+deck_view player color =
+    let
+        deckCount =
+            List.length player.deck
+
+        handCount =
+            List.length player.hand
+
+        buttonText =
+            "Deck (" ++ (toString deckCount) ++ ")"
+    in
+        if (handCount < 5) && (player.active_card == Nothing) then
+            button
+                [ onClick (DrawCard color) ]
+                [ Html.text buttonText ]
+        else
+            button
+                [ disabled True ]
+                [ Html.text buttonText ]
+
+
+card_view : AllCards -> Color -> Html Msg
+card_view all_cards color =
+    let
+        player =
+            get_player all_cards color
+
+        deck =
+            deck_view player color
+
+        hand_cards =
+            List.indexedMap (view_hand_card color player) player.hand
+
+        hand =
+            div [] hand_cards
+
+        finish_button =
+            button
+                [ onClick (FinishCard color) ]
+                [ Html.text "Done" ]
+
+        active_card =
+            case player.active_card of
+                Nothing ->
+                    div [] [ Html.text "click a card above" ]
+
+                Just active_card_ ->
+                    div []
+                        [ Html.text ("play now: " ++ active_card_)
+                        , Html.text " "
+                        , finish_button
+                        ]
+    in
+        div []
+            [ deck
+            , hand
+            , active_card
+            ]
