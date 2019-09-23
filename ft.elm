@@ -30,6 +30,9 @@ import Card exposing
     , activate_card
     , finish_card
     )
+import Square exposing
+    ( square_desc
+    )
 import Msg exposing
     ( Msg(..)
     )
@@ -72,18 +75,6 @@ init =
 
     in
         ( model, Cmd.none )
-
-
-square_desc: PieceDict -> SquareKey -> Maybe String -> String
-square_desc piece_map info piece_color =
-    let
-        square_info_str = info.zone_color ++ " " ++ info.id
-    in
-        case piece_color of
-            Just color ->
-                square_info_str ++ " (" ++ color ++ " piece)"
-            other ->
-                square_info_str
 
 
 -- UPDATE
