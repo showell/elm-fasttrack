@@ -4,7 +4,6 @@ import Html exposing (..)
 import List
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
-import Svg.Events exposing (onClick)
 import Type exposing
     ( SquareKind(..)
     , Zone
@@ -33,6 +32,10 @@ import Card exposing
     , draw_card
     , activate_card
     , finish_card
+    )
+import Square exposing
+    ( square_view
+    , zone_height
     )
 import Msg exposing
     ( Msg(..)
@@ -89,13 +92,6 @@ square_desc piece_map info piece_color =
             other ->
                 square_info_str
 
-is_active_square: SquareKey -> Maybe SquareKey -> Bool
-is_active_square square_info active_square =
-    case active_square of
-        Nothing ->
-            False
-        Just active ->
-            square_info.zone_color == active.zone_color && square_info.id == active.id
 
 -- UPDATE
 
@@ -203,9 +199,6 @@ view model =
             , card_view model.all_cards model.active_color
             ]
 
-zone_height: Float
-zone_height = 7 * square_size
-
 draw_zones: PieceDict -> List Zone -> Maybe SquareKey -> Html Msg
 draw_zones piece_map zones active_square =
     g [] (List.map (draw_zone piece_map active_square) zones)
@@ -224,86 +217,8 @@ draw_zone piece_map active_square zone =
         rotate = "rotate(" ++ (toString angle) ++ ")"
         transform_ = translate ++ " " ++ rotate
 
-        drawn_squares = List.map (draw_square piece_map color active_square) squares
+        drawn_squares = List.map (square_view piece_map color active_square) squares
 
     in
         g [transform transform_] drawn_squares
-
-draw_square: PieceDict -> String -> Maybe SquareKey -> Square -> Html Msg
-draw_square piece_map zone_color active_square square =
-    let
-        square_info =
-            { zone_color = zone_color
-            , id = square.id
-            , kind = square.kind
-            }
-
-        w = square_size - gutter_size
-
-        h = square_size - gutter_size
-
-        color = case square.kind of
-            FastTrack -> zone_color
-            HoldingPen -> zone_color
-            Base -> zone_color
-            HideyHole -> "gray"
-            other -> "black"
-
-        cx_ = square.x * square_size
-
-        cy_ = zone_height - (square.y * square_size)
-
-        xpos = cx_ - w / 2
-        ypos = cy_ - h / 2
-
-        my_piece = get_piece piece_map zone_color square.id
-
-        my_pieces = case my_piece of
-            Just piece_color -> [piece_color]
-            other -> []
-
-        is_active = is_active_square square_info active_square
-
-        draw_piece color =
-            let
-                radius =
-                    if is_active then
-                        "7"
-                    else
-                        "5"
-            in
-                circle
-                [ cx (toString cx_)
-                , cy (toString cy_)
-                , fill color
-                , stroke color
-                , r radius
-                , onClick (ClickSquare square_info)
-                ] []
-
-        s_pieces = List.map draw_piece my_pieces
-
-        fill_color =
-            if is_active then
-                "lightblue"
-            else
-                "white"
-
-        s_square = rect
-            [ x (toString xpos)
-            , y (toString ypos)
-            , fill fill_color
-            , stroke color
-            , width (toString w)
-            , height (toString h)
-            , onClick (ClickSquare square_info)
-            ] []
-
-        contents = List.concat
-            [ [s_square]
-            , s_pieces
-            ]
-
-    in
-        g [] contents
 
