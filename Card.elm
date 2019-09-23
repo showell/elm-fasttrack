@@ -14,7 +14,6 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Dict
 import Random
-
 import Config
     exposing
         ( zone_colors
@@ -34,7 +33,7 @@ import ListExtra
 
 type alias PlayerCards =
     { deck : List Card
-    , hand: List Card
+    , hand : List Card
     , active_card : Maybe Card
     , discard_pile : List Card
     }
@@ -76,17 +75,19 @@ get_player all_cards color =
         |> Maybe.withDefault config_player
 
 
-view_hand_card: Color -> PlayerCards -> Int -> Card -> Html Msg
+view_hand_card : Color -> PlayerCards -> Int -> Card -> Html Msg
 view_hand_card color player idx card =
     case player.active_card of
         Nothing ->
             button
-                [onClick (ActivateCard color idx)]
+                [ onClick (ActivateCard color idx) ]
                 [ Html.text card ]
+
         other ->
             button
                 [ disabled True ]
                 [ Html.text card ]
+
 
 card_view : AllCards -> Color -> Html Msg
 card_view all_cards color =
@@ -105,7 +106,6 @@ card_view all_cards color =
                 buttonText =
                     "Deck (" ++ (toString deckCount) ++ ")"
             in
-
                 if (handCount < 5) && (player.active_card == Nothing) then
                     button
                         [ onClick (DrawCard color) ]
@@ -113,11 +113,13 @@ card_view all_cards color =
                 else
                     button
                         [ disabled True ]
-                        [ Html.text buttonText]
+                        [ Html.text buttonText ]
 
-        hand_cards = List.indexedMap (view_hand_card color player) player.hand
+        hand_cards =
+            List.indexedMap (view_hand_card color player) player.hand
 
-        hand = div [] hand_cards
+        hand =
+            div [] hand_cards
 
         finish_button =
             button
@@ -128,12 +130,13 @@ card_view all_cards color =
             case player.active_card of
                 Nothing ->
                     div [] [ Html.text "click a card above" ]
+
                 Just active_card_ ->
                     div []
-                    [ Html.text ("play now: " ++ active_card_)
-                    , Html.text "\x00A0"
-                    , finish_button
-                    ]
+                        [ Html.text ("play now: " ++ active_card_)
+                        , Html.text " "
+                        , finish_button
+                        ]
     in
         div []
             [ deck
@@ -141,7 +144,8 @@ card_view all_cards color =
             , active_card
             ]
 
-draw_card_cmd: AllCards -> Color -> Cmd Msg
+
+draw_card_cmd : AllCards -> Color -> Cmd Msg
 draw_card_cmd all_cards color =
     let
         player =
@@ -152,29 +156,32 @@ draw_card_cmd all_cards color =
 
         max =
             deckCount - 1
-
     in
         Random.generate (DrawCardResult color) (Random.int 0 max)
 
-activate_card: AllCards -> Color -> Int -> AllCards
+
+activate_card : AllCards -> Color -> Int -> AllCards
 activate_card all_cards color idx =
     let
         player =
             get_player all_cards color
 
-        active_card = ListExtra.getAt idx player.hand
+        active_card =
+            ListExtra.getAt idx player.hand
 
-        new_hand = ListExtra.removeAt idx player.hand
+        new_hand =
+            ListExtra.removeAt idx player.hand
 
         new_player =
             { player
-            | active_card = active_card
-            , hand = new_hand
+                | active_card = active_card
+                , hand = new_hand
             }
     in
         Dict.insert color new_player all_cards
 
-draw_card: AllCards -> Color -> Int -> AllCards
+
+draw_card : AllCards -> Color -> Int -> AllCards
 draw_card all_cards color idx =
     let
         player =
@@ -184,22 +191,26 @@ draw_card all_cards color idx =
             case ListExtra.getAt idx player.deck of
                 Nothing ->
                     "bogus"
+
                 Just card_ ->
                     card_
 
-        hand = List.append player.hand [card]
+        hand =
+            List.append player.hand [ card ]
 
-        new_deck = ListExtra.removeAt idx player.deck
+        new_deck =
+            ListExtra.removeAt idx player.deck
 
         new_player =
             { player
-            | deck = new_deck
-            , hand = hand
+                | deck = new_deck
+                , hand = hand
             }
     in
         Dict.insert color new_player all_cards
 
-finish_card: AllCards -> Color -> AllCards
+
+finish_card : AllCards -> Color -> AllCards
 finish_card all_cards color =
     let
         player =
@@ -207,7 +218,7 @@ finish_card all_cards color =
 
         new_player =
             { player
-            | active_card = Nothing
+                | active_card = Nothing
             }
     in
         Dict.insert color new_player all_cards
