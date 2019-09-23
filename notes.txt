@@ -1,5 +1,0 @@
-
-HOW TO BUILD:
-
-    elm make --warn ft.elm --output ft.html
-

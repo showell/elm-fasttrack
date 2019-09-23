@@ -36,7 +36,7 @@ rotate_board zones =
 -- VIEW
 
 board_size: String
-board_size = toString (square_size * 16)
+board_size = String.fromFloat (square_size * 16)
 
 zone_height: Float
 zone_height = 7 * square_size
@@ -72,10 +72,10 @@ draw_zone piece_map active_square zone_colors zone_color =
         angle = (toFloat idx) * 360.0 / (toFloat (List.length zone_colors))
         color = zone_color
 
-        center = toString (zone_height + 30)
+        center = String.fromFloat (zone_height + 30)
 
         translate = "translate(" ++ center ++ " " ++ center ++ ")"
-        rotate = "rotate(" ++ (toString angle) ++ ")"
+        rotate = "rotate(" ++ (String.fromFloat angle) ++ ")"
         transform_ = translate ++ " " ++ rotate
 
         drawn_squares = List.map (square_view zone_height piece_map color active_square) squares

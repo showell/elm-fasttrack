@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Browser
 import Html exposing (..)
 import Type exposing
     ( SquareKind(..)
@@ -40,9 +41,8 @@ import Msg exposing
     ( Msg(..)
     )
 
-main: Program Never Model Msg
 main =
-    Html.program
+    Browser.document
         { init = init
         , view = view
         , update = update
@@ -61,8 +61,8 @@ type alias Model =
     , all_cards: AllCards
     }
 
-init : ( Model, Cmd Msg )
-init =
+init : () -> ( Model, Cmd Msg )
+init flags =
     let
         zone_colors = orig_zone_colors
 
@@ -182,7 +182,7 @@ subscriptions model =
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
     let
         heading = div
@@ -194,11 +194,14 @@ view model =
             [ board_view model.piece_map model.zone_colors model.active_square]
 
         cards = card_view model.all_cards (active_color model)
-    in
-        div []
+
+        body =
             [ heading
             , board
             , cards
             , board_rotate_button
             ]
-
+    in
+        { title = "Fast Track"
+        , body = body
+        }

@@ -82,7 +82,7 @@ square_view zone_height piece_map zone_color active_square square =
 
         is_active = is_active_square square_info active_square
 
-        draw_piece color =
+        draw_piece color_ =
             let
                 radius =
                     if is_active then
@@ -91,10 +91,10 @@ square_view zone_height piece_map zone_color active_square square =
                         "5"
             in
                 circle
-                [ cx (toString cx_)
-                , cy (toString cy_)
-                , fill color
-                , stroke color
+                [ cx (String.fromFloat cx_)
+                , cy (String.fromFloat cy_)
+                , fill color_
+                , stroke color_
                 , r radius
                 , onClick (ClickSquare square_info)
                 ] []
@@ -108,12 +108,12 @@ square_view zone_height piece_map zone_color active_square square =
                 "white"
 
         s_square = rect
-            [ x (toString xpos)
-            , y (toString ypos)
+            [ x (String.fromFloat xpos)
+            , y (String.fromFloat ypos)
             , fill fill_color
             , stroke color
-            , width (toString w)
-            , height (toString h)
+            , width (String.fromFloat w)
+            , height (String.fromFloat h)
             , onClick (ClickSquare square_info)
             ] []
 

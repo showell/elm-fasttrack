@@ -162,17 +162,16 @@ finish_card all_cards color =
 -- VIEW
 
 
-card_css : Color -> Attribute Msg
+card_css : Color -> List (Attribute Msg)
 card_css color =
-    style
-        [ ("border-color", color)
-        , ("background", "white")
-        , ("color", color)
-        , ("padding", "4px")
-        , ("margin", "3px")
-        , ("font-size", "110%")
-        , ("min-width", "30px")
-        ]
+    [ style "border-color" color
+    , style "background" "white"
+    , style "color" color
+    , style "padding" "4px"
+    , style "margin" "3px"
+    , style "font-size" "110%"
+    , style "min-width" "30px"
+    ]
 
 view_hand_card : Color -> PlayerCards -> Int -> Card -> Html Msg
 view_hand_card color player idx card =
@@ -189,7 +188,7 @@ view_hand_card color player idx card =
 
     in
         button
-            (attrs ++ [css])
+            (attrs ++ css)
             [ Html.text card]
 
 deck_view : PlayerCards -> Color -> Html Msg
@@ -202,7 +201,7 @@ deck_view player color =
             List.length player.hand
 
         title_ =
-            (toString deckCount) ++ " cards left"
+            (String.fromInt deckCount) ++ " cards left"
 
         attrs =
             if (handCount < 5) && (player.active_card == Nothing) then
@@ -213,7 +212,7 @@ deck_view player color =
         css = card_css color
     in
         button
-            ( attrs ++ [css] ++ [title title_] )
+            ( attrs ++ css ++ [title title_] )
             [ Html.text "Deck" ]
 
 card_view : AllCards -> Color -> Html Msg
