@@ -160,65 +160,73 @@ draw_card_cmd all_cards color =
         Random.generate (DrawCardResult color) (Random.int 0 max)
 
 
-activate_card : AllCards -> Color -> Int -> AllCards
-activate_card all_cards color idx =
+update_player : AllCards -> Color -> (PlayerCards -> PlayerCards) -> AllCards
+update_player all_cards color f =
     let
         player =
             get_player all_cards color
 
-        active_card =
-            ListExtra.getAt idx player.hand
-
-        new_hand =
-            ListExtra.removeAt idx player.hand
-
         new_player =
-            { player
-                | active_card = active_card
-                , hand = new_hand
-            }
+            f player
     in
         Dict.insert color new_player all_cards
+
+
+activate_card : AllCards -> Color -> Int -> AllCards
+activate_card all_cards color idx =
+    update_player
+        all_cards
+        color
+        (\player ->
+            let
+                active_card =
+                    ListExtra.getAt idx player.hand
+
+                new_hand =
+                    ListExtra.removeAt idx player.hand
+            in
+                { player
+                    | active_card = active_card
+                    , hand = new_hand
+                }
+        )
 
 
 draw_card : AllCards -> Color -> Int -> AllCards
 draw_card all_cards color idx =
-    let
-        player =
-            get_player all_cards color
+    update_player
+        all_cards
+        color
+        (\player ->
+            let
+                card =
+                    case ListExtra.getAt idx player.deck of
+                        Nothing ->
+                            "bogus"
 
-        card =
-            case ListExtra.getAt idx player.deck of
-                Nothing ->
-                    "bogus"
+                        Just card_ ->
+                            card_
 
-                Just card_ ->
-                    card_
+                hand =
+                    List.append player.hand [ card ]
 
-        hand =
-            List.append player.hand [ card ]
-
-        new_deck =
-            ListExtra.removeAt idx player.deck
-
-        new_player =
-            { player
-                | deck = new_deck
-                , hand = hand
-            }
-    in
-        Dict.insert color new_player all_cards
+                new_deck =
+                    ListExtra.removeAt idx player.deck
+            in
+                { player
+                    | deck = new_deck
+                    , hand = hand
+                }
+        )
 
 
 finish_card : AllCards -> Color -> AllCards
 finish_card all_cards color =
-    let
-        player =
-            get_player all_cards color
-
-        new_player =
+    update_player
+        all_cards
+        color
+        (\player ->
             { player
                 | active_card = Nothing
             }
-    in
-        Dict.insert color new_player all_cards
+        )
