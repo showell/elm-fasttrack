@@ -9,11 +9,13 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Type exposing
     ( Zone
+    , Color
     , SquareKey
     )
 import Config exposing
     ( gutter_size
     , square_size
+    , config_squares
     )
 import Square exposing
     ( square_view
@@ -28,21 +30,36 @@ board_size = toString (square_size * 16)
 zone_height: Float
 zone_height = 7 * square_size
 
-board_view: PieceDict -> List Zone -> Maybe SquareKey -> Html Msg
-board_view piece_map zones active_square =
+board_view: PieceDict -> List Color -> Maybe SquareKey -> Html Msg
+board_view piece_map zone_colors active_square =
     let
-        content = List.map (draw_zone piece_map active_square) zones
+        content = List.map (draw_zone piece_map active_square zone_colors) zone_colors
     in
         svg
             [ width board_size, height board_size]
             content
 
-draw_zone: PieceDict -> Maybe SquareKey -> Zone -> Html Msg
-draw_zone piece_map active_square zone =
+zone_index : Color -> List Color -> Int
+zone_index x lst =
+    case lst of
+        [] ->
+            -- should never happen, just appease compiler
+            -1
+        first :: rest ->
+            if first == x then
+                0
+            else
+                1 + (zone_index x rest)
+
+draw_zone: PieceDict -> Maybe SquareKey -> List Color -> Color -> Html Msg
+draw_zone piece_map active_square zone_colors zone_color =
     let
-        squares = zone.squares
-        angle = zone.angle
-        color = zone.color
+        squares = config_squares
+
+        idx = zone_index zone_color zone_colors
+
+        angle = (toFloat idx) * 360.0 / (toFloat (List.length zone_colors))
+        color = zone_color
 
         center = toString (zone_height + 30)
 

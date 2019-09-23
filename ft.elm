@@ -6,9 +6,10 @@ import Type exposing
     , Zone
     , Square
     , SquareKey
+    , Color
     )
 import Config exposing
-    ( zone_config
+    ( orig_zone_colors
     )
 import Board exposing
     ( board_view
@@ -51,31 +52,33 @@ main =
 
 
 type alias Model =
-    { zones: List Zone
+    { zone_colors: List Color
     , piece_map: PieceDict
     , status: String
     , active_square: Maybe SquareKey
-    , active_color: String
     , all_cards: AllCards
     }
 
 init : ( Model, Cmd Msg )
 init =
     let
-        zones = zone_config
+        zone_colors = orig_zone_colors
 
         model =
-            { zones = zones
-            , piece_map = config_pieces
+            { zone_colors = zone_colors
+            , piece_map = config_pieces zone_colors
             , status = "beginning"
             , active_square = Nothing
-            , active_color = "green"
-            , all_cards = config_all_cards
+            , all_cards = config_all_cards zone_colors
             }
 
     in
         ( model, Cmd.none )
 
+active_color : Model -> Color
+active_color model =
+    List.head model.zone_colors
+        |> Maybe.withDefault "bogus" -- appease compiler
 
 -- UPDATE
 
@@ -127,7 +130,7 @@ handle_square_click model clicked_square =
                     Nothing ->
                         Nothing
                     Just piece_color_ ->
-                        if piece_color_ == model.active_color then
+                        if piece_color_ == (active_color model) then
                             Just clicked_square
                         else
                             Nothing
@@ -178,9 +181,9 @@ view model =
 
         board = div
             []
-            [ board_view model.piece_map model.zones model.active_square]
+            [ board_view model.piece_map model.zone_colors model.active_square]
 
-        cards = card_view model.all_cards model.active_color
+        cards = card_view model.all_cards (active_color model)
     in
         div []
             [ heading

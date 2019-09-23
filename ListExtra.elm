@@ -6,6 +6,8 @@ module ListExtra
         , removeAt
         )
 
+import List exposing (..)
+
 getAt : Int -> List a -> Maybe a
 getAt idx xs =
     if idx < 0 then

@@ -1,9 +1,9 @@
 module Config exposing
-    ( zone_config
-    , holding_pen_squares
-    , zone_colors
+    ( holding_pen_squares
+    , orig_zone_colors
     , gutter_size
     , square_size
+    , config_squares
     )
 
 import Type exposing
@@ -18,35 +18,11 @@ gutter_size = 3.0
 square_size: Float
 square_size = 26.0
 
-zone_colors: List String
-zone_colors = ["red", "blue", "green", "purple"]
+orig_zone_colors: List String
+orig_zone_colors = ["red", "blue", "green", "purple"]
 
 holding_pen_squares: List String
 holding_pen_squares = ["HP1", "HP2", "HP3", "HP4"]
-
-zone_config : List Zone
-zone_config =
-    [
-        { squares = config_squares
-        , color = "green"
-        , angle = 0
-        },
-
-        { squares = config_squares
-        , color = "red"
-        , angle = 90
-        },
-
-        { squares = config_squares
-        , color = "blue"
-        , angle = 180
-        },
-
-        { squares = config_squares
-        , color = "purple"
-        , angle = 270
-        }
-    ]
 
 config_squares: List Square
 config_squares =

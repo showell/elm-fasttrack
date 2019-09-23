@@ -14,10 +14,6 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Dict
 import Random
-import Config
-    exposing
-        ( zone_colors
-        )
 import Msg
     exposing
         ( Msg(..)
@@ -56,8 +52,8 @@ config_player =
         original_setup
 
 
-config_all_cards : AllCards
-config_all_cards =
+config_all_cards : List Color -> AllCards
+config_all_cards zone_colors =
     let
         config_one color =
             Dict.insert color config_player

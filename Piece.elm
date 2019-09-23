@@ -10,11 +10,11 @@ import Dict
 
 import Type exposing
     ( SquareKey
+    , Color
     )
 
 import Config exposing
-    ( zone_colors
-    , holding_pen_squares
+    ( holding_pen_squares
     )
 
 type alias ZonePieceDict = Dict.Dict String String
@@ -25,10 +25,10 @@ type alias PieceConfig =
     , id: String
     }
 
-get_piece: PieceDict -> String -> String -> Maybe String
-get_piece dct key sub_key =
-    case Dict.get key dct of
-        Just sub_dict -> Dict.get sub_key sub_dict
+get_piece: PieceDict -> Color -> String -> Maybe String
+get_piece dct color id =
+    case Dict.get color dct of
+        Just sub_dict -> Dict.get id sub_dict
         other -> Nothing
 
 config_zone_pieces: String -> PieceDict -> PieceDict
@@ -39,12 +39,12 @@ config_zone_pieces color_ dct =
     in
         List.foldr assign dct holding_pen_squares
 
-config_pieces: PieceDict
-config_pieces =
+config_pieces: List Color -> PieceDict
+config_pieces zone_colors =
     let
         dct = Dict.empty
     in
-        List.foldr config_zone_pieces dct zone_colors
+        List.foldl config_zone_pieces dct zone_colors
 
 unassign_piece: SquareKey -> PieceDict -> PieceDict
 unassign_piece square_key dct =
