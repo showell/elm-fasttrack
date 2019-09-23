@@ -1,7 +1,6 @@
 module Square
     exposing
         ( square_view
-        , zone_height
         )
 
 import Html exposing (..)
@@ -27,10 +26,6 @@ import Type exposing
     , SquareKey
     )
 
--- TODO: Move this to Zone.elm
-zone_height: Float
-zone_height = 7 * square_size
-
 is_active_square: SquareKey -> Maybe SquareKey -> Bool
 is_active_square square_info active_square =
     case active_square of
@@ -39,8 +34,8 @@ is_active_square square_info active_square =
         Just active ->
             square_info.zone_color == active.zone_color && square_info.id == active.id
 
-square_view: PieceDict -> String -> Maybe SquareKey -> Square -> Html Msg
-square_view piece_map zone_color active_square square =
+square_view: Float -> PieceDict -> String -> Maybe SquareKey -> Square -> Html Msg
+square_view zone_height piece_map zone_color active_square square =
     let
         square_info =
             { zone_color = zone_color

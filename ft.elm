@@ -1,9 +1,6 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import List
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
 import Type exposing
     ( SquareKind(..)
     , Zone
@@ -12,9 +9,9 @@ import Type exposing
     )
 import Config exposing
     ( zone_config
-    , gutter_size
-    , square_size
-    , board_size
+    )
+import Board exposing
+    ( board_view
     )
 import Piece exposing
     ( PieceDict
@@ -32,10 +29,6 @@ import Card exposing
     , draw_card
     , activate_card
     , finish_card
-    )
-import Square exposing
-    ( square_view
-    , zone_height
     )
 import Msg exposing
     ( Msg(..)
@@ -203,31 +196,4 @@ view model =
             , board
             , cards
             ]
-
-board_view: PieceDict -> List Zone -> Maybe SquareKey -> Html Msg
-board_view piece_map zones active_square =
-    let
-        content = List.map (draw_zone piece_map active_square) zones
-    in
-        svg
-            [ width board_size, height board_size]
-            content
-
-draw_zone: PieceDict -> Maybe SquareKey -> Zone -> Html Msg
-draw_zone piece_map active_square zone =
-    let
-        squares = zone.squares
-        angle = zone.angle
-        color = zone.color
-
-        center = toString (zone_height + 30)
-
-        translate = "translate(" ++ center ++ " " ++ center ++ ")"
-        rotate = "rotate(" ++ (toString angle) ++ ")"
-        transform_ = translate ++ " " ++ rotate
-
-        drawn_squares = List.map (square_view piece_map color active_square) squares
-
-    in
-        g [transform transform_] drawn_squares
 
