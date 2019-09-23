@@ -162,19 +162,35 @@ finish_card all_cards color =
 -- VIEW
 
 
+card_css : Color -> Attribute Msg
+card_css color =
+    style
+        [ ("border-color", color)
+        , ("background", "white")
+        , ("color", color)
+        , ("padding", "4px")
+        , ("margin", "3px")
+        , ("font-size", "110%")
+        , ("min-width", "30px")
+        ]
+
 view_hand_card : Color -> PlayerCards -> Int -> Card -> Html Msg
 view_hand_card color player idx card =
-    case player.active_card of
-        Nothing ->
-            button
-                [ onClick (ActivateCard color idx) ]
-                [ Html.text card ]
+    let
+        css = card_css color
 
-        other ->
-            button
-                [ disabled True ]
-                [ Html.text card ]
+        attrs =
+            case player.active_card of
+                Nothing ->
+                    [ onClick (ActivateCard color idx) ]
 
+                other ->
+                    [ disabled True ]
+
+    in
+        button
+            (attrs ++ [css])
+            [ Html.text card]
 
 deck_view : PlayerCards -> Color -> Html Msg
 deck_view player color =
@@ -185,18 +201,20 @@ deck_view player color =
         handCount =
             List.length player.hand
 
-        buttonText =
-            "Deck (" ++ (toString deckCount) ++ ")"
-    in
-        if (handCount < 5) && (player.active_card == Nothing) then
-            button
-                [ onClick (DrawCard color) ]
-                [ Html.text buttonText ]
-        else
-            button
-                [ disabled True ]
-                [ Html.text buttonText ]
+        title_ =
+            (toString deckCount) ++ " cards left"
 
+        attrs =
+            if (handCount < 5) && (player.active_card == Nothing) then
+                [ onClick (DrawCard color) ]
+            else
+                [ disabled True ]
+
+        css = card_css color
+    in
+        button
+            ( attrs ++ [css] ++ [title title_] )
+            [ Html.text "Deck" ]
 
 card_view : AllCards -> Color -> Html Msg
 card_view all_cards color =
@@ -211,7 +229,7 @@ card_view all_cards color =
             List.indexedMap (view_hand_card color player) player.hand
 
         hand =
-            div [] hand_cards
+            span [] hand_cards
 
         finish_button =
             button
@@ -221,17 +239,16 @@ card_view all_cards color =
         active_card =
             case player.active_card of
                 Nothing ->
-                    div [] [ Html.text "click a card above" ]
+                    div [] [ Html.text "click a card below" ]
 
                 Just active_card_ ->
                     div []
                         [ Html.text ("play now: " ++ active_card_)
-                        , Html.text " "
-                        , finish_button
+                        , div [] [finish_button]
+                        , hr [] []
                         ]
     in
         div []
-            [ deck
-            , hand
-            , active_card
+            [ active_card
+            , span [] [deck, hand]
             ]
