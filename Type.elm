@@ -73,5 +73,5 @@ type alias Model =
     , piece_map : PieceDict
     , status : String
     , active_square : Maybe SquareKey
-    , all_cards : PlayerDict
+    , players : PlayerDict
     }

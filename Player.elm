@@ -1,6 +1,6 @@
 module Player
     exposing
-        ( config_all_cards
+        ( config_players
         , player_view
         , draw_card_cmd
         , draw_card
@@ -41,8 +41,8 @@ config_player =
         original_setup
 
 
-config_all_cards : List Color -> PlayerDict
-config_all_cards zone_colors =
+config_players : List Color -> PlayerDict
+config_players zone_colors =
     let
         config_one color =
             Dict.insert color config_player
@@ -54,17 +54,17 @@ config_all_cards zone_colors =
 
 
 get_player : PlayerDict -> Color -> PlayerCards
-get_player all_cards color =
+get_player players color =
     -- The "Maybe" is just to satisfy the compiler
-    Dict.get color all_cards
+    Dict.get color players
         |> Maybe.withDefault config_player
 
 
 draw_card_cmd : PlayerDict -> Color -> Cmd Msg
-draw_card_cmd all_cards color =
+draw_card_cmd players color =
     let
         player =
-            get_player all_cards color
+            get_player players color
 
         deckCount =
             List.length player.deck
@@ -76,21 +76,21 @@ draw_card_cmd all_cards color =
 
 
 update_player : PlayerDict -> Color -> (PlayerCards -> PlayerCards) -> PlayerDict
-update_player all_cards color f =
+update_player players color f =
     let
         player =
-            get_player all_cards color
+            get_player players color
 
         new_player =
             f player
     in
-        Dict.insert color new_player all_cards
+        Dict.insert color new_player players
 
 
 activate_card : PlayerDict -> Color -> Int -> PlayerDict
-activate_card all_cards color idx =
+activate_card players color idx =
     update_player
-        all_cards
+        players
         color
         (\player ->
             let
@@ -115,9 +115,9 @@ maybe_replenish deck =
             deck
 
 draw_card : PlayerDict -> Color -> Int -> PlayerDict
-draw_card all_cards color idx =
+draw_card players color idx =
     update_player
-        all_cards
+        players
         color
         (\player ->
             let
@@ -143,9 +143,9 @@ draw_card all_cards color idx =
 
 
 finish_card : PlayerDict -> Color -> PlayerDict
-finish_card all_cards color =
+finish_card players color =
     update_player
-        all_cards
+        players
         color
         (\player ->
             { player
@@ -212,10 +212,10 @@ deck_view player color =
             [ Html.text "Deck" ]
 
 player_view : PlayerDict -> Color -> Html Msg
-player_view all_cards color =
+player_view players color =
     let
         player =
-            get_player all_cards color
+            get_player players color
 
         deck =
             deck_view player color

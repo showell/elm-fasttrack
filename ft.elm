@@ -25,7 +25,7 @@ import Move exposing
     ( perform_move
     )
 import Player exposing
-    ( config_all_cards
+    ( config_players
     , player_view
     , draw_card_cmd
     , draw_card
@@ -61,7 +61,7 @@ init flags =
             , piece_map = config_pieces zone_colors
             , status = "beginning"
             , active_square = Nothing
-            , all_cards = config_all_cards zone_colors
+            , players = config_players zone_colors
             }
 
     in
@@ -85,13 +85,13 @@ update msg model =
                 (model_, Cmd.none)
         DrawCard player_color ->
             ( model
-            , draw_card_cmd model.all_cards player_color
+            , draw_card_cmd model.players player_color
             )
         DrawCardResult player_color idx ->
             let
                 model_ =
                     { model
-                    | all_cards = draw_card model.all_cards player_color idx
+                    | players = draw_card model.players player_color idx
                     }
             in
                 (model_, Cmd.none)
@@ -99,7 +99,7 @@ update msg model =
             let
                 model_ =
                     { model
-                    | all_cards = activate_card model.all_cards player_color idx
+                    | players = activate_card model.players player_color idx
                     }
             in
                 (model_, Cmd.none)
@@ -107,7 +107,7 @@ update msg model =
             let
                 model_ =
                     { model
-                    | all_cards = finish_card model.all_cards player_color
+                    | players = finish_card model.players player_color
                     }
             in
                 (model_, Cmd.none)
@@ -183,7 +183,7 @@ view model =
             []
             [ board_view model.piece_map model.zone_colors model.active_square]
 
-        cards = player_view model.all_cards (active_color model)
+        cards = player_view model.players (active_color model)
 
         body =
             [ heading
