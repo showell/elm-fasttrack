@@ -117,6 +117,13 @@ activate_card all_cards color idx =
                 }
         )
 
+maybe_replenish : List Card -> List Card
+maybe_replenish deck =
+    case List.length deck of
+        0 ->
+            full_deck
+        other ->
+            deck
 
 draw_card : AllCards -> Color -> Int -> AllCards
 draw_card all_cards color idx =
@@ -136,11 +143,11 @@ draw_card all_cards color idx =
                 hand =
                     List.append player.hand [ card ]
 
-                new_deck =
+                deck =
                     List.Extra.removeAt idx player.deck
             in
                 { player
-                    | deck = new_deck
+                    | deck = maybe_replenish deck
                     , hand = hand
                 }
         )
