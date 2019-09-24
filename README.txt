@@ -6,7 +6,6 @@ HOW TO BUILD:
     elm make --optimize ft.elm --output ft.html
 
 TODO:
-    format some files
     kills (piece -> holding pen)
     Turn type
     initial deal of 5 cards
@@ -15,3 +14,4 @@ TODO:
     disable deck once move starts
     basic undo
     jack swap/kill
+    upgrade elm-format, re-run
