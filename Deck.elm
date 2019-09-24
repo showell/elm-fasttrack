@@ -1,6 +1,7 @@
-module Deck exposing ( full_deck )
+module Deck exposing (full_deck)
 
-import Type exposing ( Card )
+import Type exposing (Card)
+
 
 -- We ignore suits in FastTrack, since they don't affect game play.
 -- Also, we never truly shuffle the deck; instead, we remove cards
