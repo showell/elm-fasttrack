@@ -24,10 +24,10 @@ import Piece exposing
 import Move exposing
     ( perform_move
     )
-import Card exposing
-    ( AllCards
+import Player exposing
+    ( PlayerDict
     , config_all_cards
-    , card_view
+    , player_view
     , draw_card_cmd
     , draw_card
     , activate_card
@@ -57,7 +57,7 @@ type alias Model =
     , piece_map: PieceDict
     , status: String
     , active_square: Maybe SquareKey
-    , all_cards: AllCards
+    , all_cards: PlayerDict
     }
 
 init : () -> ( Model, Cmd Msg )
@@ -192,7 +192,7 @@ view model =
             []
             [ board_view model.piece_map model.zone_colors model.active_square]
 
-        cards = card_view model.all_cards (active_color model)
+        cards = player_view model.all_cards (active_color model)
 
         body =
             [ heading

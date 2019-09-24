@@ -1,8 +1,8 @@
-module Card
+module Player
     exposing
-        ( AllCards
+        ( PlayerDict
         , config_all_cards
-        , card_view
+        , player_view
         , draw_card_cmd
         , draw_card
         , activate_card
@@ -35,7 +35,7 @@ type alias PlayerCards =
     }
 
 
-type alias AllCards =
+type alias PlayerDict =
     Dict.Dict Color PlayerCards
 
 
@@ -52,7 +52,7 @@ config_player =
         original_setup
 
 
-config_all_cards : List Color -> AllCards
+config_all_cards : List Color -> PlayerDict
 config_all_cards zone_colors =
     let
         config_one color =
@@ -64,14 +64,14 @@ config_all_cards zone_colors =
         List.foldl config_one dct zone_colors
 
 
-get_player : AllCards -> Color -> PlayerCards
+get_player : PlayerDict -> Color -> PlayerCards
 get_player all_cards color =
     -- The "Maybe" is just to satisfy the compiler
     Dict.get color all_cards
         |> Maybe.withDefault config_player
 
 
-draw_card_cmd : AllCards -> Color -> Cmd Msg
+draw_card_cmd : PlayerDict -> Color -> Cmd Msg
 draw_card_cmd all_cards color =
     let
         player =
@@ -86,7 +86,7 @@ draw_card_cmd all_cards color =
         Random.generate (DrawCardResult color) (Random.int 0 max)
 
 
-update_player : AllCards -> Color -> (PlayerCards -> PlayerCards) -> AllCards
+update_player : PlayerDict -> Color -> (PlayerCards -> PlayerCards) -> PlayerDict
 update_player all_cards color f =
     let
         player =
@@ -98,7 +98,7 @@ update_player all_cards color f =
         Dict.insert color new_player all_cards
 
 
-activate_card : AllCards -> Color -> Int -> AllCards
+activate_card : PlayerDict -> Color -> Int -> PlayerDict
 activate_card all_cards color idx =
     update_player
         all_cards
@@ -125,7 +125,7 @@ maybe_replenish deck =
         other ->
             deck
 
-draw_card : AllCards -> Color -> Int -> AllCards
+draw_card : PlayerDict -> Color -> Int -> PlayerDict
 draw_card all_cards color idx =
     update_player
         all_cards
@@ -153,7 +153,7 @@ draw_card all_cards color idx =
         )
 
 
-finish_card : AllCards -> Color -> AllCards
+finish_card : PlayerDict -> Color -> PlayerDict
 finish_card all_cards color =
     update_player
         all_cards
@@ -222,8 +222,8 @@ deck_view player color =
             ( attrs ++ css ++ [title title_] )
             [ Html.text "Deck" ]
 
-card_view : AllCards -> Color -> Html Msg
-card_view all_cards color =
+player_view : PlayerDict -> Color -> Html Msg
+player_view all_cards color =
     let
         player =
             get_player all_cards color
