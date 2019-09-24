@@ -1,6 +1,5 @@
 module Piece exposing
-    ( PieceDict
-    , config_pieces
+    ( config_pieces
     , get_piece
     , assign_piece
     , unassign_piece
@@ -11,17 +10,16 @@ import Dict
 import Type exposing
     ( SquareKey
     , Color
+    , PieceDict
     )
 
 import Config exposing
     ( holding_pen_squares
     )
 
-type alias ZonePieceDict = Dict.Dict String String
-type alias PieceDict = Dict.Dict String ZonePieceDict
 type alias PieceConfig =
-    { zone_color: String
-    , color: String
+    { zone_color: Color
+    , color: Color
     , id: String
     }
 

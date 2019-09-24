@@ -1,7 +1,6 @@
 module Player
     exposing
-        ( PlayerDict
-        , config_all_cards
+        ( config_all_cards
         , player_view
         , draw_card_cmd
         , draw_card
@@ -22,21 +21,11 @@ import Type
     exposing
         ( Color
         , Card
+        , PlayerCards
+        , PlayerDict
         )
 import Deck exposing (full_deck)
 import List.Extra
-
-
-type alias PlayerCards =
-    { deck : List Card
-    , hand : List Card
-    , active_card : Maybe Card
-    , discard_pile : List Card
-    }
-
-
-type alias PlayerDict =
-    Dict.Dict Color PlayerCards
 
 
 config_player : PlayerCards

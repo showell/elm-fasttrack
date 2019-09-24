@@ -7,6 +7,7 @@ import Type exposing
     , Square
     , SquareKey
     , Color
+    , Model
     )
 import Config exposing
     ( orig_zone_colors
@@ -17,16 +18,14 @@ import Board exposing
     , rotate_board
     )
 import Piece exposing
-    ( PieceDict
-    , get_piece
+    ( get_piece
     , config_pieces
     )
 import Move exposing
     ( perform_move
     )
 import Player exposing
-    ( PlayerDict
-    , config_all_cards
+    ( config_all_cards
     , player_view
     , draw_card_cmd
     , draw_card
@@ -40,6 +39,9 @@ import Msg exposing
     ( Msg(..)
     )
 
+-- MODEL / INIT
+
+
 main =
     Browser.document
         { init = init
@@ -48,17 +50,6 @@ main =
         , subscriptions = subscriptions
         }
 
-
--- MODEL
-
-
-type alias Model =
-    { zone_colors: List Color
-    , piece_map: PieceDict
-    , status: String
-    , active_square: Maybe SquareKey
-    , all_cards: PlayerDict
-    }
 
 init : () -> ( Model, Cmd Msg )
 init flags =

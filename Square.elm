@@ -16,15 +16,15 @@ import Config exposing
     , gutter_size
     )
 
-import Piece exposing
-    ( PieceDict
-    , get_piece
-    )
-
 import Type exposing
     ( SquareKind(..)
     , Square
     , SquareKey
+    , PieceDict
+    )
+
+import Piece exposing
+    ( get_piece
     )
 
 square_desc: PieceDict -> SquareKey -> Maybe String -> String

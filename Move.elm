@@ -5,11 +5,11 @@ module Move exposing
 import Type exposing
     ( SquareKind(..)
     , SquareKey
+    , PieceDict
     )
 
 import Piece exposing
-    ( PieceDict
-    , get_piece
+    ( get_piece
     , assign_piece
     , unassign_piece
     )

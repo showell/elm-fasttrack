@@ -15,6 +15,7 @@ import Svg.Attributes exposing (..)
 import Type exposing
     ( Color
     , SquareKey
+    , PieceDict
     )
 import Config exposing
     ( gutter_size
@@ -23,9 +24,6 @@ import Config exposing
     )
 import Square exposing
     ( square_view
-    )
-import Piece exposing
-    ( PieceDict
     )
 
 rotate_board : List Color -> List Color

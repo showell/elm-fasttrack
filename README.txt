@@ -6,6 +6,7 @@ HOW TO BUILD:
     elm make --optimize ft.elm --output ft.html
 
 TODO:
+    rename all_cards, config_all_cards, etc.
     Model -> Type (perform_move)
     kills (piece -> holding pen)
     Turn type

@@ -5,17 +5,22 @@ module Type
         , SquareKey
         , Color
         , Card
+        , PieceDict
+        , PlayerCards
+        , PlayerDict
+        , Model
         )
 
+import Dict
 
--- TODO: use this more places (even though it
--- doesn't really guarantee much type safety, it
--- at least documents our intent)
+
 type alias Color =
     String
 
+
 type alias Card =
     String
+
 
 type SquareKind
     = HoldingPen
@@ -40,4 +45,33 @@ type alias SquareKey =
 
     -- kind is actually not an attribute, not part of the key
     , kind : SquareKind
+    }
+
+
+type alias ZonePieceDict =
+    Dict.Dict String Color
+
+
+type alias PieceDict =
+    Dict.Dict Color ZonePieceDict
+
+
+type alias PlayerCards =
+    { deck : List Card
+    , hand : List Card
+    , active_card : Maybe Card
+    , discard_pile : List Card
+    }
+
+
+type alias PlayerDict =
+    Dict.Dict Color PlayerCards
+
+
+type alias Model =
+    { zone_colors : List Color
+    , piece_map : PieceDict
+    , status : String
+    , active_square : Maybe SquareKey
+    , all_cards : PlayerDict
     }
