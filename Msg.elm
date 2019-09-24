@@ -9,6 +9,7 @@ import Type
         , Color
         )
 
+
 type Msg
     = ClickSquare SquareKey
     | DrawCard Color
@@ -16,4 +17,3 @@ type Msg
     | ActivateCard Color Int
     | FinishCard Color
     | RotateBoard
-
