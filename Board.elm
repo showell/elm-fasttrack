@@ -13,8 +13,7 @@ import Msg exposing (..)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Type exposing
-    ( Zone
-    , Color
+    ( Color
     , SquareKey
     )
 import Config exposing

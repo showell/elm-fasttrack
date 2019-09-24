@@ -4,7 +4,6 @@ import Browser
 import Html exposing (..)
 import Type exposing
     ( SquareKind(..)
-    , Zone
     , Square
     , SquareKey
     , Color

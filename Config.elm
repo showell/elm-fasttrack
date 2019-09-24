@@ -7,8 +7,7 @@ module Config exposing
     )
 
 import Type exposing
-    ( Zone
-    , Square
+    ( Square
     , SquareKind(..)
     )
 
