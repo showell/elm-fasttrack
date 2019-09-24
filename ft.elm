@@ -150,16 +150,10 @@ handle_square_click model clicked_square =
                 move =
                     { prev = prev
                     , next = clicked_square
-                    , piece_map = model.piece_map
                     }
 
-                move_results = perform_move move
             in
-                { model
-                | status = move_results.status
-                , piece_map = move_results.piece_map
-                , active_square = move_results.active_square
-                }
+                perform_move model move
 
 -- SUBSCRIPTIONS
 

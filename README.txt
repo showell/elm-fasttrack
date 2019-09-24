@@ -6,7 +6,7 @@ HOW TO BUILD:
     elm make --optimize ft.elm --output ft.html
 
 TODO:
-    use Model in perform_move
+    format some files
     kills (piece -> holding pen)
     Turn type
     initial deal of 5 cards

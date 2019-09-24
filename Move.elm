@@ -6,6 +6,7 @@ import Type exposing
     ( SquareKind(..)
     , SquareKey
     , PieceDict
+    , Model
     )
 
 import Piece exposing
@@ -17,19 +18,11 @@ import Piece exposing
 type alias Move =
     { prev: SquareKey
     , next: SquareKey
-    , piece_map: PieceDict
     }
 
-type alias MoveStatus =
-    { piece_map: PieceDict
-    , status: String
-    , active_square: Maybe SquareKey
-    }
-
-validate_move: Move -> Result String String
-validate_move move =
+validate_move: PieceDict -> Move -> Result String String
+validate_move piece_map move =
     let
-        piece_map = move.piece_map
         prev = move.prev
         next = move.next
 
@@ -76,10 +69,10 @@ wrong_base piece_color next =
         other ->
             False
 
-perform_move: Move -> MoveStatus
-perform_move move =
+perform_move: Model -> Move -> Model
+perform_move model move =
     let
-        piece_map = move.piece_map
+        piece_map = model.piece_map
         prev = move.prev
         next = move.next
 
@@ -87,15 +80,15 @@ perform_move move =
     in
         case piece_color of
             Nothing ->
-                { piece_map = piece_map
-                , status = "program failure"
+                { model
+                | status = "program failure"
                 , active_square = Nothing
                 }
             Just piece_color_ ->
-                case validate_move move of
+                case validate_move piece_map move of
                 Err status ->
-                    { piece_map = piece_map
-                    , status = status
+                    { model
+                    | status = status
                     , active_square = Nothing
                     }
                 Ok _ ->
@@ -110,7 +103,8 @@ perform_move move =
                             |> unassign_piece prev
                             |> assign_piece new_config
                     in
-                        { piece_map = new_map
+                        { model
+                        | piece_map = new_map
                         , status = "moved!"
                         , active_square = Nothing
                         }
