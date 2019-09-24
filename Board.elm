@@ -6,46 +6,60 @@ module Board
         )
 
 import Html exposing (..)
-import Html.Events exposing (
-    onClick
-    )
+import Html.Events
+    exposing
+        ( onClick
+        )
 import Msg exposing (..)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
-import Type exposing
-    ( Color
-    , SquareKey
-    , PieceDict
-    )
-import Config exposing
-    ( gutter_size
-    , square_size
-    , config_squares
-    )
-import Square exposing
-    ( square_view
-    )
+import Type
+    exposing
+        ( Color
+        , SquareKey
+        , PieceDict
+        )
+import Config
+    exposing
+        ( gutter_size
+        , square_size
+        , config_squares
+        )
+import Square
+    exposing
+        ( square_view
+        )
+
 
 rotate_board : List Color -> List Color
 rotate_board zones =
     (List.drop 1 zones) ++ (List.take 1 zones)
 
+
+
 -- VIEW
 
-board_size: String
-board_size = String.fromFloat (square_size * 16)
 
-zone_height: Float
-zone_height = 7 * square_size
+board_size : String
+board_size =
+    String.fromFloat (square_size * 16)
 
-board_view: PieceDict -> List Color -> Maybe SquareKey -> Html Msg
+
+zone_height : Float
+zone_height =
+    7 * square_size
+
+
+board_view : PieceDict -> List Color -> Maybe SquareKey -> Html Msg
 board_view piece_map zone_colors active_square =
     let
-        content = List.map (draw_zone piece_map active_square zone_colors) zone_colors
+        content =
+            List.map (draw_zone piece_map active_square zone_colors) zone_colors
     in
         svg
-            [ width board_size, height board_size]
+            [ width board_size, height board_size ]
             content
+
 
 zone_index : Color -> List Color -> Int
 zone_index x lst =
@@ -53,32 +67,46 @@ zone_index x lst =
         [] ->
             -- should never happen, just appease compiler
             -1
+
         first :: rest ->
             if first == x then
                 0
             else
                 1 + (zone_index x rest)
 
-draw_zone: PieceDict -> Maybe SquareKey -> List Color -> Color -> Html Msg
+
+draw_zone : PieceDict -> Maybe SquareKey -> List Color -> Color -> Html Msg
 draw_zone piece_map active_square zone_colors zone_color =
     let
-        squares = config_squares
+        squares =
+            config_squares
 
-        idx = zone_index zone_color zone_colors
+        idx =
+            zone_index zone_color zone_colors
 
-        angle = (toFloat idx) * 360.0 / (toFloat (List.length zone_colors))
-        color = zone_color
+        angle =
+            (toFloat idx) * 360.0 / (toFloat (List.length zone_colors))
 
-        center = String.fromFloat (zone_height + 30)
+        color =
+            zone_color
 
-        translate = "translate(" ++ center ++ " " ++ center ++ ")"
-        rotate = "rotate(" ++ (String.fromFloat angle) ++ ")"
-        transform_ = translate ++ " " ++ rotate
+        center =
+            String.fromFloat (zone_height + 30)
 
-        drawn_squares = List.map (square_view zone_height piece_map color active_square) squares
+        translate =
+            "translate(" ++ center ++ " " ++ center ++ ")"
 
+        rotate =
+            "rotate(" ++ (String.fromFloat angle) ++ ")"
+
+        transform_ =
+            translate ++ " " ++ rotate
+
+        drawn_squares =
+            List.map (square_view zone_height piece_map color active_square) squares
     in
-        g [transform transform_] drawn_squares
+        g [ transform transform_ ] drawn_squares
+
 
 board_rotate_button : Html Msg
 board_rotate_button =
