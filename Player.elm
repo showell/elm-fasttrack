@@ -106,13 +106,16 @@ activate_card players color idx =
                 }
         )
 
+
 maybe_replenish : List Card -> List Card
 maybe_replenish deck =
     case List.length deck of
         0 ->
             full_deck
+
         other ->
             deck
+
 
 draw_card : PlayerDict -> Color -> Int -> PlayerDict
 draw_card players color idx =
@@ -169,10 +172,12 @@ card_css color =
     , style "min-width" "30px"
     ]
 
+
 view_hand_card : Color -> PlayerCards -> Int -> Card -> Html Msg
 view_hand_card color player idx card =
     let
-        css = card_css color
+        css =
+            card_css color
 
         attrs =
             case player.active_card of
@@ -181,11 +186,11 @@ view_hand_card color player idx card =
 
                 other ->
                     [ disabled True ]
-
     in
         button
             (attrs ++ css)
-            [ Html.text card]
+            [ Html.text card ]
+
 
 deck_view : PlayerCards -> Color -> Html Msg
 deck_view player color =
@@ -205,11 +210,13 @@ deck_view player color =
             else
                 [ disabled True ]
 
-        css = card_css color
+        css =
+            card_css color
     in
         button
-            ( attrs ++ css ++ [title title_] )
+            (attrs ++ css ++ [ title title_ ])
             [ Html.text "Deck" ]
+
 
 player_view : PlayerDict -> Color -> Html Msg
 player_view players color =
@@ -239,11 +246,11 @@ player_view players color =
                 Just active_card_ ->
                     div []
                         [ Html.text ("play now: " ++ active_card_)
-                        , div [] [finish_button]
+                        , div [] [ finish_button ]
                         , hr [] []
                         ]
     in
         div []
             [ active_card
-            , span [] [deck, hand]
+            , span [] [ deck, hand ]
             ]
