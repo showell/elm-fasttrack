@@ -4,8 +4,10 @@ module Piece
         , get_piece
         , assign_piece
         , unassign_piece
+        , maybe_send_piece_to_pen
         )
 
+import List.Extra
 import Dict
 import Type
     exposing
@@ -34,6 +36,59 @@ get_piece dct color id =
 
         other ->
             Nothing
+
+
+is_open_square : PieceDict -> Color -> String -> Bool
+is_open_square piece_map color id =
+    case
+        get_piece piece_map color id
+    of
+        Nothing ->
+            True
+
+        Just _ ->
+            False
+
+
+open_holding_pen_square : PieceDict -> Color -> Maybe PieceConfig
+open_holding_pen_square piece_map color =
+    let
+        is_open =
+            is_open_square piece_map color
+    in
+        case List.Extra.find is_open holding_pen_squares of
+            Nothing ->
+                Nothing
+
+            Just id ->
+                Just
+                    { zone_color = color
+                    , color = color
+                    , id = id
+                    }
+
+
+maybe_send_piece_to_pen : PieceConfig -> PieceDict -> PieceDict
+maybe_send_piece_to_pen config piece_map =
+    let
+        color =
+            get_piece piece_map config.zone_color config.id
+    in
+        case color of
+            Nothing ->
+                -- we are not landing on a piece, so do nothing
+                piece_map
+
+            Just color_ ->
+                case open_holding_pen_square piece_map color_ of
+                    Nothing ->
+                        -- this should never happen!
+                        piece_map
+
+                    Just new_config ->
+                        -- assign piece we "killed" to the
+                        -- color's holding pen
+                        assign_piece new_config piece_map
 
 
 config_zone_pieces : String -> PieceDict -> PieceDict

@@ -13,6 +13,7 @@ import Type
 import Piece
     exposing
         ( get_piece
+        , maybe_send_piece_to_pen
         , assign_piece
         , unassign_piece
         )
@@ -126,7 +127,7 @@ perform_move model move =
 
                             new_map =
                                 piece_map
-                                    -- TODO: banish piece we're landing on
+                                    |> maybe_send_piece_to_pen new_config
                                     |> unassign_piece prev
                                     |> assign_piece new_config
                         in

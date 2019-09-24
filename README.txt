@@ -6,7 +6,6 @@ HOW TO BUILD:
     elm make --optimize ft.elm --output ft.html
 
 TODO:
-    kills (piece -> holding pen)
     Turn type
     initial deal of 5 cards
     force user to play a card
