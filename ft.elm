@@ -8,6 +8,7 @@ import Type
         , Square
         , SquareKey
         , Color
+        , Turn(..)
         , Model
         )
 import Config
@@ -37,6 +38,7 @@ import Player
         , draw_card
         , activate_card
         , finish_card
+        , set_turn
         )
 import Square
     exposing
@@ -66,7 +68,8 @@ init flags =
         zone_colors =
             orig_zone_colors
 
-        active_color = get_active_color zone_colors
+        active_color =
+            get_active_color zone_colors
 
         model =
             { zone_colors = zone_colors
@@ -134,9 +137,24 @@ update msg model =
 
         RotateBoard ->
             let
+                old_player_color =
+                    get_active_color model.zone_colors
+
+                new_zone_colors =
+                    rotate_board model.zone_colors
+
+                new_player_color =
+                    get_active_color new_zone_colors
+
+                players =
+                    model.players
+                        |> set_turn old_player_color TurnIdle
+                        |> set_turn new_player_color TurnInProgress
+
                 model_ =
                     { model
-                        | zone_colors = rotate_board model.zone_colors
+                        | zone_colors = new_zone_colors
+                        , players = players
                     }
             in
                 ( model_, Cmd.none )

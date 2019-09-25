@@ -6,6 +6,7 @@ module Player
         , draw_card
         , activate_card
         , finish_card
+        , set_turn
         )
 
 import Html exposing (..)
@@ -93,6 +94,18 @@ update_player players color f =
             f player
     in
         Dict.insert color new_player players
+
+
+set_turn : Color -> Turn -> PlayerDict -> PlayerDict
+set_turn color turn players =
+    update_player
+        players
+        color
+        (\player ->
+            { player
+                | turn = turn
+            }
+        )
 
 
 activate_card : PlayerDict -> Color -> Int -> PlayerDict

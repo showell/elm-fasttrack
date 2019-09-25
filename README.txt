@@ -13,9 +13,9 @@ TODO:
         prevent rotate until non-face card played 
         clear square on rotate (may be N/A)
 
+    have landing screen between players
     initial deal of 5 cards
     regenerate hand after 5 face cards
-    force user to play a card
     get-out pile
     disable deck once move starts
     basic undo
