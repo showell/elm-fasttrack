@@ -1,38 +1,47 @@
-module Config exposing
-    ( holding_pen_squares
-    , orig_zone_colors
-    , gutter_size
-    , square_size
-    , config_squares
-    , get_piece_kind
-    )
+module Config
+    exposing
+        ( holding_pen_squares
+        , orig_zone_colors
+        , gutter_size
+        , square_size
+        , config_squares
+        , get_piece_kind
+        )
 
 import List.Extra
+import Type
+    exposing
+        ( Square
+        , PieceLocation
+        , SquareKind(..)
+        )
 
-import Type exposing
-    ( Square
-    , PieceLocation
-    , SquareKind(..)
-    )
 
-gutter_size: Float
-gutter_size = 3.0
+gutter_size : Float
+gutter_size =
+    3.0
 
-square_size: Float
-square_size = 26.0
 
-orig_zone_colors: List String
-orig_zone_colors = ["red", "blue", "green", "purple"]
+square_size : Float
+square_size =
+    26.0
 
-holding_pen_squares: List String
-holding_pen_squares = ["HP1", "HP2", "HP3", "HP4"]
+
+orig_zone_colors : List String
+orig_zone_colors =
+    [ "red", "blue", "green", "purple" ]
+
+
+holding_pen_squares : List String
+holding_pen_squares =
+    [ "HP1", "HP2", "HP3", "HP4" ]
+
 
 get_piece_kind : String -> SquareKind
 get_piece_kind id =
     let
         item =
             List.Extra.find (\sq -> sq.id == id) config_squares
-
     in
         case item of
             Nothing ->
@@ -42,145 +51,122 @@ get_piece_kind id =
             Just item_ ->
                 item_.kind
 
-config_squares: List Square
+
+config_squares : List Square
 config_squares =
-    [
-        -- holding pen
-        { x = -4.2
-        , y = 1.7
-        , kind = HoldingPen
-        , id = "HP1"
-        },
-
-        { x = -3.2
-        , y = 1.7
-        , kind = HoldingPen
-        , id = "HP2"
-        },
-
-        { x = -4.2
-        , y = 0.7
-        , kind = HoldingPen
-        , id = "HP3"
-        },
-
-        { x = -3.2
-        , y = 0.7
-        , kind = HoldingPen
-        , id = "HP4"
-        },
-
-        -- base
-        { x = 0
-        , y = 1
-        , kind = Base
-        , id = "B1"
-        },
-
-        { x = 0
-        , y = 2
-        , kind = Base
-        , id = "B2"
-        },
-
-        { x = 0
-        , y = 3
-        , kind = Base
-        , id = "B3"
-        },
-
-        { x = 0
-        , y = 4
-        , kind = Base
-        , id = "B4"
-        },
-
-        -- bottom
-        { x = -1
-        , y = 0
-        , kind = HideyHole
-        , id = "HH"
-        },
-
-        { x = 0
-        , y = 0
-        , kind = DoorStep
-        , id = "DS"
-        },
-
-        { x = 1
-        , y = 0
-        , kind = Normal
-        , id = "BL"
-        },
-
-        -- left
-        { x = -2
-        , y = 0
-        , kind = Normal
-        , id = "L0"
-        },
-
-        { x = -2
-        , y = 1
-        , kind = Normal
-        , id = "L1"
-        },
-
-        { x = -2
-        , y = 2
-        , kind = Normal
-        , id = "L2"
-        },
-
-        { x = -2
-        , y = 3
-        , kind = Normal
-        , id = "L3"
-        },
-
-        { x = -2
-        , y = 4
-        , kind = Normal
-        , id = "L4"
-        },
-
-        { x = -2
-        , y = 5
-        , kind = FastTrack
-        , id = "FT"
-        },
-
-        -- right
-        { x = 2
-        , y = 0
-        , kind = Normal
-        , id = "R0"
-        },
-
-        { x = 2
-        , y = 1
-        , kind = Normal
-        , id = "R1"
-        },
-
-        { x = 2
-        , y = 2
-        , kind = Normal
-        , id = "R2"
-        },
-
-        { x = 2
-        , y = 3
-        , kind = Normal
-        , id = "R3"
-        },
-
-        { x = 2
-        , y = 4
-        , kind = Normal
-        , id = "R4"
-        }
+    [ -- holding pen
+      { x = -4.2
+      , y = 1.7
+      , kind = HoldingPen
+      , id = "HP1"
+      }
+    , { x = -3.2
+      , y = 1.7
+      , kind = HoldingPen
+      , id = "HP2"
+      }
+    , { x = -4.2
+      , y = 0.7
+      , kind = HoldingPen
+      , id = "HP3"
+      }
+    , { x = -3.2
+      , y = 0.7
+      , kind = HoldingPen
+      , id = "HP4"
+      }
+    , -- base
+      { x = 0
+      , y = 1
+      , kind = Base
+      , id = "B1"
+      }
+    , { x = 0
+      , y = 2
+      , kind = Base
+      , id = "B2"
+      }
+    , { x = 0
+      , y = 3
+      , kind = Base
+      , id = "B3"
+      }
+    , { x = 0
+      , y = 4
+      , kind = Base
+      , id = "B4"
+      }
+    , -- bottom
+      { x = -1
+      , y = 0
+      , kind = HideyHole
+      , id = "HH"
+      }
+    , { x = 0
+      , y = 0
+      , kind = DoorStep
+      , id = "DS"
+      }
+    , { x = 1
+      , y = 0
+      , kind = Normal
+      , id = "BL"
+      }
+    , -- left
+      { x = -2
+      , y = 0
+      , kind = Normal
+      , id = "L0"
+      }
+    , { x = -2
+      , y = 1
+      , kind = Normal
+      , id = "L1"
+      }
+    , { x = -2
+      , y = 2
+      , kind = Normal
+      , id = "L2"
+      }
+    , { x = -2
+      , y = 3
+      , kind = Normal
+      , id = "L3"
+      }
+    , { x = -2
+      , y = 4
+      , kind = Normal
+      , id = "L4"
+      }
+    , { x = -2
+      , y = 5
+      , kind = FastTrack
+      , id = "FT"
+      }
+    , -- right
+      { x = 2
+      , y = 0
+      , kind = Normal
+      , id = "R0"
+      }
+    , { x = 2
+      , y = 1
+      , kind = Normal
+      , id = "R1"
+      }
+    , { x = 2
+      , y = 2
+      , kind = Normal
+      , id = "R2"
+      }
+    , { x = 2
+      , y = 3
+      , kind = Normal
+      , id = "R3"
+      }
+    , { x = 2
+      , y = 4
+      , kind = Normal
+      , id = "R4"
+      }
     ]
-
-
