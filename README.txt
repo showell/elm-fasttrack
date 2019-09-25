@@ -7,8 +7,7 @@ HOW TO BUILD:
 
 TODO:
     data structures:
-        get rid of PieceConfig
-        remove kind from SquareKey
+        get rid of SquareKey
 
     Turn type:
         highlight active marbles

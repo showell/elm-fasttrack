@@ -105,6 +105,12 @@ perform_move model move active_color =
         next =
             move.next
 
+        prev_loc =
+            (prev.zone_color, prev.id)
+
+        next_loc =
+            (next.zone_color, next.id)
+
         piece_color =
             get_piece piece_map ( prev.zone_color, prev.id )
     in
@@ -125,17 +131,11 @@ perform_move model move active_color =
 
                     Ok _ ->
                         let
-                            new_config =
-                                { zone_color = next.zone_color
-                                , color = piece_color_
-                                , id = next.id
-                                }
-
                             new_map =
                                 piece_map
-                                    |> maybe_send_piece_to_pen new_config
-                                    |> unassign_piece prev
-                                    |> assign_piece new_config
+                                    |> maybe_send_piece_to_pen next_loc
+                                    |> unassign_piece prev_loc
+                                    |> assign_piece next_loc piece_color_
 
                             players =
                                 clear_active_square model.players active_color

@@ -22,13 +22,6 @@ import Config
         )
 
 
-type alias PieceConfig =
-    { zone_color : Color
-    , color : Color
-    , id : String
-    }
-
-
 get_piece : PieceDict -> PieceLocation -> Maybe String
 get_piece piece_map piece_loc =
     Dict.get piece_loc piece_map
@@ -46,7 +39,7 @@ is_open_square piece_map piece_loc =
             False
 
 
-open_holding_pen_square : PieceDict -> Color -> Maybe PieceConfig
+open_holding_pen_square : PieceDict -> Color -> Maybe PieceLocation
 open_holding_pen_square piece_map color =
     let
         is_open id =
@@ -57,18 +50,13 @@ open_holding_pen_square piece_map color =
                 Nothing
 
             Just id ->
-                Just
-                    { zone_color = color
-                    , color = color
-                    , id = id
-                    }
+                Just (color, id)
 
-
-maybe_send_piece_to_pen : PieceConfig -> PieceDict -> PieceDict
-maybe_send_piece_to_pen config piece_map =
+maybe_send_piece_to_pen : PieceLocation -> PieceDict -> PieceDict
+maybe_send_piece_to_pen piece_loc piece_map =
     let
         color =
-            get_piece piece_map (config.zone_color, config.id)
+            get_piece piece_map piece_loc
     in
         case color of
             Nothing ->
@@ -81,19 +69,19 @@ maybe_send_piece_to_pen config piece_map =
                         -- this should never happen!
                         piece_map
 
-                    Just new_config ->
+                    Just holding_pen_loc ->
                         -- assign piece we "killed" to the
                         -- color's holding pen
-                        assign_piece new_config piece_map
+                        assign_piece holding_pen_loc color_ piece_map
 
 
 config_zone_pieces : String -> PieceDict -> PieceDict
-config_zone_pieces color_ dct =
+config_zone_pieces color piece_map =
     let
-        assign id_ =
-            assign_piece { zone_color = color_, color = color_, id = id_ }
+        assign id =
+            Dict.insert (color, id) color
     in
-        List.foldr assign dct holding_pen_squares
+        List.foldl assign piece_map holding_pen_squares
 
 
 config_pieces : List Color -> PieceDict
@@ -105,24 +93,11 @@ config_pieces zone_colors =
         List.foldl config_zone_pieces dct zone_colors
 
 
-unassign_piece : SquareKey -> PieceDict -> PieceDict
-unassign_piece square_key piece_map =
-    let
-        color =
-            square_key.zone_color
-        id =
-            square_key.id
-    in
-        Dict.remove (color, id) piece_map
+unassign_piece : PieceLocation -> PieceDict -> PieceDict
+unassign_piece piece_loc =
+    Dict.remove piece_loc
 
 
-assign_piece : PieceConfig -> PieceDict -> PieceDict
-assign_piece config piece_map =
-    let
-        zone_color =
-            config.zone_color
-
-        id =
-            config.id
-    in
-        Dict.insert (zone_color, id) config.color piece_map
+assign_piece : PieceLocation -> Color -> PieceDict -> PieceDict
+assign_piece piece_location piece_color =
+    Dict.insert piece_location piece_color
