@@ -39,6 +39,7 @@ import Player
         , activate_card
         , finish_card
         , set_turn
+        , can_player_move
         )
 import Square
     exposing
@@ -171,27 +172,25 @@ handle_square_click model clicked_square =
                 active_color =
                     get_active_color model.zone_colors
 
-                active_square =
-                    case piece_color of
-                        Nothing ->
-                            Nothing
+                can_move =
+                    can_player_move model.players active_color
 
-                        Just piece_color_ ->
-                            if piece_color_ == active_color then
-                                Just clicked_square
-                            else
+                active_square =
+                    if can_move then
+                        case piece_color of
+                            Nothing ->
                                 Nothing
 
-                desc =
-                    square_desc model.piece_map clicked_square piece_color
+                            Just piece_color_ ->
+                                if piece_color_ == active_color then
+                                    Just clicked_square
+                                else
+                                    Nothing
+                    else
+                        Nothing
 
                 status =
-                    case active_square of
-                        Just _ ->
-                            desc ++ " (CLICK square to move piece)"
-
-                        Nothing ->
-                            desc
+                    square_desc model.piece_map clicked_square piece_color
             in
                 { model
                     | status = status

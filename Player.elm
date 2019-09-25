@@ -7,6 +7,7 @@ module Player
         , activate_card
         , finish_card
         , set_turn
+        , can_player_move
         )
 
 import Html exposing (..)
@@ -82,6 +83,19 @@ draw_card_cmd players color =
             deckCount - 1
     in
         Random.generate (DrawCardResult color) (Random.int 0 max)
+
+
+can_player_move players color =
+    let
+        player =
+            get_player players color
+    in
+        case player.active_card of
+            Just _ ->
+                True
+
+            Nothing ->
+                False
 
 
 update_player : PlayerDict -> Color -> (Player -> Player) -> PlayerDict

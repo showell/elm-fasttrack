@@ -7,11 +7,9 @@ HOW TO BUILD:
 
 TODO:
     Turn type:
-        make sure current card is InProgress
+        disable "Done" until move
         move active_card on to Turn
-        prevent move until card is played
         prevent rotate until non-face card played 
-        clear square on rotate (may be N/A)
 
     have landing screen between players
     initial deal of 5 cards
