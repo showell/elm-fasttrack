@@ -21,6 +21,7 @@ import Type
     exposing
         ( Color
         , Card
+        , Turn(..)
         , Player
         , PlayerDict
         )
@@ -28,24 +29,31 @@ import Deck exposing (full_deck)
 import List.Extra
 
 
-config_player : Player
-config_player =
+config_player : Color -> Color -> Player
+config_player active_color color =
     let
+        turn =
+            if active_color == color then
+                TurnInProgress
+            else
+                TurnIdle
+
         original_setup =
             { deck = full_deck
             , hand = []
             , active_card = Nothing
             , discard_pile = []
+            , turn = turn
             }
     in
         original_setup
 
 
-config_players : List Color -> PlayerDict
-config_players zone_colors =
+config_players : Color -> List Color -> PlayerDict
+config_players active_color zone_colors =
     let
         config_one color =
-            Dict.insert color config_player
+            Dict.insert color (config_player active_color color)
 
         dct =
             Dict.empty
@@ -57,7 +65,7 @@ get_player : PlayerDict -> Color -> Player
 get_player players color =
     -- The "Maybe" is just to satisfy the compiler
     Dict.get color players
-        |> Maybe.withDefault config_player
+        |> Maybe.withDefault (config_player "bogus" "bogus")
 
 
 draw_card_cmd : PlayerDict -> Color -> Cmd Msg

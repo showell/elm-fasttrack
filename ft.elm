@@ -66,21 +66,23 @@ init flags =
         zone_colors =
             orig_zone_colors
 
+        active_color = get_active_color zone_colors
+
         model =
             { zone_colors = zone_colors
             , piece_map = config_pieces zone_colors
             , status = "beginning"
             , active_square = Nothing
-            , players = config_players zone_colors
+            , players = config_players active_color zone_colors
             }
     in
         ( model, Cmd.none )
 
 
-active_color : Model -> Color
-active_color model =
+get_active_color : List Color -> Color
+get_active_color zone_colors =
     -- appease compiler with Maybe
-    List.head model.zone_colors
+    List.head zone_colors
         |> Maybe.withDefault "bogus"
 
 
@@ -148,13 +150,16 @@ handle_square_click model clicked_square =
                 piece_color =
                     get_piece model.piece_map clicked_square.zone_color clicked_square.id
 
+                active_color =
+                    get_active_color model.zone_colors
+
                 active_square =
                     case piece_color of
                         Nothing ->
                             Nothing
 
                         Just piece_color_ ->
-                            if piece_color_ == (active_color model) then
+                            if piece_color_ == active_color then
                                 Just clicked_square
                             else
                                 Nothing
@@ -211,8 +216,11 @@ view model =
                 []
                 [ board_view model.piece_map model.zone_colors model.active_square ]
 
+        active_color =
+            get_active_color model.zone_colors
+
         cards =
-            player_view model.players (active_color model)
+            player_view model.players active_color
 
         body =
             [ heading

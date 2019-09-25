@@ -115,5 +115,5 @@ board_rotate_button =
         [ hr [] []
         , button
             [ onClick RotateBoard ]
-            [ Html.text "Rotate" ]
+            [ Html.text "Finish Turn" ]
         ]

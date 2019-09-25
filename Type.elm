@@ -6,6 +6,7 @@ module Type
         , Color
         , Card
         , PieceDict
+        , Turn(..)
         , Player
         , PlayerDict
         , Model
@@ -55,12 +56,17 @@ type alias ZonePieceDict =
 type alias PieceDict =
     Dict.Dict Color ZonePieceDict
 
+type Turn
+    = TurnIdle
+    | TurnInProgress
+    | TurnDone
 
 type alias Player =
     { deck : List Card
     , hand : List Card
     , active_card : Maybe Card
     , discard_pile : List Card
+    , turn: Turn
     }
 
 
