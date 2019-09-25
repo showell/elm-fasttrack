@@ -106,10 +106,10 @@ perform_move model move active_color =
             move.next
 
         prev_loc =
-            (prev.zone_color, prev.id)
+            ( prev.zone_color, prev.id )
 
         next_loc =
-            (next.zone_color, next.id)
+            ( next.zone_color, next.id )
 
         piece_color =
             get_piece piece_map ( prev.zone_color, prev.id )
