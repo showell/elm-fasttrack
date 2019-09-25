@@ -6,12 +6,16 @@ HOW TO BUILD:
     elm make --optimize ft.elm --output ft.html
 
 TODO:
+    move active_sqaure to Turn:
+        also move player code
+
     Turn type:
         make instructions more clear
         disable "Done" until move
         highlight active marbles
         prevent rotate until non-face card played 
 
+    change status to title hovers
     have landing screen between players
     initial deal of 5 cards
     regenerate hand after 5 face cards

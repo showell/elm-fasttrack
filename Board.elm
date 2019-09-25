@@ -18,6 +18,7 @@ import Type
         ( Color
         , SquareKey
         , PieceDict
+        , PlayerDict
         )
 import Config
     exposing
@@ -28,6 +29,10 @@ import Config
 import Square
     exposing
         ( square_view
+        )
+import Player
+    exposing
+        ( get_active_square
         )
 
 
@@ -50,9 +55,12 @@ zone_height =
     7 * square_size
 
 
-board_view : PieceDict -> List Color -> Maybe SquareKey -> Html Msg
-board_view piece_map zone_colors active_square =
+board_view : PieceDict -> List Color -> PlayerDict -> Color -> Html Msg
+board_view piece_map zone_colors players active_color =
     let
+        active_square =
+            get_active_square players active_color
+
         content =
             List.map (draw_zone piece_map active_square zone_colors) zone_colors
     in

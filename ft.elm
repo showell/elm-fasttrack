@@ -40,6 +40,8 @@ import Player
         , finish_card
         , set_turn
         , can_player_move
+        , get_active_square
+        , set_active_square
         )
 import Square
     exposing
@@ -76,7 +78,6 @@ init flags =
             { zone_colors = zone_colors
             , piece_map = config_pieces zone_colors
             , status = "beginning"
-            , active_square = Nothing
             , players = config_players active_color zone_colors
             }
     in
@@ -163,48 +164,52 @@ update msg model =
 
 handle_square_click : Model -> SquareKey -> Model
 handle_square_click model clicked_square =
-    case model.active_square of
-        Nothing ->
-            let
-                piece_color =
-                    get_piece model.piece_map clicked_square.zone_color clicked_square.id
+    let
+        active_color =
+            get_active_color model.zone_colors
 
-                active_color =
-                    get_active_color model.zone_colors
+        players =
+            model.players
+    in
+        case get_active_square players active_color of
+            Nothing ->
+                let
+                    piece_color =
+                        get_piece model.piece_map clicked_square.zone_color clicked_square.id
 
-                can_move =
-                    can_player_move model.players active_color
-
-                active_square =
-                    if can_move then
+                    can_move =
                         case piece_color of
                             Nothing ->
-                                Nothing
+                                False
 
                             Just piece_color_ ->
                                 if piece_color_ == active_color then
-                                    Just clicked_square
+                                    can_player_move model.players active_color
                                 else
-                                    Nothing
-                    else
-                        Nothing
+                                    False
 
-                status =
-                    square_desc model.piece_map clicked_square piece_color
-            in
-                { model
-                    | status = status
-                    , active_square = active_square
-                }
+                    new_players =
+                        if can_move then
+                            set_active_square players active_color clicked_square
+                        else
+                            players
 
-        Just prev ->
-            let
-                move =
-                    { prev = prev
-                    , next = clicked_square
+                    status =
+                        square_desc model.piece_map clicked_square piece_color
+                in
+                    { model
+                        | status = status
+                        , players = new_players
                     }
-            in
-                perform_move model move
+
+            Just prev ->
+                let
+                    move =
+                        { prev = prev
+                        , next = clicked_square
+                        }
+                in
+                    perform_move model move active_color
 
 
 
@@ -223,6 +228,9 @@ subscriptions model =
 view : Model -> Browser.Document Msg
 view model =
     let
+        active_color =
+            get_active_color model.zone_colors
+
         heading =
             div
                 []
@@ -231,10 +239,7 @@ view model =
         board =
             div
                 []
-                [ board_view model.piece_map model.zone_colors model.active_square ]
-
-        active_color =
-            get_active_color model.zone_colors
+                [ board_view model.piece_map model.zone_colors model.players active_color ]
 
         cards =
             player_view model.players active_color

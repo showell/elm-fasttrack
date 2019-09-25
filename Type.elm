@@ -62,6 +62,7 @@ type Turn
     | TurnInProgress
     | TurnCard
         { active_card : Card
+        , active_square : Maybe SquareKey
         }
     | TurnDone
 
@@ -82,6 +83,5 @@ type alias Model =
     { zone_colors : List Color
     , piece_map : PieceDict
     , status : String
-    , active_square : Maybe SquareKey
     , players : PlayerDict
     }

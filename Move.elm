@@ -7,6 +7,7 @@ import Type
     exposing
         ( SquareKind(..)
         , SquareKey
+        , Color
         , PieceDict
         , Model
         )
@@ -16,6 +17,10 @@ import Piece
         , maybe_send_piece_to_pen
         , assign_piece
         , unassign_piece
+        )
+import Player
+    exposing
+        ( clear_active_square
         )
 
 
@@ -57,7 +62,7 @@ validate_move piece_map move =
                     Ok "success"
 
 
-same_color : String -> Maybe String -> Bool
+same_color : Color -> Maybe String -> Bool
 same_color source_piece_color tpc =
     case tpc of
         Nothing ->
@@ -67,7 +72,7 @@ same_color source_piece_color tpc =
             source_piece_color == target_piece_color
 
 
-wrong_holding_pen : String -> SquareKey -> Bool
+wrong_holding_pen : Color -> SquareKey -> Bool
 wrong_holding_pen piece_color next =
     case next.kind of
         HoldingPen ->
@@ -77,7 +82,7 @@ wrong_holding_pen piece_color next =
             False
 
 
-wrong_base : String -> SquareKey -> Bool
+wrong_base : Color -> SquareKey -> Bool
 wrong_base piece_color next =
     case next.kind of
         Base ->
@@ -87,8 +92,8 @@ wrong_base piece_color next =
             False
 
 
-perform_move : Model -> Move -> Model
-perform_move model move =
+perform_move : Model -> Move -> Color -> Model
+perform_move model move active_color =
     let
         piece_map =
             model.piece_map
@@ -106,7 +111,6 @@ perform_move model move =
             Nothing ->
                 { model
                     | status = "program failure"
-                    , active_square = Nothing
                 }
 
             Just piece_color_ ->
@@ -114,7 +118,6 @@ perform_move model move =
                     Err status ->
                         { model
                             | status = status
-                            , active_square = Nothing
                         }
 
                     Ok _ ->
@@ -130,9 +133,12 @@ perform_move model move =
                                     |> maybe_send_piece_to_pen new_config
                                     |> unassign_piece prev
                                     |> assign_piece new_config
+
+                            players =
+                                clear_active_square model.players active_color
                         in
                             { model
                                 | piece_map = new_map
                                 , status = "moved!"
-                                , active_square = Nothing
+                                , players = players
                             }

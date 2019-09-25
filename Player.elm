@@ -8,6 +8,9 @@ module Player
         , finish_card
         , set_turn
         , can_player_move
+        , get_active_square
+        , set_active_square
+        , clear_active_square
         )
 
 import Html exposing (..)
@@ -24,6 +27,7 @@ import Type
         ( Color
         , Card
         , Turn(..)
+        , SquareKey
         , Player
         , PlayerDict
         )
@@ -84,6 +88,65 @@ draw_card_cmd players color =
         Random.generate (DrawCardResult color) (Random.int 0 max)
 
 
+clear_active_square : PlayerDict -> Color -> PlayerDict
+clear_active_square players color =
+    update_player
+        players
+        color
+        (\player ->
+            case player.turn of
+                TurnCard info ->
+                    let
+                        turn =
+                            TurnCard
+                                { info
+                                    | active_square = Nothing
+                                }
+                    in
+                        { player | turn = turn }
+
+                other ->
+                    player
+        )
+
+
+set_active_square : PlayerDict -> Color -> SquareKey -> PlayerDict
+set_active_square players color square =
+    update_player
+        players
+        color
+        (\player ->
+            case player.turn of
+                TurnCard info ->
+                    let
+                        turn =
+                            TurnCard
+                                { info
+                                    | active_square = Just square
+                                }
+                    in
+                        { player | turn = turn }
+
+                other ->
+                    player
+        )
+
+
+get_active_square : PlayerDict -> Color -> Maybe SquareKey
+get_active_square players color =
+    let
+        player =
+            get_player players color
+    in
+        case player.turn of
+            TurnCard info ->
+                info.active_square
+
+            other ->
+                Nothing
+
+
+can_player_move : PlayerDict -> Color -> Bool
 can_player_move players color =
     let
         player =
@@ -138,6 +201,7 @@ activate_card players color idx =
                 turn =
                     TurnCard
                         { active_card = active_card
+                        , active_square = Nothing
                         }
             in
                 { player
