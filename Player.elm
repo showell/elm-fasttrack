@@ -11,6 +11,7 @@ module Player
         , get_active_square
         , set_active_square
         , clear_active_square
+        , set_move_error
         )
 
 import Html exposing (..)
@@ -89,6 +90,29 @@ draw_card_cmd players color =
         Random.generate (DrawCardResult color) (Random.int 0 max)
 
 
+set_move_error : PlayerDict -> Color -> String -> PlayerDict
+set_move_error players color error =
+    update_player
+        players
+        color
+        (\player ->
+            case player.turn of
+                TurnCard info ->
+                    let
+                        turn =
+                            TurnCard
+                                { info
+                                    | active_square = Nothing
+                                    , move_error = Just error
+                                }
+                    in
+                        { player | turn = turn }
+
+                other ->
+                    player
+        )
+
+
 clear_active_square : PlayerDict -> Color -> PlayerDict
 clear_active_square players color =
     update_player
@@ -102,6 +126,7 @@ clear_active_square players color =
                             TurnCard
                                 { info
                                     | active_square = Nothing
+                                    , move_error = Nothing
                                 }
                     in
                         { player | turn = turn }
@@ -124,6 +149,7 @@ set_active_square players color square =
                             TurnCard
                                 { info
                                     | active_square = Just square
+                                    , move_error = Nothing
                                 }
                     in
                         { player | turn = turn }
@@ -203,6 +229,7 @@ activate_card players color idx =
                     TurnCard
                         { active_card = active_card
                         , active_square = Nothing
+                        , move_error = Nothing
                         }
             in
                 { player
@@ -368,10 +395,19 @@ active_card_view turn_info color =
                     button
                         [ onClick (FinishCard color) ]
                         [ Html.text "Done" ]
+
+                move_error =
+                    case turn_info.move_error of
+                        Just error ->
+                            div [] [ Html.text error ]
+
+                        Nothing ->
+                            div [] []
             in
                 div []
                     [ Html.text ("play now: " ++ turn_info.active_card)
                     , div [] [ Html.text "Click a piece to start move." ]
                     , div [] [ finish_button ]
+                    , move_error
                     , hr [] []
                     ]

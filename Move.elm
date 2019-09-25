@@ -21,6 +21,7 @@ import Piece
 import Player
     exposing
         ( clear_active_square
+        , set_move_error
         )
 
 
@@ -109,16 +110,18 @@ perform_move model move active_color =
     in
         case piece_color of
             Nothing ->
-                { model
-                    | status = "program failure"
-                }
+                model
 
             Just piece_color_ ->
                 case validate_move piece_map move of
                     Err status ->
-                        { model
-                            | status = status
-                        }
+                        let
+                            players =
+                                set_move_error model.players active_color status
+                        in
+                            { model
+                                | players = players
+                            }
 
                     Ok _ ->
                         let
@@ -139,6 +142,5 @@ perform_move model move active_color =
                         in
                             { model
                                 | piece_map = new_map
-                                , status = "moved!"
                                 , players = players
                             }

@@ -61,6 +61,7 @@ type alias PieceDict =
 type alias TurnCardInfo =
     { active_card : Card
     , active_square : Maybe SquareKey
+    , move_error : Maybe String
     }
 
 
@@ -86,6 +87,5 @@ type alias PlayerDict =
 type alias Model =
     { zone_colors : List Color
     , piece_map : PieceDict
-    , status : String
     , players : PlayerDict
     }

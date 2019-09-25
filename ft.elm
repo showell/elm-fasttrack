@@ -43,10 +43,6 @@ import Player
         , get_active_square
         , set_active_square
         )
-import Square
-    exposing
-        ( square_desc
-        )
 import Msg
     exposing
         ( Msg(..)
@@ -77,7 +73,6 @@ init flags =
         model =
             { zone_colors = zone_colors
             , piece_map = config_pieces zone_colors
-            , status = "beginning"
             , players = config_players active_color zone_colors
             }
     in
@@ -193,13 +188,9 @@ handle_square_click model clicked_square =
                             set_active_square players active_color clicked_square
                         else
                             players
-
-                    status =
-                        square_desc model.piece_map clicked_square piece_color
                 in
                     { model
-                        | status = status
-                        , players = new_players
+                        | players = new_players
                     }
 
             Just prev ->
@@ -231,11 +222,6 @@ view model =
         active_color =
             get_active_color model.zone_colors
 
-        heading =
-            div
-                []
-                [ Html.text model.status ]
-
         board =
             div
                 []
@@ -245,8 +231,7 @@ view model =
             player_view model.players active_color
 
         body =
-            [ heading
-            , board
+            [ board
             , cards
             , board_rotate_button
             ]

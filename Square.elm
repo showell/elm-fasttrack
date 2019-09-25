@@ -1,7 +1,6 @@
 module Square
     exposing
         ( square_view
-        , square_desc
         )
 
 import Html exposing (..)
@@ -25,20 +24,6 @@ import Piece
     exposing
         ( get_piece
         )
-
-
-square_desc : PieceDict -> SquareKey -> Maybe String -> String
-square_desc piece_map info piece_color =
-    let
-        square_info_str =
-            info.zone_color ++ " " ++ info.id
-    in
-        case piece_color of
-            Just color ->
-                square_info_str ++ " (" ++ color ++ " piece)"
-
-            other ->
-                square_info_str
 
 
 is_active_square : SquareKey -> Maybe SquareKey -> Bool
