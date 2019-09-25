@@ -26,6 +26,7 @@ import Type
     exposing
         ( Color
         , Card
+        , TurnCardInfo
         , Turn(..)
         , SquareKey
         , Player
@@ -337,19 +338,10 @@ player_view players color =
         hand =
             span [] hand_cards
 
-        finish_button =
-            button
-                [ onClick (FinishCard color) ]
-                [ Html.text "Done" ]
-
         active_card =
             case player.turn of
                 TurnCard turn_info ->
-                    div []
-                        [ Html.text ("play now: " ++ turn_info.active_card)
-                        , div [] [ finish_button ]
-                        , hr [] []
-                        ]
+                    active_card_view turn_info color
 
                 other ->
                     div [] [ Html.text "click a card below" ]
@@ -358,3 +350,28 @@ player_view players color =
             [ active_card
             , span [] [ deck, hand ]
             ]
+
+
+active_card_view : TurnCardInfo -> Color -> Html Msg
+active_card_view turn_info color =
+    case turn_info.active_square of
+        Just _ ->
+            div []
+                [ Html.text ("play now: " ++ turn_info.active_card)
+                , div [] [ Html.text "Click a square to end move." ]
+                , hr [] []
+                ]
+
+        Nothing ->
+            let
+                finish_button =
+                    button
+                        [ onClick (FinishCard color) ]
+                        [ Html.text "Done" ]
+            in
+                div []
+                    [ Html.text ("play now: " ++ turn_info.active_card)
+                    , div [] [ Html.text "Click a piece to start move." ]
+                    , div [] [ finish_button ]
+                    , hr [] []
+                    ]

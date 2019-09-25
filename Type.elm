@@ -6,6 +6,7 @@ module Type
         , Color
         , Card
         , PieceDict
+        , TurnCardInfo
         , Turn(..)
         , Player
         , PlayerDict
@@ -57,13 +58,16 @@ type alias PieceDict =
     Dict.Dict Color ZonePieceDict
 
 
+type alias TurnCardInfo =
+    { active_card : Card
+    , active_square : Maybe SquareKey
+    }
+
+
 type Turn
     = TurnIdle
     | TurnInProgress
-    | TurnCard
-        { active_card : Card
-        , active_square : Maybe SquareKey
-        }
+    | TurnCard TurnCardInfo
     | TurnDone
 
 
