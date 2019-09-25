@@ -21,14 +21,14 @@ import Type
     exposing
         ( Color
         , Card
-        , PlayerCards
+        , Player
         , PlayerDict
         )
 import Deck exposing (full_deck)
 import List.Extra
 
 
-config_player : PlayerCards
+config_player : Player
 config_player =
     let
         original_setup =
@@ -53,7 +53,7 @@ config_players zone_colors =
         List.foldl config_one dct zone_colors
 
 
-get_player : PlayerDict -> Color -> PlayerCards
+get_player : PlayerDict -> Color -> Player
 get_player players color =
     -- The "Maybe" is just to satisfy the compiler
     Dict.get color players
@@ -75,7 +75,7 @@ draw_card_cmd players color =
         Random.generate (DrawCardResult color) (Random.int 0 max)
 
 
-update_player : PlayerDict -> Color -> (PlayerCards -> PlayerCards) -> PlayerDict
+update_player : PlayerDict -> Color -> (Player -> Player) -> PlayerDict
 update_player players color f =
     let
         player =
@@ -173,7 +173,7 @@ card_css color =
     ]
 
 
-view_hand_card : Color -> PlayerCards -> Int -> Card -> Html Msg
+view_hand_card : Color -> Player -> Int -> Card -> Html Msg
 view_hand_card color player idx card =
     let
         css =
@@ -192,7 +192,7 @@ view_hand_card color player idx card =
             [ Html.text card ]
 
 
-deck_view : PlayerCards -> Color -> Html Msg
+deck_view : Player -> Color -> Html Msg
 deck_view player color =
     let
         deckCount =

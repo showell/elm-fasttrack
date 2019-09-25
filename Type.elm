@@ -6,7 +6,7 @@ module Type
         , Color
         , Card
         , PieceDict
-        , PlayerCards
+        , Player
         , PlayerDict
         , Model
         )
@@ -56,7 +56,7 @@ type alias PieceDict =
     Dict.Dict Color ZonePieceDict
 
 
-type alias PlayerCards =
+type alias Player =
     { deck : List Card
     , hand : List Card
     , active_card : Maybe Card
@@ -65,7 +65,7 @@ type alias PlayerCards =
 
 
 type alias PlayerDict =
-    Dict.Dict Color PlayerCards
+    Dict.Dict Color Player
 
 
 type alias Model =
