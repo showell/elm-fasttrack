@@ -170,7 +170,7 @@ handle_square_click model clicked_square =
             Nothing ->
                 let
                     piece_color =
-                        get_piece model.piece_map clicked_square.zone_color clicked_square.id
+                        get_piece model.piece_map ( clicked_square.zone_color, clicked_square.id )
 
                     can_move =
                         case piece_color of

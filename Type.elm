@@ -5,6 +5,7 @@ module Type
         , SquareKey
         , Color
         , Card
+        , PieceLocation
         , PieceDict
         , TurnCardInfo
         , Turn(..)
@@ -50,12 +51,12 @@ type alias SquareKey =
     }
 
 
-type alias ZonePieceDict =
-    Dict.Dict String Color
+type alias PieceLocation =
+    ( Color, String )
 
 
 type alias PieceDict =
-    Dict.Dict Color ZonePieceDict
+    Dict.Dict PieceLocation Color
 
 
 type alias TurnCardInfo =

@@ -6,6 +6,10 @@ HOW TO BUILD:
     elm make --optimize ft.elm --output ft.html
 
 TODO:
+    data structures:
+        get rid of PieceConfig
+        remove kind from SquareKey
+
     Turn type:
         highlight active marbles
         auto-finish after move (but handle 7)

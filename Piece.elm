@@ -13,6 +13,7 @@ import Type
     exposing
         ( SquareKey
         , Color
+        , PieceLocation
         , PieceDict
         )
 import Config
@@ -28,20 +29,15 @@ type alias PieceConfig =
     }
 
 
-get_piece : PieceDict -> Color -> String -> Maybe String
-get_piece dct color id =
-    case Dict.get color dct of
-        Just sub_dict ->
-            Dict.get id sub_dict
-
-        other ->
-            Nothing
+get_piece : PieceDict -> PieceLocation -> Maybe String
+get_piece piece_map piece_loc =
+    Dict.get piece_loc piece_map
 
 
-is_open_square : PieceDict -> Color -> String -> Bool
-is_open_square piece_map color id =
+is_open_square : PieceDict -> PieceLocation -> Bool
+is_open_square piece_map piece_loc =
     case
-        get_piece piece_map color id
+        get_piece piece_map piece_loc
     of
         Nothing ->
             True
@@ -53,8 +49,8 @@ is_open_square piece_map color id =
 open_holding_pen_square : PieceDict -> Color -> Maybe PieceConfig
 open_holding_pen_square piece_map color =
     let
-        is_open =
-            is_open_square piece_map color
+        is_open id =
+            is_open_square piece_map (color, id)
     in
         case List.Extra.find is_open holding_pen_squares of
             Nothing ->
@@ -72,7 +68,7 @@ maybe_send_piece_to_pen : PieceConfig -> PieceDict -> PieceDict
 maybe_send_piece_to_pen config piece_map =
     let
         color =
-            get_piece piece_map config.zone_color config.id
+            get_piece piece_map (config.zone_color, config.id)
     in
         case color of
             Nothing ->
@@ -110,46 +106,23 @@ config_pieces zone_colors =
 
 
 unassign_piece : SquareKey -> PieceDict -> PieceDict
-unassign_piece square_key dct =
-    case Dict.get square_key.zone_color dct of
-        Nothing ->
-            -- this shouldn't happen if callers are
-            -- already checking that a piece is currently
-            -- assigned to this square
-            dct
-
-        Just sub_dict ->
-            let
-                new_sub_dict =
-                    Dict.remove square_key.id sub_dict
-            in
-                Dict.insert square_key.zone_color new_sub_dict dct
+unassign_piece square_key piece_map =
+    let
+        color =
+            square_key.zone_color
+        id =
+            square_key.id
+    in
+        Dict.remove (color, id) piece_map
 
 
 assign_piece : PieceConfig -> PieceDict -> PieceDict
-assign_piece config dct =
+assign_piece config piece_map =
     let
-        key =
+        zone_color =
             config.zone_color
 
-        sub_key =
+        id =
             config.id
-
-        val =
-            config.color
-
-        maybe_sub_dict =
-            Dict.get key dct
-
-        sub_dict =
-            case maybe_sub_dict of
-                Just sd ->
-                    sd
-
-                Nothing ->
-                    Dict.empty
-
-        new_sub_dict =
-            Dict.insert sub_key val sub_dict
     in
-        Dict.insert key new_sub_dict dct
+        Dict.insert (zone_color, id) config.color piece_map

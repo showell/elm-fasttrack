@@ -81,7 +81,7 @@ square_view zone_height piece_map zone_color active_square square =
             cy_ - h / 2
 
         my_piece =
-            get_piece piece_map zone_color square.id
+            get_piece piece_map ( zone_color, square.id )
 
         my_pieces =
             case my_piece of

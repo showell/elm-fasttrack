@@ -41,10 +41,10 @@ validate_move piece_map move =
             move.next
 
         spc =
-            get_piece piece_map prev.zone_color prev.id
+            get_piece piece_map ( prev.zone_color, prev.id )
 
         tpc =
-            get_piece piece_map next.zone_color next.id
+            get_piece piece_map ( next.zone_color, next.id )
     in
         case spc of
             Nothing ->
@@ -106,7 +106,7 @@ perform_move model move active_color =
             move.next
 
         piece_color =
-            get_piece piece_map prev.zone_color prev.id
+            get_piece piece_map ( prev.zone_color, prev.id )
     in
         case piece_color of
             Nothing ->
