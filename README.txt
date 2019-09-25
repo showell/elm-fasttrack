@@ -7,8 +7,9 @@ HOW TO BUILD:
 
 TODO:
     Turn type:
+        make instructions more clear
         disable "Done" until move
-        move active_card on to Turn
+        highlight active marbles
         prevent rotate until non-face card played 
 
     have landing screen between players

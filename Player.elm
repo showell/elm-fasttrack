@@ -43,7 +43,6 @@ config_player active_color color =
         original_setup =
             { deck = full_deck
             , hand = []
-            , active_card = Nothing
             , discard_pile = []
             , turn = turn
             }
@@ -90,11 +89,11 @@ can_player_move players color =
         player =
             get_player players color
     in
-        case player.active_card of
-            Just _ ->
+        case player.turn of
+            TurnCard _ ->
                 True
 
-            Nothing ->
+            other ->
                 False
 
 
@@ -131,12 +130,18 @@ activate_card players color idx =
             let
                 active_card =
                     List.Extra.getAt idx player.hand
+                        |> Maybe.withDefault "bogus"
 
                 new_hand =
                     List.Extra.removeAt idx player.hand
+
+                turn =
+                    TurnCard
+                        { active_card = active_card
+                        }
             in
                 { player
-                    | active_card = active_card
+                    | turn = turn
                     , hand = new_hand
                 }
         )
@@ -187,7 +192,7 @@ finish_card players color =
         color
         (\player ->
             { player
-                | active_card = Nothing
+                | turn = TurnInProgress
             }
         )
 
@@ -215,8 +220,8 @@ view_hand_card color player idx card =
             card_css color
 
         attrs =
-            case player.active_card of
-                Nothing ->
+            case player.turn of
+                TurnInProgress ->
                     [ onClick (ActivateCard color idx) ]
 
                 other ->
@@ -240,7 +245,7 @@ deck_view player color =
             (String.fromInt deckCount) ++ " cards left"
 
         attrs =
-            if (handCount < 5) && (player.active_card == Nothing) then
+            if (handCount < 5) && (player.turn == TurnInProgress) then
                 [ onClick (DrawCard color) ]
             else
                 [ disabled True ]
@@ -274,16 +279,16 @@ player_view players color =
                 [ Html.text "Done" ]
 
         active_card =
-            case player.active_card of
-                Nothing ->
-                    div [] [ Html.text "click a card below" ]
-
-                Just active_card_ ->
+            case player.turn of
+                TurnCard turn_info ->
                     div []
-                        [ Html.text ("play now: " ++ active_card_)
+                        [ Html.text ("play now: " ++ turn_info.active_card)
                         , div [] [ finish_button ]
                         , hr [] []
                         ]
+
+                other ->
+                    div [] [ Html.text "click a card below" ]
     in
         div []
             [ active_card
