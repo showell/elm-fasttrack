@@ -42,14 +42,15 @@ open_holding_pen_square : PieceDict -> Color -> Maybe PieceLocation
 open_holding_pen_square piece_map color =
     let
         is_open id =
-            is_open_square piece_map (color, id)
+            is_open_square piece_map ( color, id )
     in
         case List.Extra.find is_open holding_pen_squares of
             Nothing ->
                 Nothing
 
             Just id ->
-                Just (color, id)
+                Just ( color, id )
+
 
 maybe_send_piece_to_pen : PieceLocation -> PieceDict -> PieceDict
 maybe_send_piece_to_pen piece_loc piece_map =
@@ -78,7 +79,7 @@ config_zone_pieces : String -> PieceDict -> PieceDict
 config_zone_pieces color piece_map =
     let
         assign id =
-            Dict.insert (color, id) color
+            Dict.insert ( color, id ) color
     in
         List.foldl assign piece_map holding_pen_squares
 
