@@ -11,8 +11,7 @@ import List.Extra
 import Dict
 import Type
     exposing
-        ( SquareKey
-        , Color
+        ( Color
         , PieceLocation
         , PieceDict
         )

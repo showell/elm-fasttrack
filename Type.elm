@@ -2,7 +2,6 @@ module Type
     exposing
         ( SquareKind(..)
         , Square
-        , SquareKey
         , Color
         , Card
         , PieceLocation
@@ -42,15 +41,6 @@ type alias Square =
     }
 
 
-type alias SquareKey =
-    { zone_color : String
-    , id : String
-
-    -- kind is actually not an attribute, not part of the key
-    , kind : SquareKind
-    }
-
-
 type alias PieceLocation =
     ( Color, String )
 
@@ -61,7 +51,7 @@ type alias PieceDict =
 
 type alias TurnCardInfo =
     { active_card : Card
-    , active_square : Maybe SquareKey
+    , active_square : Maybe PieceLocation
     , move_error : Maybe String
     }
 

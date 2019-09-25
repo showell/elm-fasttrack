@@ -4,10 +4,14 @@ module Config exposing
     , gutter_size
     , square_size
     , config_squares
+    , get_piece_kind
     )
+
+import List.Extra
 
 import Type exposing
     ( Square
+    , PieceLocation
     , SquareKind(..)
     )
 
@@ -22,6 +26,21 @@ orig_zone_colors = ["red", "blue", "green", "purple"]
 
 holding_pen_squares: List String
 holding_pen_squares = ["HP1", "HP2", "HP3", "HP4"]
+
+get_piece_kind : String -> SquareKind
+get_piece_kind id =
+    let
+        item =
+            List.Extra.find (\sq -> sq.id == id) config_squares
+
+    in
+        case item of
+            Nothing ->
+                -- appease compiler
+                Normal
+
+            Just item_ ->
+                item_.kind
 
 config_squares: List Square
 config_squares =

@@ -29,7 +29,7 @@ import Type
         , Card
         , TurnCardInfo
         , Turn(..)
-        , SquareKey
+        , PieceLocation
         , Player
         , PlayerDict
         )
@@ -136,7 +136,7 @@ clear_active_square players color =
         )
 
 
-set_active_square : PlayerDict -> Color -> SquareKey -> PlayerDict
+set_active_square : PlayerDict -> Color -> PieceLocation -> PlayerDict
 set_active_square players color square =
     update_player
         players
@@ -159,7 +159,7 @@ set_active_square players color square =
         )
 
 
-get_active_square : PlayerDict -> Color -> Maybe SquareKey
+get_active_square : PlayerDict -> Color -> Maybe PieceLocation
 get_active_square players color =
     let
         player =

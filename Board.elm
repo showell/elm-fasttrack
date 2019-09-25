@@ -16,7 +16,7 @@ import Svg.Attributes exposing (..)
 import Type
     exposing
         ( Color
-        , SquareKey
+        , PieceLocation
         , PieceDict
         , PlayerDict
         )
@@ -83,7 +83,7 @@ zone_index x lst =
                 1 + (zone_index x rest)
 
 
-draw_zone : PieceDict -> Maybe SquareKey -> List Color -> Color -> Html Msg
+draw_zone : PieceDict -> Maybe PieceLocation -> List Color -> Color -> Html Msg
 draw_zone piece_map active_square zone_colors zone_color =
     let
         squares =

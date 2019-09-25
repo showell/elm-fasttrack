@@ -15,9 +15,8 @@ import Config
         )
 import Type
     exposing
-        ( SquareKind(..)
-        , Square
-        , SquareKey
+        ( Square
+        , PieceLocation
         , PieceDict
         )
 import Piece
@@ -26,47 +25,27 @@ import Piece
         )
 
 
-is_active_square : SquareKey -> Maybe SquareKey -> Bool
+is_active_square : PieceLocation -> Maybe PieceLocation -> Bool
 is_active_square square_info active_square =
     case active_square of
         Nothing ->
             False
 
         Just active ->
-            square_info.zone_color == active.zone_color && square_info.id == active.id
+            square_info == active
 
 
-square_view : Float -> PieceDict -> String -> Maybe SquareKey -> Square -> Html Msg
+square_view : Float -> PieceDict -> String -> Maybe PieceLocation -> Square -> Html Msg
 square_view zone_height piece_map zone_color active_square square =
     let
-        square_info =
-            { zone_color = zone_color
-            , id = square.id
-            , kind = square.kind
-            }
+        piece_location =
+            ( zone_color, square.id )
 
         w =
             square_size - gutter_size
 
         h =
             square_size - gutter_size
-
-        color =
-            case square.kind of
-                FastTrack ->
-                    zone_color
-
-                HoldingPen ->
-                    zone_color
-
-                Base ->
-                    zone_color
-
-                HideyHole ->
-                    "gray"
-
-                other ->
-                    "black"
 
         cx_ =
             square.x * square_size
@@ -92,7 +71,7 @@ square_view zone_height piece_map zone_color active_square square =
                     []
 
         is_active =
-            is_active_square square_info active_square
+            is_active_square piece_location active_square
 
         draw_piece color_ =
             let
@@ -108,7 +87,7 @@ square_view zone_height piece_map zone_color active_square square =
                     , fill color_
                     , stroke color_
                     , r radius
-                    , onClick (ClickSquare square_info)
+                    , onClick (ClickSquare piece_location)
                     ]
                     []
 
@@ -126,10 +105,10 @@ square_view zone_height piece_map zone_color active_square square =
                 [ x (String.fromFloat xpos)
                 , y (String.fromFloat ypos)
                 , fill fill_color
-                , stroke color
+                , stroke zone_color
                 , width (String.fromFloat w)
                 , height (String.fromFloat h)
-                , onClick (ClickSquare square_info)
+                , onClick (ClickSquare piece_location)
                 ]
                 []
 

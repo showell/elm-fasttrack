@@ -6,10 +6,14 @@ module Move
 import Type
     exposing
         ( SquareKind(..)
-        , SquareKey
         , Color
+        , PieceLocation
         , PieceDict
         , Model
+        )
+import Config
+    exposing
+        ( get_piece_kind
         )
 import Piece
     exposing
@@ -26,8 +30,8 @@ import Player
 
 
 type alias Move =
-    { prev : SquareKey
-    , next : SquareKey
+    { prev : PieceLocation
+    , next : PieceLocation
     }
 
 
@@ -41,10 +45,10 @@ validate_move piece_map move =
             move.next
 
         spc =
-            get_piece piece_map ( prev.zone_color, prev.id )
+            get_piece piece_map prev
 
         tpc =
-            get_piece piece_map ( next.zone_color, next.id )
+            get_piece piece_map next
     in
         case spc of
             Nothing ->
@@ -73,24 +77,32 @@ same_color source_piece_color tpc =
             source_piece_color == target_piece_color
 
 
-wrong_holding_pen : Color -> SquareKey -> Bool
-wrong_holding_pen piece_color next =
-    case next.kind of
-        HoldingPen ->
-            next.zone_color /= piece_color
+wrong_holding_pen : Color -> PieceLocation -> Bool
+wrong_holding_pen piece_color loc =
+    let
+        ( zone_color, id ) =
+            loc
+    in
+        case get_piece_kind id of
+            HoldingPen ->
+                zone_color /= piece_color
 
-        other ->
-            False
+            other ->
+                False
 
 
-wrong_base : Color -> SquareKey -> Bool
-wrong_base piece_color next =
-    case next.kind of
-        Base ->
-            next.zone_color /= piece_color
+wrong_base : Color -> PieceLocation -> Bool
+wrong_base piece_color loc =
+    let
+        ( zone_color, id ) =
+            loc
+    in
+        case get_piece_kind id of
+            Base ->
+                zone_color /= piece_color
 
-        other ->
-            False
+            other ->
+                False
 
 
 perform_move : Model -> Move -> Color -> Model
@@ -99,20 +111,14 @@ perform_move model move active_color =
         piece_map =
             model.piece_map
 
-        prev =
+        prev_loc =
             move.prev
 
-        next =
+        next_loc =
             move.next
 
-        prev_loc =
-            ( prev.zone_color, prev.id )
-
-        next_loc =
-            ( next.zone_color, next.id )
-
         piece_color =
-            get_piece piece_map ( prev.zone_color, prev.id )
+            get_piece piece_map prev_loc
     in
         case piece_color of
             Nothing ->

@@ -5,13 +5,13 @@ module Msg
 
 import Type
     exposing
-        ( SquareKey
+        ( PieceLocation
         , Color
         )
 
 
 type Msg
-    = ClickSquare SquareKey
+    = ClickSquare PieceLocation
     | DrawCard Color
     | DrawCardResult Color Int
     | ActivateCard Color Int

@@ -4,9 +4,8 @@ import Browser
 import Html exposing (..)
 import Type
     exposing
-        ( SquareKind(..)
-        , Square
-        , SquareKey
+        ( Square
+        , PieceLocation
         , Color
         , Turn(..)
         , Model
@@ -157,8 +156,8 @@ update msg model =
                 ( model_, Cmd.none )
 
 
-handle_square_click : Model -> SquareKey -> Model
-handle_square_click model clicked_square =
+handle_square_click : Model -> PieceLocation -> Model
+handle_square_click model square_loc =
     let
         active_color =
             get_active_color model.zone_colors
@@ -170,7 +169,7 @@ handle_square_click model clicked_square =
             Nothing ->
                 let
                     piece_color =
-                        get_piece model.piece_map ( clicked_square.zone_color, clicked_square.id )
+                        get_piece model.piece_map square_loc
 
                     can_move =
                         case piece_color of
@@ -185,7 +184,7 @@ handle_square_click model clicked_square =
 
                     new_players =
                         if can_move then
-                            set_active_square players active_color clicked_square
+                            set_active_square players active_color square_loc
                         else
                             players
                 in
@@ -197,7 +196,7 @@ handle_square_click model clicked_square =
                 let
                     move =
                         { prev = prev
-                        , next = clicked_square
+                        , next = square_loc
                         }
                 in
                     perform_move model move active_color
