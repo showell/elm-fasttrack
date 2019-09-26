@@ -33,6 +33,7 @@ import Square
 import Player
     exposing
         ( get_active_square
+        , get_player
         )
 
 
@@ -58,8 +59,11 @@ zone_height =
 board_view : PieceDict -> List Color -> PlayerDict -> Color -> Html Msg
 board_view piece_map zone_colors players active_color =
     let
+        active_player =
+            get_player players active_color
+
         active_square =
-            get_active_square players active_color
+            get_active_square active_player
 
         content =
             List.map (draw_zone piece_map active_square zone_colors) zone_colors

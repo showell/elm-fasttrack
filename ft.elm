@@ -176,13 +176,16 @@ handle_square_click model square_loc =
 
         update_player =
             update_active_player model
+
+        active_player =
+            get_player players active_color
+
+        active_square =
+            get_active_square active_player
     in
-        case get_active_square players active_color of
+        case active_square of
             Nothing ->
                 let
-                    active_player =
-                        get_player players active_color
-
                     piece_map =
                         model.piece_map
 

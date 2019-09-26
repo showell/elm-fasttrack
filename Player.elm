@@ -151,18 +151,14 @@ set_active_square square player =
             player
 
 
-get_active_square : PlayerDict -> Color -> Maybe PieceLocation
-get_active_square players color =
-    let
-        player =
-            get_player players color
-    in
-        case player.turn of
-            TurnCard info ->
-                info.active_square
+get_active_square : Player -> Maybe PieceLocation
+get_active_square player =
+    case player.turn of
+        TurnCard info ->
+            info.active_square
 
-            other ->
-                Nothing
+        other ->
+            Nothing
 
 
 update_player : PlayerDict -> Color -> (Player -> Player) -> PlayerDict
