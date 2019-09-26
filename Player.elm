@@ -12,6 +12,7 @@ module Player
         , set_active_square
         , clear_active_square
         , set_move_error
+        , update_player
         )
 
 import Html exposing (..)
@@ -90,73 +91,58 @@ draw_card_cmd players color =
         Random.generate (DrawCardResult color) (Random.int 0 max)
 
 
-set_move_error : PlayerDict -> Color -> String -> PlayerDict
-set_move_error players color error =
-    update_player
-        players
-        color
-        (\player ->
-            case player.turn of
-                TurnCard info ->
-                    let
-                        turn =
-                            TurnCard
-                                { info
-                                    | active_square = Nothing
-                                    , move_error = Just error
-                                }
-                    in
-                        { player | turn = turn }
+set_move_error : String -> Player -> Player
+set_move_error error player =
+    case player.turn of
+        TurnCard info ->
+            let
+                turn =
+                    TurnCard
+                        { info
+                            | active_square = Nothing
+                            , move_error = Just error
+                        }
+            in
+                { player | turn = turn }
 
-                other ->
-                    player
-        )
+        other ->
+            player
 
 
-clear_active_square : PlayerDict -> Color -> PlayerDict
-clear_active_square players color =
-    update_player
-        players
-        color
-        (\player ->
-            case player.turn of
-                TurnCard info ->
-                    let
-                        turn =
-                            TurnCard
-                                { info
-                                    | active_square = Nothing
-                                    , move_error = Nothing
-                                }
-                    in
-                        { player | turn = turn }
+clear_active_square : Player -> Player
+clear_active_square player =
+    case player.turn of
+        TurnCard info ->
+            let
+                turn =
+                    TurnCard
+                        { info
+                            | active_square = Nothing
+                            , move_error = Nothing
+                        }
+            in
+                { player | turn = turn }
 
-                other ->
-                    player
-        )
+        other ->
+            player
 
 
-set_active_square : PlayerDict -> Color -> PieceLocation -> PlayerDict
-set_active_square players color square =
-    update_player
-        players
-        color
-        (\player ->
-            case player.turn of
-                TurnCard info ->
-                    let
-                        turn =
-                            TurnCard
-                                { info
-                                    | active_square = Just square
-                                    , move_error = Nothing
-                                }
-                    in
-                        { player | turn = turn }
+set_active_square : PieceLocation -> Player -> Player
+set_active_square square player =
+    case player.turn of
+        TurnCard info ->
+            let
+                turn =
+                    TurnCard
+                        { info
+                            | active_square = Just square
+                            , move_error = Nothing
+                        }
+            in
+                { player | turn = turn }
 
-                other ->
-                    player
-        )
+        other ->
+            player
 
 
 get_active_square : PlayerDict -> Color -> Maybe PieceLocation
@@ -211,32 +197,27 @@ set_turn color turn players =
         )
 
 
-activate_card : PlayerDict -> Color -> Int -> PlayerDict
-activate_card players color idx =
-    update_player
-        players
-        color
-        (\player ->
-            let
-                active_card =
-                    List.Extra.getAt idx player.hand
-                        |> Maybe.withDefault "bogus"
+activate_card : Int -> Player -> Player
+activate_card idx player =
+    let
+        active_card =
+            List.Extra.getAt idx player.hand
+                |> Maybe.withDefault "bogus"
 
-                new_hand =
-                    List.Extra.removeAt idx player.hand
+        new_hand =
+            List.Extra.removeAt idx player.hand
 
-                turn =
-                    TurnCard
-                        { active_card = active_card
-                        , active_square = Nothing
-                        , move_error = Nothing
-                        }
-            in
-                { player
-                    | turn = turn
-                    , hand = new_hand
+        turn =
+            TurnCard
+                { active_card = active_card
+                , active_square = Nothing
+                , move_error = Nothing
                 }
-        )
+    in
+        { player
+            | turn = turn
+            , hand = new_hand
+        }
 
 
 maybe_replenish : List Card -> List Card
@@ -249,44 +230,32 @@ maybe_replenish deck =
             deck
 
 
-draw_card : PlayerDict -> Color -> Int -> PlayerDict
-draw_card players color idx =
-    update_player
-        players
-        color
-        (\player ->
-            let
-                card =
-                    case List.Extra.getAt idx player.deck of
-                        Nothing ->
-                            "bogus"
+draw_card : Int -> Player -> Player
+draw_card idx player =
+    let
+        card =
+            case List.Extra.getAt idx player.deck of
+                Nothing ->
+                    "bogus"
 
-                        Just card_ ->
-                            card_
+                Just card_ ->
+                    card_
 
-                hand =
-                    List.append player.hand [ card ]
+        hand =
+            List.append player.hand [ card ]
 
-                deck =
-                    List.Extra.removeAt idx player.deck
-            in
-                { player
-                    | deck = maybe_replenish deck
-                    , hand = hand
-                }
-        )
+        deck =
+            List.Extra.removeAt idx player.deck
+    in
+        { player
+            | deck = maybe_replenish deck
+            , hand = hand
+        }
 
 
-finish_card : PlayerDict -> Color -> PlayerDict
-finish_card players color =
-    update_player
-        players
-        color
-        (\player ->
-            { player
-                | turn = TurnInProgress
-            }
-        )
+finish_card : Player -> Player
+finish_card player =
+    { player | turn = TurnInProgress }
 
 
 

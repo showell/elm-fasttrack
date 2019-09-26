@@ -10,6 +10,7 @@ module Type
         , Turn(..)
         , Player
         , PlayerDict
+        , UpdatePlayerFunc
         , Model
         )
 
@@ -80,3 +81,7 @@ type alias Model =
     , piece_map : PieceDict
     , players : PlayerDict
     }
+
+
+type alias UpdatePlayerFunc =
+    (Player -> Player) -> Model

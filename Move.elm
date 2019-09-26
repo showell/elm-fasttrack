@@ -9,6 +9,7 @@ import Type
         , Color
         , PieceLocation
         , PieceDict
+        , UpdatePlayerFunc
         , Model
         )
 import Config
@@ -105,8 +106,8 @@ wrong_base piece_color loc =
                 False
 
 
-perform_move : Model -> Move -> Color -> Model
-perform_move model move active_color =
+perform_move : Model -> Move -> UpdatePlayerFunc -> Model
+perform_move model move update_active_player =
     let
         piece_map =
             model.piece_map
@@ -127,13 +128,7 @@ perform_move model move active_color =
             Just piece_color_ ->
                 case validate_move piece_map move of
                     Err status ->
-                        let
-                            players =
-                                set_move_error model.players active_color status
-                        in
-                            { model
-                                | players = players
-                            }
+                        update_active_player (set_move_error status)
 
                     Ok _ ->
                         let
@@ -143,10 +138,7 @@ perform_move model move active_color =
                                     |> unassign_piece prev_loc
                                     |> assign_piece next_loc piece_color_
 
-                            players =
-                                clear_active_square model.players active_color
+                            model_ =
+                                update_active_player clear_active_square
                         in
-                            { model
-                                | piece_map = new_map
-                                , players = players
-                            }
+                            { model_ | piece_map = new_map }

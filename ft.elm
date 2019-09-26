@@ -8,7 +8,9 @@ import Type
         , PieceLocation
         , Color
         , Turn(..)
+        , Player
         , Model
+        , UpdatePlayerFunc
         )
 import Config
     exposing
@@ -41,6 +43,7 @@ import Player
         , can_player_move
         , get_active_square
         , set_active_square
+        , update_player
         )
 import Msg
     exposing
@@ -85,6 +88,18 @@ get_active_color zone_colors =
         |> Maybe.withDefault "bogus"
 
 
+update_active_player : Model -> UpdatePlayerFunc
+update_active_player model f =
+    let
+        active_color =
+            get_active_color model.zone_colors
+
+        players =
+            update_player model.players active_color f
+    in
+        { model | players = players }
+
+
 
 -- UPDATE
 
@@ -107,27 +122,21 @@ update msg model =
         DrawCardResult player_color idx ->
             let
                 model_ =
-                    { model
-                        | players = draw_card model.players player_color idx
-                    }
+                    update_active_player model (draw_card idx)
             in
                 ( model_, Cmd.none )
 
         ActivateCard player_color idx ->
             let
                 model_ =
-                    { model
-                        | players = activate_card model.players player_color idx
-                    }
+                    update_active_player model (activate_card idx)
             in
                 ( model_, Cmd.none )
 
         FinishCard player_color ->
             let
                 model_ =
-                    { model
-                        | players = finish_card model.players player_color
-                    }
+                    update_active_player model (finish_card)
             in
                 ( model_, Cmd.none )
 
@@ -164,6 +173,9 @@ handle_square_click model square_loc =
 
         players =
             model.players
+
+        update_player =
+            update_active_player model
     in
         case get_active_square players active_color of
             Nothing ->
@@ -181,16 +193,11 @@ handle_square_click model square_loc =
                                     can_player_move model.players active_color
                                 else
                                     False
-
-                    new_players =
-                        if can_move then
-                            set_active_square players active_color square_loc
-                        else
-                            players
                 in
-                    { model
-                        | players = new_players
-                    }
+                    if can_move then
+                        update_player (set_active_square square_loc)
+                    else
+                        model
 
             Just prev ->
                 let
@@ -199,7 +206,7 @@ handle_square_click model square_loc =
                         , next = square_loc
                         }
                 in
-                    perform_move model move active_color
+                    perform_move model move update_player
 
 
 
