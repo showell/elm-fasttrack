@@ -7,13 +7,14 @@ import Type
     exposing
         ( PieceLocation
         , Color
+        , Player
         )
 
 
 type Msg
     = ClickSquare PieceLocation
-    | DrawCard Color
-    | DrawCardResult Color Int
+    | DrawCard
+    | DrawCardResult Int
     | ActivateCard Color Int
     | FinishCard Color
     | RotateBoard

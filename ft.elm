@@ -114,12 +114,19 @@ update msg model =
             in
                 ( model_, Cmd.none )
 
-        DrawCard player_color ->
-            ( model
-            , draw_card_cmd model.players player_color
-            )
+        DrawCard ->
+            let
+                active_color =
+                    get_active_color model.zone_colors
 
-        DrawCardResult player_color idx ->
+                active_player =
+                    get_player model.players active_color
+            in
+                ( model
+                , draw_card_cmd active_player
+                )
+
+        DrawCardResult idx ->
             let
                 model_ =
                     update_active_player model (draw_card idx)

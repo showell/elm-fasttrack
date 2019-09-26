@@ -93,19 +93,16 @@ ready_to_play player =
             False
 
 
-draw_card_cmd : PlayerDict -> Color -> Cmd Msg
-draw_card_cmd players color =
+draw_card_cmd : Player -> Cmd Msg
+draw_card_cmd player =
     let
-        player =
-            get_player players color
-
         deckCount =
             List.length player.deck
 
         max =
             deckCount - 1
     in
-        Random.generate (DrawCardResult color) (Random.int 0 max)
+        Random.generate DrawCardResult (Random.int 0 max)
 
 
 set_move_error : String -> Player -> Player
@@ -328,7 +325,7 @@ deck_view player color =
 
         attrs =
             if (handCount < 5) && (player.turn == TurnInProgress) then
-                [ onClick (DrawCard color) ]
+                [ onClick DrawCard ]
             else
                 [ disabled True ]
 
