@@ -14,6 +14,7 @@ module Player
         , set_move_error
         , update_player
         , get_player
+        , ready_to_play
         )
 
 import Html exposing (..)
@@ -80,6 +81,16 @@ get_player players color =
     -- The "Maybe" is just to satisfy the compiler
     Dict.get color players
         |> Maybe.withDefault (config_player "bogus" "bogus")
+
+
+ready_to_play : Player -> Bool
+ready_to_play player =
+    case player.turn of
+        TurnCard info ->
+            info.active_square == Nothing
+
+        other ->
+            False
 
 
 draw_card_cmd : PlayerDict -> Color -> Cmd Msg

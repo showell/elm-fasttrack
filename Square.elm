@@ -3,6 +3,7 @@ module Square
         ( square_view
         )
 
+import Set
 import Html exposing (..)
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -35,8 +36,8 @@ is_active_square square_info active_square =
             square_info == active
 
 
-square_view : Float -> PieceDict -> String -> Maybe PieceLocation -> Square -> Html Msg
-square_view zone_height piece_map zone_color active_square square =
+square_view : Float -> PieceDict -> String -> Set.Set PieceLocation -> Maybe PieceLocation -> Square -> Html Msg
+square_view zone_height piece_map zone_color playable_locs active_square square =
     let
         piece_location =
             ( zone_color, square.id )
@@ -73,13 +74,18 @@ square_view zone_height piece_map zone_color active_square square =
         is_active =
             is_active_square piece_location active_square
 
+        is_playable =
+            Set.member piece_location playable_locs
+
         draw_piece color_ =
             let
                 radius =
                     if is_active then
                         "7"
+                    else if is_playable then
+                        "6"
                     else
-                        "5"
+                        "4"
             in
                 circle
                     [ cx (String.fromFloat cx_)
@@ -100,12 +106,18 @@ square_view zone_height piece_map zone_color active_square square =
             else
                 "white"
 
+        stroke_color =
+            if is_playable then
+                "black"
+            else
+                zone_color
+
         s_square =
             rect
                 [ x (String.fromFloat xpos)
                 , y (String.fromFloat ypos)
                 , fill fill_color
-                , stroke zone_color
+                , stroke stroke_color
                 , width (String.fromFloat w)
                 , height (String.fromFloat h)
                 , onClick (ClickSquare piece_location)

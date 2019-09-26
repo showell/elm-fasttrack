@@ -5,6 +5,7 @@ module Board
         , rotate_board
         )
 
+import Set
 import Html exposing (..)
 import Html.Events
     exposing
@@ -34,6 +35,11 @@ import Player
     exposing
         ( get_active_square
         , get_player
+        , ready_to_play
+        )
+import Piece
+    exposing
+        ( player_pieces
         )
 
 
@@ -65,8 +71,14 @@ board_view piece_map zone_colors players active_color =
         active_square =
             get_active_square active_player
 
+        playable_locs =
+            if ready_to_play active_player then
+                player_pieces piece_map active_color
+            else
+                Set.empty
+
         content =
-            List.map (draw_zone piece_map active_square zone_colors) zone_colors
+            List.map (draw_zone piece_map playable_locs active_square zone_colors) zone_colors
     in
         svg
             [ width board_size, height board_size ]
@@ -87,8 +99,8 @@ zone_index x lst =
                 1 + (zone_index x rest)
 
 
-draw_zone : PieceDict -> Maybe PieceLocation -> List Color -> Color -> Html Msg
-draw_zone piece_map active_square zone_colors zone_color =
+draw_zone : PieceDict -> Set.Set PieceLocation -> Maybe PieceLocation -> List Color -> Color -> Html Msg
+draw_zone piece_map playable_locs active_square zone_colors zone_color =
     let
         squares =
             config_squares
@@ -115,7 +127,7 @@ draw_zone piece_map active_square zone_colors zone_color =
             translate ++ " " ++ rotate
 
         drawn_squares =
-            List.map (square_view zone_height piece_map color active_square) squares
+            List.map (square_view zone_height piece_map color playable_locs active_square) squares
     in
         g [ transform transform_ ] drawn_squares
 
