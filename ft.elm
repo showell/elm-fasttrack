@@ -24,8 +24,7 @@ import Board
         )
 import Piece
     exposing
-        ( get_piece
-        , config_pieces
+        ( config_pieces
         )
 import Move
     exposing
@@ -40,10 +39,11 @@ import Player
         , activate_card
         , finish_card
         , set_turn
-        , can_player_move
+        , can_player_start_move_here
         , get_active_square
         , set_active_square
         , update_player
+        , get_player
         )
 import Msg
     exposing
@@ -180,19 +180,14 @@ handle_square_click model square_loc =
         case get_active_square players active_color of
             Nothing ->
                 let
-                    piece_color =
-                        get_piece model.piece_map square_loc
+                    active_player =
+                        get_player players active_color
+
+                    piece_map =
+                        model.piece_map
 
                     can_move =
-                        case piece_color of
-                            Nothing ->
-                                False
-
-                            Just piece_color_ ->
-                                if piece_color_ == active_color then
-                                    can_player_move model.players active_color
-                                else
-                                    False
+                        can_player_start_move_here active_player active_color piece_map square_loc
                 in
                     if can_move then
                         update_player (set_active_square square_loc)

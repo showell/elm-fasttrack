@@ -6,8 +6,6 @@ HOW TO BUILD:
     elm make --optimize ft.elm --output ft.html
 
 TODO:
-    extract code from handle_square_click -> Player
-
     Turn type:
         highlight active marbles
         auto-finish after move (but handle 7)

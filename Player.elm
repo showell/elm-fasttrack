@@ -7,12 +7,13 @@ module Player
         , activate_card
         , finish_card
         , set_turn
-        , can_player_move
+        , can_player_start_move_here
         , get_active_square
         , set_active_square
         , clear_active_square
         , set_move_error
         , update_player
+        , get_player
         )
 
 import Html exposing (..)
@@ -33,6 +34,11 @@ import Type
         , PieceLocation
         , Player
         , PlayerDict
+        , PieceDict
+        )
+import Piece
+    exposing
+        ( get_piece
         )
 import Deck exposing (full_deck)
 import List.Extra
@@ -159,20 +165,6 @@ get_active_square players color =
                 Nothing
 
 
-can_player_move : PlayerDict -> Color -> Bool
-can_player_move players color =
-    let
-        player =
-            get_player players color
-    in
-        case player.turn of
-            TurnCard _ ->
-                True
-
-            other ->
-                False
-
-
 update_player : PlayerDict -> Color -> (Player -> Player) -> PlayerDict
 update_player players color f =
     let
@@ -256,6 +248,28 @@ draw_card idx player =
 finish_card : Player -> Player
 finish_card player =
     { player | turn = TurnInProgress }
+
+
+can_player_start_move_here : Player -> Color -> PieceDict -> PieceLocation -> Bool
+can_player_start_move_here player player_color piece_map square_loc =
+    let
+        piece_color =
+            get_piece piece_map square_loc
+    in
+        case piece_color of
+            Nothing ->
+                False
+
+            Just piece_color_ ->
+                if piece_color_ == player_color then
+                    case player.turn of
+                        TurnCard _ ->
+                            True
+
+                        other ->
+                            False
+                else
+                    False
 
 
 
