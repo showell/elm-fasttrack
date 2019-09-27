@@ -4,7 +4,6 @@ module Msg
         )
 
 import Time
-
 import Type
     exposing
         ( PieceLocation

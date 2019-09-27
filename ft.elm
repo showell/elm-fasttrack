@@ -81,13 +81,14 @@ init flags =
             , players = config_players active_color zone_colors
             , seed = Random.initialSeed 42
             }
-
     in
         ( model, randomize )
+
 
 randomize : Cmd Msg
 randomize =
     Task.perform NewSeed Time.now
+
 
 get_active_color : List Color -> Color
 get_active_color zone_colors =
@@ -111,6 +112,8 @@ update_active_player model f =
 set_seed : Random.Seed -> Model -> Model
 set_seed seed model =
     { model | seed = seed }
+
+
 
 -- UPDATE
 
@@ -151,7 +154,7 @@ update msg model =
 
                 model_ =
                     update_active_player model (draw_card idx)
-                    |> set_seed seed
+                        |> set_seed seed
             in
                 ( model_, Cmd.none )
 

@@ -15,6 +15,7 @@ TODO:
 
     extract piece code
     have landing screen between players
+    change "Square" terminology (and use circles)
     get-out pile
     add title hovers for squares
     disable deck once move starts

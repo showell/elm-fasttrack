@@ -214,7 +214,7 @@ maybe_replenish deck =
             deck
 
 
-get_card_idx : Player -> Random.Seed -> (Int, Random.Seed)
+get_card_idx : Player -> Random.Seed -> ( Int, Random.Seed )
 get_card_idx player seed =
     let
         deckCount =
