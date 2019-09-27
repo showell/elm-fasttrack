@@ -14,7 +14,7 @@ import Type
 
 type Msg
     = ClickSquare PieceLocation
-    | DrawCard
+    | ReplenishHand
     | ActivateCard Color Int
     | FinishCard Color
     | RotateBoard

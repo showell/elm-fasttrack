@@ -37,8 +37,7 @@ import Player
     exposing
         ( config_players
         , player_view
-        , get_card_idx
-        , draw_card
+        , replenish_hand
         , activate_card
         , finish_card
         , set_turn
@@ -109,11 +108,6 @@ update_active_player model f =
         { model | players = players }
 
 
-set_seed : Random.Seed -> Model -> Model
-set_seed seed model =
-    { model | seed = seed }
-
-
 
 -- UPDATE
 
@@ -141,22 +135,12 @@ update msg model =
             in
                 ( model_, Cmd.none )
 
-        DrawCard ->
+        ReplenishHand ->
             let
                 active_color =
                     get_active_color model.zone_colors
-
-                active_player =
-                    get_player model.players active_color
-
-                ( idx, seed ) =
-                    get_card_idx active_player model.seed
-
-                model_ =
-                    update_active_player model (draw_card idx)
-                        |> set_seed seed
             in
-                ( model_, Cmd.none )
+                ( replenish_hand active_color model, Cmd.none )
 
         ActivateCard player_color idx ->
             let

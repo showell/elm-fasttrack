@@ -2,8 +2,7 @@ module Player
     exposing
         ( config_players
         , player_view
-        , get_card_idx
-        , draw_card
+        , replenish_hand
         , activate_card
         , finish_card
         , set_turn
@@ -36,6 +35,7 @@ import Type
         , Player
         , PlayerDict
         , PieceDict
+        , Model
         )
 import Piece
     exposing
@@ -214,6 +214,35 @@ maybe_replenish deck =
             deck
 
 
+replenish_hand : Color -> Model -> Model
+replenish_hand active_color model =
+    let
+        players =
+            model.players
+
+        active_player =
+            get_player model.players active_color
+
+    in
+        if List.length active_player.hand == 5 then
+            model
+        else
+            let
+                ( idx, seed ) =
+                    get_card_idx active_player model.seed
+
+                players_ =
+                    update_player players active_color (draw_card idx)
+
+                model_ =
+                    { model
+                    | players = players_
+                    , seed = seed
+                    }
+            in
+                replenish_hand active_color model_
+
+
 get_card_idx : Player -> Random.Seed -> ( Int, Random.Seed )
 get_card_idx player seed =
     let
@@ -325,7 +354,7 @@ deck_view player color =
 
         attrs =
             if (handCount < 5) && (player.turn == TurnInProgress) then
-                [ onClick DrawCard ]
+                [ onClick ReplenishHand ]
             else
                 [ disabled True ]
 
