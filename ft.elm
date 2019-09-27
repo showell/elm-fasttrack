@@ -1,6 +1,9 @@
 module Main exposing (..)
 
 import Browser
+import Random
+import Time
+import Task
 import Html exposing (..)
 import Type
     exposing
@@ -34,7 +37,7 @@ import Player
     exposing
         ( config_players
         , player_view
-        , draw_card_cmd
+        , get_card_idx
         , draw_card
         , activate_card
         , finish_card
@@ -76,10 +79,15 @@ init flags =
             { zone_colors = zone_colors
             , piece_map = config_pieces zone_colors
             , players = config_players active_color zone_colors
+            , seed = Random.initialSeed 42
             }
-    in
-        ( model, Cmd.none )
 
+    in
+        ( model, randomize )
+
+randomize : Cmd Msg
+randomize =
+    Task.perform NewSeed Time.now
 
 get_active_color : List Color -> Color
 get_active_color zone_colors =
@@ -100,6 +108,9 @@ update_active_player model f =
         { model | players = players }
 
 
+set_seed : Random.Seed -> Model -> Model
+set_seed seed model =
+    { model | seed = seed }
 
 -- UPDATE
 
@@ -107,6 +118,19 @@ update_active_player model f =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        NewSeed time ->
+            let
+                random_int =
+                    Time.posixToMillis time
+
+                seed =
+                    Random.initialSeed random_int
+
+                model_ =
+                    { model | seed = seed }
+            in
+                ( model_, Cmd.none )
+
         ClickSquare clicked_square ->
             let
                 model_ =
@@ -121,15 +145,13 @@ update msg model =
 
                 active_player =
                     get_player model.players active_color
-            in
-                ( model
-                , draw_card_cmd active_player
-                )
 
-        DrawCardResult idx ->
-            let
+                ( idx, seed ) =
+                    get_card_idx active_player model.seed
+
                 model_ =
                     update_active_player model (draw_card idx)
+                    |> set_seed seed
             in
                 ( model_, Cmd.none )
 
@@ -138,7 +160,7 @@ update msg model =
                 model_ =
                     update_active_player model (activate_card idx)
             in
-                ( model_, Cmd.none )
+                ( model_, randomize )
 
         FinishCard player_color ->
             let

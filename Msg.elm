@@ -3,6 +3,8 @@ module Msg
         ( Msg(..)
         )
 
+import Time
+
 import Type
     exposing
         ( PieceLocation
@@ -14,7 +16,7 @@ import Type
 type Msg
     = ClickSquare PieceLocation
     | DrawCard
-    | DrawCardResult Int
     | ActivateCard Color Int
     | FinishCard Color
     | RotateBoard
+    | NewSeed Time.Posix

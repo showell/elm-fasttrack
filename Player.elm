@@ -2,7 +2,7 @@ module Player
     exposing
         ( config_players
         , player_view
-        , draw_card_cmd
+        , get_card_idx
         , draw_card
         , activate_card
         , finish_card
@@ -91,18 +91,6 @@ ready_to_play player =
 
         other ->
             False
-
-
-draw_card_cmd : Player -> Cmd Msg
-draw_card_cmd player =
-    let
-        deckCount =
-            List.length player.deck
-
-        max =
-            deckCount - 1
-    in
-        Random.generate DrawCardResult (Random.int 0 max)
 
 
 set_move_error : String -> Player -> Player
@@ -224,6 +212,18 @@ maybe_replenish deck =
 
         other ->
             deck
+
+
+get_card_idx : Player -> Random.Seed -> (Int, Random.Seed)
+get_card_idx player seed =
+    let
+        deckCount =
+            List.length player.deck
+
+        max =
+            deckCount - 1
+    in
+        Random.step (Random.int 0 max) seed
 
 
 draw_card : Int -> Player -> Player

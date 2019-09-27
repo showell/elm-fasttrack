@@ -15,6 +15,7 @@ module Type
         )
 
 import Dict
+import Random
 
 
 type alias Color =
@@ -80,6 +81,7 @@ type alias Model =
     { zone_colors : List Color
     , piece_map : PieceDict
     , players : PlayerDict
+    , seed : Random.Seed
     }
 
 
