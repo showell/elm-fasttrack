@@ -18,4 +18,5 @@ type Msg
     | ActivateCard Color Int
     | FinishCard Color
     | RotateBoard
+    | LoadGame Time.Posix
     | NewSeed Time.Posix

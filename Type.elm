@@ -1,13 +1,14 @@
 module Type
     exposing
         ( SquareKind(..)
+        , Turn(..)
+        , AppState(..)
         , Square
         , Color
         , Card
         , PieceLocation
         , PieceDict
         , TurnCardInfo
-        , Turn(..)
         , Player
         , PlayerDict
         , UpdatePlayerFunc
@@ -77,11 +78,17 @@ type alias PlayerDict =
     Dict.Dict Color Player
 
 
+type AppState
+    = Loading
+    | Ready
+
+
 type alias Model =
     { zone_colors : List Color
     , piece_map : PieceDict
     , players : PlayerDict
     , seed : Random.Seed
+    , state : AppState
     }
 
 

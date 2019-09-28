@@ -222,7 +222,6 @@ replenish_hand active_color model =
 
         active_player =
             get_player model.players active_color
-
     in
         if List.length active_player.hand == 5 then
             model
@@ -236,8 +235,8 @@ replenish_hand active_color model =
 
                 model_ =
                     { model
-                    | players = players_
-                    , seed = seed
+                        | players = players_
+                        , seed = seed
                     }
             in
                 replenish_hand active_color model_

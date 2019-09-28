@@ -11,6 +11,7 @@ import Type
         , PieceLocation
         , Color
         , Turn(..)
+        , AppState(..)
         , Player
         , Model
         , UpdatePlayerFunc
@@ -79,9 +80,10 @@ init flags =
             , piece_map = config_pieces zone_colors
             , players = config_players active_color zone_colors
             , seed = Random.initialSeed 42
+            , state = Loading
             }
     in
-        ( model, randomize )
+        ( model, Task.perform LoadGame Time.now )
 
 
 randomize : Cmd Msg
@@ -108,6 +110,20 @@ update_active_player model f =
         { model | players = players }
 
 
+replenish_active_hand : Model -> Model
+replenish_active_hand model =
+    let
+        active_color =
+            get_active_color model.zone_colors
+    in
+        replenish_hand active_color model
+
+
+seed_from_time : Time.Posix -> Random.Seed
+seed_from_time time =
+    Random.initialSeed (Time.posixToMillis time)
+
+
 
 -- UPDATE
 
@@ -115,16 +131,32 @@ update_active_player model f =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NewSeed time ->
+        LoadGame time ->
             let
-                random_int =
-                    Time.posixToMillis time
-
                 seed =
-                    Random.initialSeed random_int
+                    seed_from_time time
 
                 model_ =
-                    { model | seed = seed }
+                    { model
+                        | seed = seed
+                        , state = Ready
+                    }
+                        |> replenish_active_hand
+            in
+                ( model_, Cmd.none )
+
+        NewSeed time ->
+            -- this command is invoked to add extra randomness
+            -- (and theoretically prevent a tech savvy player with
+            -- a computer from anticipating a whole sequence of draws)
+            let
+                seed =
+                    seed_from_time time
+
+                model_ =
+                    { model
+                        | seed = seed
+                    }
             in
                 ( model_, Cmd.none )
 
@@ -137,10 +169,10 @@ update msg model =
 
         ReplenishHand ->
             let
-                active_color =
-                    get_active_color model.zone_colors
+                model_ =
+                    replenish_active_hand model
             in
-                ( replenish_hand active_color model, Cmd.none )
+                ( model_, Cmd.none )
 
         ActivateCard player_color idx ->
             let
@@ -177,6 +209,7 @@ update msg model =
                         | zone_colors = new_zone_colors
                         , players = players
                     }
+                        |> replenish_active_hand
             in
                 ( model_, Cmd.none )
 
@@ -238,6 +271,22 @@ subscriptions model =
 
 view : Model -> Browser.Document Msg
 view model =
+    case model.state of
+        Loading ->
+            -- The load should basically happen instantly, so this
+            -- is just defensive against race conditions.  Of course,
+            -- this may change in the future if we do things like
+            -- connect to a server.
+            { title = "Fast Track"
+            , body = [ Html.text "loading..." ]
+            }
+
+        Ready ->
+            normal_view model
+
+
+normal_view : Model -> Browser.Document Msg
+normal_view model =
     let
         active_color =
             get_active_color model.zone_colors

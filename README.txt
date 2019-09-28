@@ -6,13 +6,16 @@ HOW TO BUILD:
     elm make --optimize ft.elm --output ft.html
 
 TODO:
-    initial deal of 5 cards
-    regenerate hand after 5 face cards
+    initial deal of 5 cards (all players)
 
-    Turn type:
+    combine:
         auto-finish after move (but handle 7)
-        prevent rotate until non-face card played 
+        regenerate hand after 5 face cards
+        hide Deck most of the time (always?)
 
+    rearragne UI so deck is less jumpy
+
+    prevent rotate until non-face card played 
     extract piece code
     have landing screen between players
     change "Square" terminology (and use circles)
