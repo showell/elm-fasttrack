@@ -6,6 +6,7 @@ module Player exposing
     , finish_move
     , get_active_square
     , get_player
+    , maybe_replenish_hand
     , player_view
     , ready_to_play
     , replenish_hand
@@ -128,6 +129,19 @@ maybe_finish_card info =
         TurnCard info
 
 
+maybe_replenish_hand : Color -> Model -> Model
+maybe_replenish_hand active_color model =
+    let
+        player =
+            get_player model.players active_color
+    in
+    if List.length player.hand > 0 then
+        model
+
+    else
+        replenish_hand active_color model
+
+
 finish_move : Player -> Player
 finish_move player =
     case player.turn of
@@ -223,8 +237,8 @@ activate_card idx player =
     }
 
 
-maybe_replenish : List Card -> List Card
-maybe_replenish deck =
+maybe_replenish_deck : List Card -> List Card
+maybe_replenish_deck deck =
     case List.length deck of
         0 ->
             full_deck
@@ -292,14 +306,28 @@ draw_card idx player =
             List.Extra.removeAt idx player.deck
     in
     { player
-        | deck = maybe_replenish deck
+        | deck = maybe_replenish_deck deck
         , hand = hand
     }
 
 
-finish_card : Player -> Player
-finish_card player =
-    { player | turn = TurnInProgress }
+finish_card : Color -> Model -> Model
+finish_card active_color model =
+    let
+        players =
+            update_player
+                model.players
+                active_color
+                (\player ->
+                    { player | turn = TurnInProgress }
+                )
+
+        model_ =
+            { model
+                | players = players
+            }
+    in
+    model_ |> maybe_replenish_hand active_color
 
 
 can_player_start_move_here : Player -> Color -> PieceDict -> PieceLocation -> Bool

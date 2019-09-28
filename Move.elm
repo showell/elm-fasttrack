@@ -14,6 +14,7 @@ import Piece
 import Player
     exposing
         ( finish_move
+        , maybe_replenish_hand
         , set_move_error
         )
 import Type
@@ -107,8 +108,8 @@ wrong_base piece_color loc =
             False
 
 
-perform_move : Model -> Move -> UpdatePlayerFunc -> Model
-perform_move model move update_active_player =
+perform_move : Model -> Move -> Color -> UpdatePlayerFunc -> Model
+perform_move model move active_color update_active_player =
     let
         piece_map =
             model.piece_map
@@ -141,5 +142,6 @@ perform_move model move update_active_player =
 
                         model_ =
                             update_active_player finish_move
+                                |> maybe_replenish_hand active_color
                     in
                     { model_ | piece_map = new_map }

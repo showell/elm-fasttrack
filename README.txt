@@ -6,11 +6,8 @@ HOW TO BUILD:
     elm make --optimize ft.elm --output ft.html
 
 TODO:
-    combine:
-        regenerate hand after 5 face cards
-        hide Deck most of the time (always?)
-
-    rearragne UI so deck is less jumpy
+    rearrange UI so deck is less jumpy
+    hide Deck
 
     prevent rotate until non-face card played 
     extract piece code

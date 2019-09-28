@@ -184,8 +184,11 @@ update msg model =
 
         FinishCard player_color ->
             let
+                active_color =
+                    get_active_color model.zone_colors
+
                 model_ =
-                    update_active_player model finish_card
+                    model |> finish_card player_color
             in
             ( model_, Cmd.none )
 
@@ -255,7 +258,7 @@ handle_square_click model square_loc =
                     , next = square_loc
                     }
             in
-            perform_move model move update_player
+            perform_move model move active_color update_player
 
 
 
