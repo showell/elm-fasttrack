@@ -25,7 +25,7 @@ import Piece
         )
 import Player
     exposing
-        ( clear_active_square
+        ( finish_move
         , set_move_error
         )
 
@@ -139,6 +139,6 @@ perform_move model move update_active_player =
                                     |> assign_piece next_loc piece_color_
 
                             model_ =
-                                update_active_player clear_active_square
+                                update_active_player finish_move
                         in
                             { model_ | piece_map = new_map }

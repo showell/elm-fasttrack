@@ -6,10 +6,7 @@ HOW TO BUILD:
     elm make --optimize ft.elm --output ft.html
 
 TODO:
-    initial deal of 5 cards (all players)
-
     combine:
-        auto-finish after move (but handle 7)
         regenerate hand after 5 face cards
         hide Deck most of the time (always?)
 

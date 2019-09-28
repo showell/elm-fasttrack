@@ -9,7 +9,7 @@ module Player
         , can_player_start_move_here
         , get_active_square
         , set_active_square
-        , clear_active_square
+        , finish_move
         , set_move_error
         , update_player
         , get_player
@@ -110,17 +110,33 @@ set_move_error error player =
         other ->
             player
 
+maybe_finish_card : TurnCardInfo -> Turn
+maybe_finish_card info =
+    let
+        max_moves =
+            if info.active_card == "7" then
+                2
+            else
+                1
 
-clear_active_square : Player -> Player
-clear_active_square player =
+    in
+        if info.num_moves == max_moves then
+            TurnInProgress
+        else
+            TurnCard info
+
+
+finish_move : Player -> Player
+finish_move player =
     case player.turn of
         TurnCard info ->
             let
                 turn =
-                    TurnCard
+                    maybe_finish_card
                         { info
                             | active_square = Nothing
                             , move_error = Nothing
+                            , num_moves = info.num_moves + 1
                         }
             in
                 { player | turn = turn }
@@ -196,6 +212,7 @@ activate_card idx player =
                 { active_card = active_card
                 , active_square = Nothing
                 , move_error = Nothing
+                , num_moves = 0
                 }
     in
         { player
