@@ -1,35 +1,24 @@
-module Board
-    exposing
-        ( board_view
-        , board_rotate_button
-        , rotate_board
-        )
+module Board exposing
+    ( board_rotate_button
+    , board_view
+    , rotate_board
+    )
 
-import Set
+import Config
+    exposing
+        ( config_squares
+        , gutter_size
+        , square_size
+        )
 import Html exposing (..)
 import Html.Events
     exposing
         ( onClick
         )
 import Msg exposing (..)
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
-import Type
+import Piece
     exposing
-        ( Color
-        , PieceLocation
-        , PieceDict
-        , PlayerDict
-        )
-import Config
-    exposing
-        ( gutter_size
-        , square_size
-        , config_squares
-        )
-import Square
-    exposing
-        ( square_view
+        ( player_pieces
         )
 import Player
     exposing
@@ -37,15 +26,25 @@ import Player
         , get_player
         , ready_to_play
         )
-import Piece
+import Set
+import Square
     exposing
-        ( player_pieces
+        ( square_view
+        )
+import Svg exposing (..)
+import Svg.Attributes exposing (..)
+import Type
+    exposing
+        ( Color
+        , PieceDict
+        , PieceLocation
+        , PlayerDict
         )
 
 
 rotate_board : List Color -> List Color
 rotate_board zones =
-    (List.drop 1 zones) ++ (List.take 1 zones)
+    List.drop 1 zones ++ List.take 1 zones
 
 
 
@@ -74,15 +73,16 @@ board_view piece_map zone_colors players active_color =
         playable_locs =
             if ready_to_play active_player then
                 player_pieces piece_map active_color
+
             else
                 Set.empty
 
         content =
             List.map (draw_zone piece_map playable_locs active_square zone_colors) zone_colors
     in
-        svg
-            [ width board_size, height board_size ]
-            content
+    svg
+        [ width board_size, height board_size ]
+        content
 
 
 zone_index : Color -> List Color -> Int
@@ -95,8 +95,9 @@ zone_index x lst =
         first :: rest ->
             if first == x then
                 0
+
             else
-                1 + (zone_index x rest)
+                1 + zone_index x rest
 
 
 draw_zone : PieceDict -> Set.Set PieceLocation -> Maybe PieceLocation -> List Color -> Color -> Html Msg
@@ -109,7 +110,7 @@ draw_zone piece_map playable_locs active_square zone_colors zone_color =
             zone_index zone_color zone_colors
 
         angle =
-            (toFloat idx) * 360.0 / (toFloat (List.length zone_colors))
+            toFloat idx * 360.0 / toFloat (List.length zone_colors)
 
         color =
             zone_color
@@ -121,7 +122,7 @@ draw_zone piece_map playable_locs active_square zone_colors zone_color =
             "translate(" ++ center ++ " " ++ center ++ ")"
 
         rotate =
-            "rotate(" ++ (String.fromFloat angle) ++ ")"
+            "rotate(" ++ String.fromFloat angle ++ ")"
 
         transform_ =
             translate ++ " " ++ rotate
@@ -129,7 +130,7 @@ draw_zone piece_map playable_locs active_square zone_colors zone_color =
         drawn_squares =
             List.map (square_view zone_height piece_map color playable_locs active_square) squares
     in
-        g [ transform transform_ ] drawn_squares
+    g [ transform transform_ ] drawn_squares
 
 
 board_rotate_button : Html Msg

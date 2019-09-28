@@ -1,57 +1,58 @@
 module Main exposing (..)
 
-import Browser
-import Random
-import Time
-import Task
-import Html exposing (..)
-import Type
+import Board
     exposing
-        ( Square
-        , PieceLocation
-        , Color
-        , Turn(..)
-        , AppState(..)
-        , Player
-        , Model
-        , UpdatePlayerFunc
+        ( board_rotate_button
+        , board_view
+        , rotate_board
         )
+import Browser
 import Config
     exposing
         ( orig_zone_colors
         )
-import Board
-    exposing
-        ( board_view
-        , board_rotate_button
-        , rotate_board
-        )
-import Piece
-    exposing
-        ( config_pieces
-        )
+import Html exposing (..)
 import Move
     exposing
         ( perform_move
-        )
-import Player
-    exposing
-        ( config_players
-        , player_view
-        , replenish_hand
-        , activate_card
-        , finish_card
-        , set_turn
-        , can_player_start_move_here
-        , get_active_square
-        , set_active_square
-        , update_player
-        , get_player
         )
 import Msg
     exposing
         ( Msg(..)
         )
+import Piece
+    exposing
+        ( config_pieces
+        )
+import Player
+    exposing
+        ( activate_card
+        , can_player_start_move_here
+        , config_players
+        , finish_card
+        , get_active_square
+        , get_player
+        , player_view
+        , replenish_hand
+        , set_active_square
+        , set_turn
+        , update_player
+        )
+import Random
+import Task
+import Time
+import Type
+    exposing
+        ( AppState(..)
+        , Color
+        , Model
+        , PieceLocation
+        , Player
+        , Square
+        , Turn(..)
+        , UpdatePlayerFunc
+        )
+
 
 
 -- MODEL / INIT
@@ -83,7 +84,7 @@ init flags =
             , state = Loading
             }
     in
-        ( model, Task.perform LoadGame Time.now )
+    ( model, Task.perform LoadGame Time.now )
 
 
 randomize : Cmd Msg
@@ -107,7 +108,7 @@ update_active_player model f =
         players =
             update_player model.players active_color f
     in
-        { model | players = players }
+    { model | players = players }
 
 
 replenish_active_hand : Model -> Model
@@ -116,7 +117,7 @@ replenish_active_hand model =
         active_color =
             get_active_color model.zone_colors
     in
-        replenish_hand active_color model
+    replenish_hand active_color model
 
 
 seed_from_time : Time.Posix -> Random.Seed
@@ -143,7 +144,7 @@ update msg model =
                     }
                         |> replenish_active_hand
             in
-                ( model_, Cmd.none )
+            ( model_, Cmd.none )
 
         NewSeed time ->
             -- this command is invoked to add extra randomness
@@ -158,35 +159,35 @@ update msg model =
                         | seed = seed
                     }
             in
-                ( model_, Cmd.none )
+            ( model_, Cmd.none )
 
         ClickSquare clicked_square ->
             let
                 model_ =
                     handle_square_click model clicked_square
             in
-                ( model_, Cmd.none )
+            ( model_, Cmd.none )
 
         ReplenishHand ->
             let
                 model_ =
                     replenish_active_hand model
             in
-                ( model_, Cmd.none )
+            ( model_, Cmd.none )
 
         ActivateCard player_color idx ->
             let
                 model_ =
                     update_active_player model (activate_card idx)
             in
-                ( model_, randomize )
+            ( model_, randomize )
 
         FinishCard player_color ->
             let
                 model_ =
-                    update_active_player model (finish_card)
+                    update_active_player model finish_card
             in
-                ( model_, Cmd.none )
+            ( model_, Cmd.none )
 
         RotateBoard ->
             let
@@ -211,7 +212,7 @@ update msg model =
                     }
                         |> replenish_active_hand
             in
-                ( model_, Cmd.none )
+            ( model_, Cmd.none )
 
 
 handle_square_click : Model -> PieceLocation -> Model
@@ -232,28 +233,29 @@ handle_square_click model square_loc =
         active_square =
             get_active_square active_player
     in
-        case active_square of
-            Nothing ->
-                let
-                    piece_map =
-                        model.piece_map
+    case active_square of
+        Nothing ->
+            let
+                piece_map =
+                    model.piece_map
 
-                    can_move =
-                        can_player_start_move_here active_player active_color piece_map square_loc
-                in
-                    if can_move then
-                        update_player (set_active_square square_loc)
-                    else
-                        model
+                can_move =
+                    can_player_start_move_here active_player active_color piece_map square_loc
+            in
+            if can_move then
+                update_player (set_active_square square_loc)
 
-            Just prev ->
-                let
-                    move =
-                        { prev = prev
-                        , next = square_loc
-                        }
-                in
-                    perform_move model move update_player
+            else
+                model
+
+        Just prev ->
+            let
+                move =
+                    { prev = prev
+                    , next = square_loc
+                    }
+            in
+            perform_move model move update_player
 
 
 
@@ -305,6 +307,6 @@ normal_view model =
             , board_rotate_button
             ]
     in
-        { title = "Fast Track"
-        , body = body
-        }
+    { title = "Fast Track"
+    , body = body
+    }

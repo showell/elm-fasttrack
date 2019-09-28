@@ -1,18 +1,17 @@
-module Config
-    exposing
-        ( holding_pen_squares
-        , orig_zone_colors
-        , gutter_size
-        , square_size
-        , config_squares
-        , get_piece_kind
-        )
+module Config exposing
+    ( config_squares
+    , get_piece_kind
+    , gutter_size
+    , holding_pen_squares
+    , orig_zone_colors
+    , square_size
+    )
 
 import List.Extra
 import Type
     exposing
-        ( Square
-        , PieceLocation
+        ( PieceLocation
+        , Square
         , SquareKind(..)
         )
 
@@ -43,13 +42,13 @@ get_piece_kind id =
         item =
             List.Extra.find (\sq -> sq.id == id) config_squares
     in
-        case item of
-            Nothing ->
-                -- appease compiler
-                Normal
+    case item of
+        Nothing ->
+            -- appease compiler
+            Normal
 
-            Just item_ ->
-                item_.kind
+        Just item_ ->
+            item_.kind
 
 
 config_squares : List Square

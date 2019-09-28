@@ -1,19 +1,18 @@
-module Type
-    exposing
-        ( SquareKind(..)
-        , Turn(..)
-        , AppState(..)
-        , Square
-        , Color
-        , Card
-        , PieceLocation
-        , PieceDict
-        , TurnCardInfo
-        , Player
-        , PlayerDict
-        , UpdatePlayerFunc
-        , Model
-        )
+module Type exposing
+    ( AppState(..)
+    , Card
+    , Color
+    , Model
+    , PieceDict
+    , PieceLocation
+    , Player
+    , PlayerDict
+    , Square
+    , SquareKind(..)
+    , Turn(..)
+    , TurnCardInfo
+    , UpdatePlayerFunc
+    )
 
 import Dict
 import Random

@@ -1,48 +1,47 @@
-module Player
-    exposing
-        ( config_players
-        , player_view
-        , replenish_hand
-        , activate_card
-        , finish_card
-        , set_turn
-        , can_player_start_move_here
-        , get_active_square
-        , set_active_square
-        , finish_move
-        , set_move_error
-        , update_player
-        , get_player
-        , ready_to_play
-        )
+module Player exposing
+    ( activate_card
+    , can_player_start_move_here
+    , config_players
+    , finish_card
+    , finish_move
+    , get_active_square
+    , get_player
+    , player_view
+    , ready_to_play
+    , replenish_hand
+    , set_active_square
+    , set_move_error
+    , set_turn
+    , update_player
+    )
 
+import Deck exposing (full_deck)
+import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Dict
-import Random
+import List.Extra
 import Msg
     exposing
         ( Msg(..)
-        )
-import Type
-    exposing
-        ( Color
-        , Card
-        , TurnCardInfo
-        , Turn(..)
-        , PieceLocation
-        , Player
-        , PlayerDict
-        , PieceDict
-        , Model
         )
 import Piece
     exposing
         ( get_piece
         )
-import Deck exposing (full_deck)
-import List.Extra
+import Random
+import Type
+    exposing
+        ( Card
+        , Color
+        , Model
+        , PieceDict
+        , PieceLocation
+        , Player
+        , PlayerDict
+        , Turn(..)
+        , TurnCardInfo
+        )
 
 
 config_player : Color -> Color -> Player
@@ -51,6 +50,7 @@ config_player active_color color =
         turn =
             if active_color == color then
                 TurnInProgress
+
             else
                 TurnIdle
 
@@ -61,7 +61,7 @@ config_player active_color color =
             , turn = turn
             }
     in
-        original_setup
+    original_setup
 
 
 config_players : Color -> List Color -> PlayerDict
@@ -73,7 +73,7 @@ config_players active_color zone_colors =
         dct =
             Dict.empty
     in
-        List.foldl config_one dct zone_colors
+    List.foldl config_one dct zone_colors
 
 
 get_player : PlayerDict -> Color -> Player
@@ -105,10 +105,11 @@ set_move_error error player =
                             , move_error = Just error
                         }
             in
-                { player | turn = turn }
+            { player | turn = turn }
 
         other ->
             player
+
 
 maybe_finish_card : TurnCardInfo -> Turn
 maybe_finish_card info =
@@ -116,14 +117,15 @@ maybe_finish_card info =
         max_moves =
             if info.active_card == "7" then
                 2
+
             else
                 1
-
     in
-        if info.num_moves == max_moves then
-            TurnInProgress
-        else
-            TurnCard info
+    if info.num_moves == max_moves then
+        TurnInProgress
+
+    else
+        TurnCard info
 
 
 finish_move : Player -> Player
@@ -139,7 +141,7 @@ finish_move player =
                             , num_moves = info.num_moves + 1
                         }
             in
-                { player | turn = turn }
+            { player | turn = turn }
 
         other ->
             player
@@ -157,7 +159,7 @@ set_active_square square player =
                             , move_error = Nothing
                         }
             in
-                { player | turn = turn }
+            { player | turn = turn }
 
         other ->
             player
@@ -182,7 +184,7 @@ update_player players color f =
         new_player =
             f player
     in
-        Dict.insert color new_player players
+    Dict.insert color new_player players
 
 
 set_turn : Color -> Turn -> PlayerDict -> PlayerDict
@@ -215,10 +217,10 @@ activate_card idx player =
                 , num_moves = 0
                 }
     in
-        { player
-            | turn = turn
-            , hand = new_hand
-        }
+    { player
+        | turn = turn
+        , hand = new_hand
+    }
 
 
 maybe_replenish : List Card -> List Card
@@ -240,23 +242,24 @@ replenish_hand active_color model =
         active_player =
             get_player model.players active_color
     in
-        if List.length active_player.hand == 5 then
-            model
-        else
-            let
-                ( idx, seed ) =
-                    get_card_idx active_player model.seed
+    if List.length active_player.hand == 5 then
+        model
 
-                players_ =
-                    update_player players active_color (draw_card idx)
+    else
+        let
+            ( idx, seed ) =
+                get_card_idx active_player model.seed
 
-                model_ =
-                    { model
-                        | players = players_
-                        , seed = seed
-                    }
-            in
-                replenish_hand active_color model_
+            players_ =
+                update_player players active_color (draw_card idx)
+
+            model_ =
+                { model
+                    | players = players_
+                    , seed = seed
+                }
+        in
+        replenish_hand active_color model_
 
 
 get_card_idx : Player -> Random.Seed -> ( Int, Random.Seed )
@@ -268,7 +271,7 @@ get_card_idx player seed =
         max =
             deckCount - 1
     in
-        Random.step (Random.int 0 max) seed
+    Random.step (Random.int 0 max) seed
 
 
 draw_card : Int -> Player -> Player
@@ -288,10 +291,10 @@ draw_card idx player =
         deck =
             List.Extra.removeAt idx player.deck
     in
-        { player
-            | deck = maybe_replenish deck
-            , hand = hand
-        }
+    { player
+        | deck = maybe_replenish deck
+        , hand = hand
+    }
 
 
 finish_card : Player -> Player
@@ -305,20 +308,21 @@ can_player_start_move_here player player_color piece_map square_loc =
         piece_color =
             get_piece piece_map square_loc
     in
-        case piece_color of
-            Nothing ->
+    case piece_color of
+        Nothing ->
+            False
+
+        Just piece_color_ ->
+            if piece_color_ == player_color then
+                case player.turn of
+                    TurnCard _ ->
+                        True
+
+                    other ->
+                        False
+
+            else
                 False
-
-            Just piece_color_ ->
-                if piece_color_ == player_color then
-                    case player.turn of
-                        TurnCard _ ->
-                            True
-
-                        other ->
-                            False
-                else
-                    False
 
 
 
@@ -351,9 +355,9 @@ view_hand_card color player idx card =
                 other ->
                     [ disabled True ]
     in
-        button
-            (attrs ++ css)
-            [ Html.text card ]
+    button
+        (attrs ++ css)
+        [ Html.text card ]
 
 
 deck_view : Player -> Color -> Html Msg
@@ -366,20 +370,21 @@ deck_view player color =
             List.length player.hand
 
         title_ =
-            (String.fromInt deckCount) ++ " cards left"
+            String.fromInt deckCount ++ " cards left"
 
         attrs =
             if (handCount < 5) && (player.turn == TurnInProgress) then
                 [ onClick ReplenishHand ]
+
             else
                 [ disabled True ]
 
         css =
             card_css color
     in
-        button
-            (attrs ++ css ++ [ title title_ ])
-            [ Html.text "Deck" ]
+    button
+        (attrs ++ css ++ [ title title_ ])
+        [ Html.text "Deck" ]
 
 
 player_view : PlayerDict -> Color -> Html Msg
@@ -405,10 +410,10 @@ player_view players color =
                 other ->
                     div [] [ Html.text "click a card below" ]
     in
-        div []
-            [ active_card
-            , span [] [ deck, hand ]
-            ]
+    div []
+        [ active_card
+        , span [] [ deck, hand ]
+        ]
 
 
 active_card_view : TurnCardInfo -> Color -> Html Msg
@@ -436,10 +441,10 @@ active_card_view turn_info color =
                         Nothing ->
                             div [] []
             in
-                div []
-                    [ Html.text ("play now: " ++ turn_info.active_card)
-                    , div [] [ Html.text "Click a piece to start move." ]
-                    , div [] [ finish_button ]
-                    , move_error
-                    , hr [] []
-                    ]
+            div []
+                [ Html.text ("play now: " ++ turn_info.active_card)
+                , div [] [ Html.text "Click a piece to start move." ]
+                , div [] [ finish_button ]
+                , move_error
+                , hr [] []
+                ]

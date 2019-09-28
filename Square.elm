@@ -1,28 +1,25 @@
-module Square
-    exposing
-        ( square_view
-        )
+module Square exposing (square_view)
 
-import Set
-import Html exposing (..)
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
-import Svg.Events exposing (onClick)
-import Msg exposing (..)
 import Config
     exposing
-        ( square_size
-        , gutter_size
+        ( gutter_size
+        , square_size
         )
-import Type
-    exposing
-        ( Square
-        , PieceLocation
-        , PieceDict
-        )
+import Html exposing (..)
+import Msg exposing (..)
 import Piece
     exposing
         ( get_piece
+        )
+import Set
+import Svg exposing (..)
+import Svg.Attributes exposing (..)
+import Svg.Events exposing (onClick)
+import Type
+    exposing
+        ( PieceDict
+        , PieceLocation
+        , Square
         )
 
 
@@ -82,20 +79,22 @@ square_view zone_height piece_map zone_color playable_locs active_square square 
                 radius =
                     if is_active then
                         "7"
+
                     else if is_playable then
                         "6"
+
                     else
                         "4"
             in
-                circle
-                    [ cx (String.fromFloat cx_)
-                    , cy (String.fromFloat cy_)
-                    , fill color_
-                    , stroke color_
-                    , r radius
-                    , onClick (ClickSquare piece_location)
-                    ]
-                    []
+            circle
+                [ cx (String.fromFloat cx_)
+                , cy (String.fromFloat cy_)
+                , fill color_
+                , stroke color_
+                , r radius
+                , onClick (ClickSquare piece_location)
+                ]
+                []
 
         s_pieces =
             List.map draw_piece my_pieces
@@ -103,12 +102,14 @@ square_view zone_height piece_map zone_color playable_locs active_square square 
         fill_color =
             if is_active then
                 "lightblue"
+
             else
                 "white"
 
         stroke_color =
             if is_playable then
                 "black"
+
             else
                 zone_color
 
@@ -130,4 +131,4 @@ square_view zone_height piece_map zone_color playable_locs active_square square 
                 , s_pieces
                 ]
     in
-        g [] contents
+    g [] contents

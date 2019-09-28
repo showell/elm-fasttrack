@@ -1,13 +1,10 @@
-module Msg
-    exposing
-        ( Msg(..)
-        )
+module Msg exposing (Msg(..))
 
 import Time
 import Type
     exposing
-        ( PieceLocation
-        , Color
+        ( Color
+        , PieceLocation
         , Player
         )
 
