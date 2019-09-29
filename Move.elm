@@ -20,10 +20,10 @@ import Player
 import Type
     exposing
         ( Color
+        , LocationKind(..)
         , Model
         , PieceDict
         , PieceLocation
-        , LocationKind(..)
         , UpdatePlayerFunc
         )
 

@@ -44,10 +44,10 @@ import Type
     exposing
         ( AppState(..)
         , Color
+        , Location
         , Model
         , PieceLocation
         , Player
-        , Location
         , Turn(..)
         , UpdatePlayerFunc
         )

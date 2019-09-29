@@ -10,9 +10,9 @@ module Config exposing
 import List.Extra
 import Type
     exposing
-        ( PieceLocation
-        , Location
+        ( Location
         , LocationKind(..)
+        , PieceLocation
         )
 
 

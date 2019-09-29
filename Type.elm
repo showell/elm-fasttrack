@@ -2,13 +2,13 @@ module Type exposing
     ( AppState(..)
     , Card
     , Color
+    , Location
+    , LocationKind(..)
     , Model
     , PieceDict
     , PieceLocation
     , Player
     , PlayerDict
-    , Location
-    , LocationKind(..)
     , Turn(..)
     , TurnCardInfo
     , UpdatePlayerFunc

@@ -14,6 +14,10 @@ import Html.Events
     exposing
         ( onClick
         )
+import Location
+    exposing
+        ( location_view
+        )
 import Msg exposing (..)
 import Piece
     exposing
@@ -26,10 +30,6 @@ import Player
         , ready_to_play
         )
 import Set
-import Location
-    exposing
-        ( location_view
-        )
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Type
