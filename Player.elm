@@ -112,6 +112,20 @@ set_move_error error player =
             player
 
 
+is_move_again_card : Card -> Bool
+is_move_again_card card =
+    List.member card [ "A", "K", "Q", "J", "joker", "6" ]
+
+
+maybe_finish_turn : TurnCardInfo -> Turn
+maybe_finish_turn info =
+    if is_move_again_card info.active_card then
+        TurnInProgress
+
+    else
+        TurnDone
+
+
 maybe_finish_card : TurnCardInfo -> Turn
 maybe_finish_card info =
     let
@@ -123,7 +137,7 @@ maybe_finish_card info =
                 1
     in
     if info.num_moves == max_moves then
-        TurnInProgress
+        maybe_finish_turn info
 
     else
         TurnCard info
@@ -319,7 +333,16 @@ finish_card active_color model =
                 model.players
                 active_color
                 (\player ->
-                    { player | turn = TurnInProgress }
+                    let
+                        turn =
+                            case player.turn of
+                                TurnCard info ->
+                                    maybe_finish_turn info
+
+                                other ->
+                                    other
+                    in
+                    { player | turn = turn }
                 )
 
         model_ =
@@ -391,28 +414,23 @@ view_hand_card color player idx card =
 deck_view : Player -> Color -> Html Msg
 deck_view player color =
     let
-        deckCount =
-            List.length player.deck
-
         handCount =
             List.length player.hand
-
-        title_ =
-            String.fromInt deckCount ++ " cards left"
-
-        attrs =
-            if (handCount < 5) && (player.turn == TurnInProgress) then
-                [ onClick ReplenishHand ]
-
-            else
-                [ disabled True ]
-
-        css =
-            card_css color
     in
-    button
-        (attrs ++ css ++ [ title title_ ])
-        [ Html.text "Deck" ]
+    if (player.turn == TurnDone) && (handCount < 5) then
+        let
+            css =
+                card_css color
+
+            attrs =
+                [ onClick ReplenishHand ]
+        in
+        button
+            (attrs ++ css)
+            [ Html.text "Deck" ]
+
+    else
+        span [] []
 
 
 player_view : PlayerDict -> Color -> Html Msg
@@ -435,12 +453,32 @@ player_view players color =
                 TurnCard turn_info ->
                     console_view turn_info color
 
-                other ->
+                TurnInProgress ->
                     div [] [ Html.text "click a card above" ]
+
+                TurnDone ->
+                    div
+                        []
+                        [ Html.text "ok, now finish your turn"
+                        , rotate_button
+                        ]
+
+                other ->
+                    div [] []
     in
     div []
         [ span [] [ deck, hand ]
         , console
+        ]
+
+
+rotate_button : Html Msg
+rotate_button =
+    div
+        []
+        [ button
+            [ onClick RotateBoard ]
+            [ Html.text "Finish Turn" ]
         ]
 
 

@@ -1,6 +1,5 @@
 module Board exposing
-    ( board_rotate_button
-    , board_view
+    ( board_view
     , rotate_board
     )
 
@@ -131,13 +130,3 @@ draw_zone piece_map playable_locs active_square zone_colors zone_color =
             List.map (square_view zone_height piece_map color playable_locs active_square) squares
     in
     g [ transform transform_ ] drawn_squares
-
-
-board_rotate_button : Html Msg
-board_rotate_button =
-    div
-        []
-        [ button
-            [ onClick RotateBoard ]
-            [ Html.text "Finish Turn" ]
-        ]

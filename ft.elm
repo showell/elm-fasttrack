@@ -2,8 +2,7 @@ module Main exposing (..)
 
 import Board
     exposing
-        ( board_rotate_button
-        , board_view
+        ( board_view
         , rotate_board
         )
 import Browser
@@ -308,8 +307,6 @@ normal_view model =
             [ board
             , hr [] []
             , cards
-            , hr [] []
-            , board_rotate_button
             ]
     in
     { title = "Fast Track"
