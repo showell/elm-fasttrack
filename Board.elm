@@ -137,8 +137,7 @@ board_rotate_button : Html Msg
 board_rotate_button =
     div
         []
-        [ hr [] []
-        , button
+        [ button
             [ onClick RotateBoard ]
             [ Html.text "Finish Turn" ]
         ]

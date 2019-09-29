@@ -306,7 +306,9 @@ normal_view model =
 
         body =
             [ board
+            , hr [] []
             , cards
+            , hr [] []
             , board_rotate_button
             ]
     in

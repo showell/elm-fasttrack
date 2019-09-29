@@ -430,28 +430,38 @@ player_view players color =
         hand =
             span [] hand_cards
 
-        active_card =
+        console =
             case player.turn of
                 TurnCard turn_info ->
-                    active_card_view turn_info color
+                    console_view turn_info color
 
                 other ->
-                    div [] [ Html.text "click a card below" ]
+                    div [] [ Html.text "click a card above" ]
     in
     div []
-        [ active_card
-        , span [] [ deck, hand ]
+        [ span [] [ deck, hand ]
+        , console
         ]
 
 
-active_card_view : TurnCardInfo -> Color -> Html Msg
-active_card_view turn_info color =
+console_view : TurnCardInfo -> Color -> Html Msg
+console_view turn_info color =
+    let
+        css =
+            [ style "color" color
+            , style "padding" "4px"
+            , style "margin" "5px"
+            , style "font-size" "110%"
+            ]
+
+        active_card_view =
+            b css [ Html.text turn_info.active_card ]
+    in
     case turn_info.active_square of
         Just _ ->
-            div []
-                [ Html.text ("play now: " ++ turn_info.active_card)
+            span []
+                [ active_card_view
                 , div [] [ Html.text "Click a square to end move." ]
-                , hr [] []
                 ]
 
         Nothing ->
@@ -468,11 +478,12 @@ active_card_view turn_info color =
 
                         Nothing ->
                             div [] []
+
+                instructions =
+                    "Click a piece to start move"
             in
             div []
-                [ Html.text ("play now: " ++ turn_info.active_card)
-                , div [] [ Html.text "Click a piece to start move." ]
+                [ span [] [ active_card_view, Html.text instructions ]
                 , div [] [ finish_button ]
                 , move_error
-                , hr [] []
                 ]
