@@ -4,13 +4,13 @@ module Player exposing
     , config_players
     , finish_card
     , finish_move
-    , get_active_square
+    , get_active_location
     , get_player
     , maybe_replenish_hand
     , player_view
     , ready_to_play
     , replenish_hand
-    , set_active_square
+    , set_active_location
     , set_move_error
     , set_turn
     , update_player
@@ -88,7 +88,7 @@ ready_to_play : Player -> Bool
 ready_to_play player =
     case player.turn of
         TurnCard info ->
-            info.active_square == Nothing
+            info.active_location == Nothing
 
         other ->
             False
@@ -102,7 +102,7 @@ set_move_error error player =
                 turn =
                     TurnCard
                         { info
-                            | active_square = Nothing
+                            | active_location = Nothing
                             , move_error = Just error
                         }
             in
@@ -164,7 +164,7 @@ finish_move player =
                 turn =
                     maybe_finish_card
                         { info
-                            | active_square = Nothing
+                            | active_location = Nothing
                             , move_error = Nothing
                             , num_moves = info.num_moves + 1
                         }
@@ -175,15 +175,15 @@ finish_move player =
             player
 
 
-set_active_square : PieceLocation -> Player -> Player
-set_active_square square player =
+set_active_location : PieceLocation -> Player -> Player
+set_active_location square player =
     case player.turn of
         TurnCard info ->
             let
                 turn =
                     TurnCard
                         { info
-                            | active_square = Just square
+                            | active_location = Just square
                             , move_error = Nothing
                         }
             in
@@ -193,11 +193,11 @@ set_active_square square player =
             player
 
 
-get_active_square : Player -> Maybe PieceLocation
-get_active_square player =
+get_active_location : Player -> Maybe PieceLocation
+get_active_location player =
     case player.turn of
         TurnCard info ->
-            info.active_square
+            info.active_location
 
         other ->
             Nothing
@@ -240,7 +240,7 @@ activate_card idx player =
         turn =
             TurnCard
                 { active_card = active_card
-                , active_square = Nothing
+                , active_location = Nothing
                 , move_error = Nothing
                 , num_moves = 0
                 }
@@ -495,7 +495,7 @@ console_view turn_info color =
         active_card_view =
             b css [ Html.text turn_info.active_card ]
     in
-    case turn_info.active_square of
+    case turn_info.active_location of
         Just _ ->
             span []
                 [ active_card_view

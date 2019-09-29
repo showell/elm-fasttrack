@@ -1,4 +1,4 @@
-module Square exposing (square_view)
+module Location exposing (location_view)
 
 import Config
     exposing
@@ -17,15 +17,15 @@ import Svg.Attributes exposing (..)
 import Svg.Events exposing (onClick)
 import Type
     exposing
-        ( PieceDict
+        ( Location
+        , PieceDict
         , PieceLocation
-        , Square
         )
 
 
-is_active_square : PieceLocation -> Maybe PieceLocation -> Bool
-is_active_square square_info active_square =
-    case active_square of
+is_active_location : PieceLocation -> Maybe PieceLocation -> Bool
+is_active_location square_info active_location =
+    case active_location of
         Nothing ->
             False
 
@@ -33,8 +33,8 @@ is_active_square square_info active_square =
             square_info == active
 
 
-square_view : Float -> PieceDict -> String -> Set.Set PieceLocation -> Maybe PieceLocation -> Square -> Html Msg
-square_view zone_height piece_map zone_color playable_locs active_square square =
+location_view : Float -> PieceDict -> String -> Set.Set PieceLocation -> Maybe PieceLocation -> Location -> Html Msg
+location_view zone_height piece_map zone_color playable_locs active_location square =
     let
         piece_location =
             ( zone_color, square.id )
@@ -69,7 +69,7 @@ square_view zone_height piece_map zone_color playable_locs active_square square 
                     []
 
         is_active =
-            is_active_square piece_location active_square
+            is_active_location piece_location active_location
 
         is_playable =
             Set.member piece_location playable_locs
@@ -92,7 +92,7 @@ square_view zone_height piece_map zone_color playable_locs active_square square 
                 , fill color_
                 , stroke color_
                 , r radius
-                , onClick (ClickSquare piece_location)
+                , onClick (ClickLocation piece_location)
                 ]
                 []
 
@@ -121,7 +121,7 @@ square_view zone_height piece_map zone_color playable_locs active_square square 
                 , stroke stroke_color
                 , width (String.fromFloat w)
                 , height (String.fromFloat h)
-                , onClick (ClickSquare piece_location)
+                , onClick (ClickLocation piece_location)
                 ]
                 []
 

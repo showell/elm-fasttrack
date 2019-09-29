@@ -29,11 +29,11 @@ import Player
         , can_player_start_move_here
         , config_players
         , finish_card
-        , get_active_square
+        , get_active_location
         , get_player
         , player_view
         , replenish_hand
-        , set_active_square
+        , set_active_location
         , set_turn
         , update_player
         )
@@ -47,7 +47,7 @@ import Type
         , Model
         , PieceLocation
         , Player
-        , Square
+        , Location
         , Turn(..)
         , UpdatePlayerFunc
         )
@@ -160,10 +160,10 @@ update msg model =
             in
             ( model_, Cmd.none )
 
-        ClickSquare clicked_square ->
+        ClickLocation clicked_loc ->
             let
                 model_ =
-                    handle_square_click model clicked_square
+                    handle_loc_click model clicked_loc
             in
             ( model_, Cmd.none )
 
@@ -217,8 +217,8 @@ update msg model =
             ( model_, Cmd.none )
 
 
-handle_square_click : Model -> PieceLocation -> Model
-handle_square_click model square_loc =
+handle_loc_click : Model -> PieceLocation -> Model
+handle_loc_click model location =
     let
         active_color =
             get_active_color model.zone_colors
@@ -232,20 +232,20 @@ handle_square_click model square_loc =
         active_player =
             get_player players active_color
 
-        active_square =
-            get_active_square active_player
+        active_location =
+            get_active_location active_player
     in
-    case active_square of
+    case active_location of
         Nothing ->
             let
                 piece_map =
                     model.piece_map
 
                 can_move =
-                    can_player_start_move_here active_player active_color piece_map square_loc
+                    can_player_start_move_here active_player active_color piece_map location
             in
             if can_move then
-                update_player (set_active_square square_loc)
+                update_player (set_active_location location)
 
             else
                 model
@@ -254,7 +254,7 @@ handle_square_click model square_loc =
             let
                 move =
                     { prev = prev
-                    , next = square_loc
+                    , next = location
                     }
             in
             perform_move model move active_color update_player

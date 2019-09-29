@@ -9,7 +9,7 @@ module Piece exposing
 
 import Config
     exposing
-        ( holding_pen_squares
+        ( holding_pen_locations
         )
 import Dict
 import List.Extra
@@ -49,8 +49,8 @@ player_pieces piece_map active_color =
         |> Set.fromList
 
 
-is_open_square : PieceDict -> PieceLocation -> Bool
-is_open_square piece_map piece_loc =
+is_open_location : PieceDict -> PieceLocation -> Bool
+is_open_location piece_map piece_loc =
     case
         get_piece piece_map piece_loc
     of
@@ -61,13 +61,13 @@ is_open_square piece_map piece_loc =
             False
 
 
-open_holding_pen_square : PieceDict -> Color -> Maybe PieceLocation
-open_holding_pen_square piece_map color =
+open_holding_pen_location : PieceDict -> Color -> Maybe PieceLocation
+open_holding_pen_location piece_map color =
     let
         is_open id =
-            is_open_square piece_map ( color, id )
+            is_open_location piece_map ( color, id )
     in
-    case List.Extra.find is_open holding_pen_squares of
+    case List.Extra.find is_open holding_pen_locations of
         Nothing ->
             Nothing
 
@@ -87,7 +87,7 @@ maybe_send_piece_to_pen piece_loc piece_map =
             piece_map
 
         Just color_ ->
-            case open_holding_pen_square piece_map color_ of
+            case open_holding_pen_location piece_map color_ of
                 Nothing ->
                     -- this should never happen!
                     piece_map
@@ -104,7 +104,7 @@ config_zone_pieces color piece_map =
         assign id =
             Dict.insert ( color, id ) color
     in
-    List.foldl assign piece_map holding_pen_squares
+    List.foldl assign piece_map holding_pen_locations
 
 
 config_pieces : List Color -> PieceDict

@@ -10,7 +10,7 @@ import Type
 
 
 type Msg
-    = ClickSquare PieceLocation
+    = ClickLocation PieceLocation
     | ReplenishHand
     | ActivateCard Color Int
     | FinishCard Color

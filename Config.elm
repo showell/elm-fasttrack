@@ -1,8 +1,8 @@
 module Config exposing
-    ( config_squares
+    ( config_locations
     , get_piece_kind
     , gutter_size
-    , holding_pen_squares
+    , holding_pen_locations
     , orig_zone_colors
     , square_size
     )
@@ -11,8 +11,8 @@ import List.Extra
 import Type
     exposing
         ( PieceLocation
-        , Square
-        , SquareKind(..)
+        , Location
+        , LocationKind(..)
         )
 
 
@@ -31,16 +31,16 @@ orig_zone_colors =
     [ "red", "blue", "green", "purple" ]
 
 
-holding_pen_squares : List String
-holding_pen_squares =
+holding_pen_locations : List String
+holding_pen_locations =
     [ "HP1", "HP2", "HP3", "HP4" ]
 
 
-get_piece_kind : String -> SquareKind
+get_piece_kind : String -> LocationKind
 get_piece_kind id =
     let
         item =
-            List.Extra.find (\sq -> sq.id == id) config_squares
+            List.Extra.find (\sq -> sq.id == id) config_locations
     in
     case item of
         Nothing ->
@@ -51,8 +51,8 @@ get_piece_kind id =
             item_.kind
 
 
-config_squares : List Square
-config_squares =
+config_locations : List Location
+config_locations =
     [ -- holding pen
       { x = -4.2
       , y = 1.7

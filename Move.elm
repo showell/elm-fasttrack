@@ -23,7 +23,7 @@ import Type
         , Model
         , PieceDict
         , PieceLocation
-        , SquareKind(..)
+        , LocationKind(..)
         , UpdatePlayerFunc
         )
 

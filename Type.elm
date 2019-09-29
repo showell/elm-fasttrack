@@ -7,8 +7,8 @@ module Type exposing
     , PieceLocation
     , Player
     , PlayerDict
-    , Square
-    , SquareKind(..)
+    , Location
+    , LocationKind(..)
     , Turn(..)
     , TurnCardInfo
     , UpdatePlayerFunc
@@ -26,7 +26,7 @@ type alias Card =
     String
 
 
-type SquareKind
+type LocationKind
     = HoldingPen
     | Normal
     | FastTrack
@@ -35,10 +35,10 @@ type SquareKind
     | Base
 
 
-type alias Square =
+type alias Location =
     { x : Float
     , y : Float
-    , kind : SquareKind
+    , kind : LocationKind
     , id : String
     }
 
@@ -53,7 +53,7 @@ type alias PieceDict =
 
 type alias TurnCardInfo =
     { active_card : Card
-    , active_square : Maybe PieceLocation
+    , active_location : Maybe PieceLocation
     , move_error : Maybe String
     , num_moves : Int
     }

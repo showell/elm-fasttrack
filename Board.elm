@@ -5,7 +5,7 @@ module Board exposing
 
 import Config
     exposing
-        ( config_squares
+        ( config_locations
         , gutter_size
         , square_size
         )
@@ -21,14 +21,14 @@ import Piece
         )
 import Player
     exposing
-        ( get_active_square
+        ( get_active_location
         , get_player
         , ready_to_play
         )
 import Set
-import Square
+import Location
     exposing
-        ( square_view
+        ( location_view
         )
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -66,8 +66,8 @@ board_view piece_map zone_colors players active_color =
         active_player =
             get_player players active_color
 
-        active_square =
-            get_active_square active_player
+        active_location =
+            get_active_location active_player
 
         playable_locs =
             if ready_to_play active_player then
@@ -77,7 +77,7 @@ board_view piece_map zone_colors players active_color =
                 Set.empty
 
         content =
-            List.map (draw_zone piece_map playable_locs active_square zone_colors) zone_colors
+            List.map (draw_zone piece_map playable_locs active_location zone_colors) zone_colors
     in
     svg
         [ width board_size, height board_size ]
@@ -100,10 +100,10 @@ zone_index x lst =
 
 
 draw_zone : PieceDict -> Set.Set PieceLocation -> Maybe PieceLocation -> List Color -> Color -> Html Msg
-draw_zone piece_map playable_locs active_square zone_colors zone_color =
+draw_zone piece_map playable_locs active_location zone_colors zone_color =
     let
-        squares =
-            config_squares
+        locations =
+            config_locations
 
         idx =
             zone_index zone_color zone_colors
@@ -126,7 +126,7 @@ draw_zone piece_map playable_locs active_square zone_colors zone_color =
         transform_ =
             translate ++ " " ++ rotate
 
-        drawn_squares =
-            List.map (square_view zone_height piece_map color playable_locs active_square) squares
+        drawn_locations =
+            List.map (location_view zone_height piece_map color playable_locs active_location) locations
     in
-    g [ transform transform_ ] drawn_squares
+    g [ transform transform_ ] drawn_locations

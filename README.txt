@@ -6,12 +6,15 @@ HOW TO BUILD:
     elm make --optimize ft.elm --output ft.html
 
 TODO:
-    basic undo
+    put Deck **after** cards
     extract piece code
-    have landing screen between players
-    change "Square" terminology (and use circles)
-    get-out pile
+    draw circles for most locations
     add title hovers for squares
-    add css for move errors
+    replace straggling "square" references
+
+    get-out pile
     jack swap/kill
-    upgrade elm-format, re-run
+
+    basic undo
+    have landing screen between players
+    add css for move errors
