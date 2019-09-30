@@ -8,7 +8,7 @@ import Board
 import Browser
 import Config
     exposing
-        ( orig_zone_colors
+        ( get_zone_colors
         )
 import Html exposing (..)
 import Move
@@ -69,8 +69,11 @@ main =
 init : () -> ( Model, Cmd Msg )
 init flags =
     let
+        num_players =
+            4
+
         zone_colors =
-            orig_zone_colors
+            get_zone_colors num_players
 
         active_color =
             get_active_color zone_colors

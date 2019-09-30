@@ -1,9 +1,9 @@
 module Config exposing
     ( config_locations
     , get_piece_kind
+    , get_zone_colors
     , gutter_size
     , holding_pen_locations
-    , orig_zone_colors
     , square_size
     )
 
@@ -18,7 +18,7 @@ import Type
 
 gutter_size : Float
 gutter_size =
-    3.0
+    4.0
 
 
 square_size : Float
@@ -26,9 +26,9 @@ square_size =
     26.0
 
 
-orig_zone_colors : List String
-orig_zone_colors =
-    [ "red", "blue", "green", "purple" ]
+get_zone_colors : Int -> List String
+get_zone_colors num_players =
+    List.take num_players [ "red", "blue", "green", "purple", "aqua", "brown" ]
 
 
 holding_pen_locations : List String

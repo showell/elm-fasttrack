@@ -99,7 +99,7 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
                 zone_color
 
         is_rect =
-            square.id /= "FT"
+            List.member square.id [ "HP1", "HP2", "HP3", "HP4", "B1", "B2", "B3", "B4" ]
 
         s_location =
             if is_rect then
@@ -111,6 +111,7 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
                     , width (String.fromFloat w)
                     , height (String.fromFloat h)
                     , onClick (ClickLocation piece_location)
+                    , rx "2"
                     ]
                     []
 
