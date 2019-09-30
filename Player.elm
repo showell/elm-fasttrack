@@ -396,7 +396,6 @@ reachable_locs_for_player active_player piece_map zone_colors =
             case loc of
                 Just loc_ ->
                     get_reachable_locs active_card piece_map zone_colors loc_
-                        |> Set.fromList
 
                 Nothing ->
                     Set.empty

@@ -7,8 +7,6 @@ HOW TO BUILD:
 
 TODO:
 
-    use Set in get_reachable_locs
-
     put Deck **after** cards
     extract piece code
     draw circles for most locations

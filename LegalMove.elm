@@ -5,6 +5,7 @@ import Piece
     exposing
         ( get_piece
         )
+import Set
 import Type
     exposing
         ( Card
@@ -60,7 +61,7 @@ prev_zone_color color zone_colors =
         |> Maybe.withDefault "bogus"
 
 
-get_reachable_locs : Card -> PieceDict -> List Color -> PieceLocation -> List PieceLocation
+get_reachable_locs : Card -> PieceDict -> List Color -> PieceLocation -> Set.Set PieceLocation
 get_reachable_locs active_card piece_map zone_colors loc =
     let
         ( zone_color, id ) =
@@ -136,7 +137,7 @@ get_reachable_locs active_card piece_map zone_colors loc =
         }
 
 
-reachable_locs : FindLocParams -> List PieceLocation
+reachable_locs : FindLocParams -> Set.Set PieceLocation
 reachable_locs params =
     let
         moves_left =
@@ -144,7 +145,7 @@ reachable_locs params =
     in
     if moves_left < 1 then
         -- impossible
-        []
+        Set.empty
 
     else
         let
@@ -166,11 +167,12 @@ reachable_locs params =
                             | moves_left = moves_left - 1
                             , loc = loc_
                         }
+                        |> Set.toList
             in
-            List.map recurse locs |> List.concat
+            List.map recurse (Set.toList locs) |> List.concat |> Set.fromList
 
 
-get_next_locs : FindLocParams -> List PieceLocation
+get_next_locs : FindLocParams -> Set.Set PieceLocation
 get_next_locs params =
     let
         loc =
@@ -199,20 +201,22 @@ get_next_locs params =
     in
     if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
         if List.member params.active_card [ "A", "joker", "6" ] then
-            [ ( zone_color, "L0" ) ]
+            Set.fromList [ ( zone_color, "L0" ) ]
 
         else
-            []
+            Set.empty
 
     else if id == "FT" then
         if can_fast_track && (next_color /= piece_color) then
-            [ ( next_color, "FT" )
-            , ( next_color, "R4" )
-            ]
+            Set.fromList
+                [ ( next_color, "FT" )
+                , ( next_color, "R4" )
+                ]
 
         else
-            [ ( next_color, "R4" )
-            ]
+            Set.fromList
+                [ ( next_color, "R4" )
+                ]
 
     else
         let
@@ -278,9 +282,10 @@ get_next_locs params =
         in
         List.map (\id_ -> ( zone_color, id_ )) next_ids
             |> List.filter is_free
+            |> Set.fromList
 
 
-get_prev_locs : FindLocParams -> List PieceLocation
+get_prev_locs : FindLocParams -> Set.Set PieceLocation
 get_prev_locs params =
     let
         loc =
@@ -305,13 +310,13 @@ get_prev_locs params =
             is_loc_free piece_map piece_color loc_
     in
     if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
-        []
+        Set.empty
 
     else if List.member id [ "B1", "B2", "B3", "B4" ] then
-        []
+        Set.empty
 
     else if id == "R4" then
-        [ ( prev_color, "FT" ) ]
+        Set.fromList [ ( prev_color, "FT" ) ]
 
     else
         let
@@ -360,6 +365,7 @@ get_prev_locs params =
         in
         List.map (\id_ -> ( zone_color, id_ )) prev_ids
             |> List.filter is_free
+            |> Set.fromList
 
 
 is_loc_free piece_map piece_color loc =
