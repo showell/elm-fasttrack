@@ -7,7 +7,6 @@ HOW TO BUILD:
 
 TODO:
 
-    put Deck **after** cards
     extract piece code
     draw circles for most locations
     add title hovers for squares
@@ -15,6 +14,7 @@ TODO:
 
     get-out pile
     jack swap/kill
+    handle sevens
 
     basic undo
     have landing screen between players

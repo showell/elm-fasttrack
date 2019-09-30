@@ -495,7 +495,7 @@ player_view players color =
                     div [] []
     in
     div []
-        [ span [] [ deck, hand ]
+        [ span [] [ hand, deck ]
         , console
         ]
 
