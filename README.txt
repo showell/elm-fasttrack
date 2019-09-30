@@ -6,6 +6,9 @@ HOW TO BUILD:
     elm make --optimize ft.elm --output ft.html
 
 TODO:
+
+    use Set in get_reachable_locs
+
     put Deck **after** cards
     extract piece code
     draw circles for most locations

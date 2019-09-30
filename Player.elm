@@ -8,6 +8,7 @@ module Player exposing
     , get_player
     , maybe_replenish_hand
     , player_view
+    , reachable_locs_for_player
     , ready_to_play
     , replenish_hand
     , set_active_location
@@ -21,6 +22,10 @@ import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import LegalMove
+    exposing
+        ( get_reachable_locs
+        )
 import List.Extra
 import Msg
     exposing
@@ -31,6 +36,7 @@ import Piece
         ( get_piece
         )
 import Random
+import Set
 import Type
     exposing
         ( Card
@@ -374,6 +380,29 @@ can_player_start_move_here player player_color piece_map square_loc =
 
             else
                 False
+
+
+reachable_locs_for_player : Player -> PieceDict -> List Color -> Set.Set PieceLocation
+reachable_locs_for_player active_player piece_map zone_colors =
+    case active_player.turn of
+        TurnCard info ->
+            let
+                loc =
+                    info.active_location
+
+                active_card =
+                    info.active_card
+            in
+            case loc of
+                Just loc_ ->
+                    get_reachable_locs active_card piece_map zone_colors loc_
+                        |> Set.fromList
+
+                Nothing ->
+                    Set.empty
+
+        other ->
+            Set.empty
 
 
 

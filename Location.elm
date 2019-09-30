@@ -33,8 +33,8 @@ is_active_location square_info active_location =
             square_info == active
 
 
-location_view : Float -> PieceDict -> String -> Set.Set PieceLocation -> Maybe PieceLocation -> Location -> Html Msg
-location_view zone_height piece_map zone_color playable_locs active_location square =
+location_view : Float -> PieceDict -> String -> Set.Set PieceLocation -> Set.Set PieceLocation -> Maybe PieceLocation -> Location -> Html Msg
+location_view zone_height piece_map zone_color playable_locs reachable_locs active_location square =
     let
         piece_location =
             ( zone_color, square.id )
@@ -74,6 +74,9 @@ location_view zone_height piece_map zone_color playable_locs active_location squ
         is_playable =
             Set.member piece_location playable_locs
 
+        is_reachable =
+            Set.member piece_location reachable_locs
+
         draw_piece color_ =
             let
                 radius =
@@ -102,6 +105,9 @@ location_view zone_height piece_map zone_color playable_locs active_location squ
         fill_color =
             if is_active then
                 "lightblue"
+
+            else if is_reachable then
+                "lightgreen"
 
             else
                 "white"

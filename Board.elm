@@ -27,6 +27,7 @@ import Player
     exposing
         ( get_active_location
         , get_player
+        , reachable_locs_for_player
         , ready_to_play
         )
 import Set
@@ -76,8 +77,11 @@ board_view piece_map zone_colors players active_color =
             else
                 Set.empty
 
+        reachable_locs =
+            reachable_locs_for_player active_player piece_map zone_colors
+
         content =
-            List.map (draw_zone piece_map playable_locs active_location zone_colors) zone_colors
+            List.map (draw_zone piece_map playable_locs reachable_locs active_location zone_colors) zone_colors
     in
     svg
         [ width board_size, height board_size ]
@@ -99,8 +103,8 @@ zone_index x lst =
                 1 + zone_index x rest
 
 
-draw_zone : PieceDict -> Set.Set PieceLocation -> Maybe PieceLocation -> List Color -> Color -> Html Msg
-draw_zone piece_map playable_locs active_location zone_colors zone_color =
+draw_zone : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Maybe PieceLocation -> List Color -> Color -> Html Msg
+draw_zone piece_map playable_locs reachable_locs active_location zone_colors zone_color =
     let
         locations =
             config_locations
@@ -127,6 +131,6 @@ draw_zone piece_map playable_locs active_location zone_colors zone_color =
             translate ++ " " ++ rotate
 
         drawn_locations =
-            List.map (location_view zone_height piece_map color playable_locs active_location) locations
+            List.map (location_view zone_height piece_map color playable_locs reachable_locs active_location) locations
     in
     g [ transform transform_ ] drawn_locations

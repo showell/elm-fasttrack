@@ -109,7 +109,7 @@ config_locations =
     , { x = 1
       , y = 0
       , kind = Normal
-      , id = "BL"
+      , id = "BR"
       }
     , -- left
       { x = -2
