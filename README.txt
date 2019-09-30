@@ -8,11 +8,13 @@ HOW TO BUILD:
 TODO:
 
     add title hovers for squares
-    replace straggling "square" references
 
     get-out pile
     jack swap/kill
     handle sevens
+
+    UI to pick number of players:
+        clean up Msg/Model to have game vs. setup
 
     basic undo
     have landing screen between players

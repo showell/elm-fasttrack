@@ -25,20 +25,23 @@ import Type
 
 
 is_active_location : PieceLocation -> Maybe PieceLocation -> Bool
-is_active_location square_info active_location =
+is_active_location loc active_location =
     case active_location of
         Nothing ->
             False
 
         Just active ->
-            square_info == active
+            loc == active
 
 
 location_view : Float -> PieceDict -> String -> Set.Set PieceLocation -> Set.Set PieceLocation -> Maybe PieceLocation -> Location -> Html Msg
-location_view zone_height piece_map zone_color playable_locs reachable_locs active_location square =
+location_view zone_height piece_map zone_color playable_locs reachable_locs active_location location_info =
     let
+        id =
+            location_info.id
+
         piece_location =
-            ( zone_color, square.id )
+            ( zone_color, id )
 
         w =
             square_size - gutter_size
@@ -50,10 +53,10 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
             w / 2
 
         cx_ =
-            square.x * square_size
+            location_info.x * square_size
 
         cy_ =
-            zone_height - (square.y * square_size)
+            zone_height - (location_info.y * square_size)
 
         xpos =
             cx_ - w / 2
@@ -62,7 +65,7 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
             cy_ - h / 2
 
         my_piece =
-            get_piece piece_map ( zone_color, square.id )
+            get_piece piece_map piece_location
 
         is_active =
             is_active_location piece_location active_location
@@ -99,7 +102,7 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
                 zone_color
 
         is_rect =
-            List.member square.id [ "HP1", "HP2", "HP3", "HP4", "B1", "B2", "B3", "B4" ]
+            List.member id [ "HP1", "HP2", "HP3", "HP4", "B1", "B2", "B3", "B4" ]
 
         s_location =
             if is_rect then

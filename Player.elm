@@ -182,14 +182,14 @@ finish_move player =
 
 
 set_active_location : PieceLocation -> Player -> Player
-set_active_location square player =
+set_active_location loc player =
     case player.turn of
         TurnCard info ->
             let
                 turn =
                     TurnCard
                         { info
-                            | active_location = Just square
+                            | active_location = Just loc
                             , move_error = Nothing
                         }
             in
@@ -360,10 +360,10 @@ finish_card active_color model =
 
 
 can_player_start_move_here : Player -> Color -> PieceDict -> PieceLocation -> Bool
-can_player_start_move_here player player_color piece_map square_loc =
+can_player_start_move_here player player_color piece_map loc =
     let
         piece_color =
-            get_piece piece_map square_loc
+            get_piece piece_map loc
     in
     case piece_color of
         Nothing ->
@@ -527,7 +527,7 @@ console_view turn_info color =
         Just _ ->
             span []
                 [ active_card_view
-                , div [] [ Html.text "Click a square to end move." ]
+                , div [] [ Html.text "now click piece's new location" ]
                 ]
 
         Nothing ->
