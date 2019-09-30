@@ -14,11 +14,12 @@ import Type
         )
 
 
-type alias MoveParams =
+type alias FindLocParams =
     { can_fast_track : Bool
+    , reverse_mode : Bool
     , moves_left : Int
     , loc : PieceLocation
-    , active_card : Bool
+    , active_card : Card
     , piece_color : Color
     , piece_map : PieceDict
     , zone_colors : List Color
@@ -42,6 +43,23 @@ next_zone_color color zone_colors =
         |> Maybe.withDefault "bogus"
 
 
+prev_zone_color : Color -> List Color -> Color
+prev_zone_color color zone_colors =
+    let
+        idx =
+            List.Extra.elemIndex color zone_colors
+                |> Maybe.withDefault 1
+
+        len =
+            List.length zone_colors
+
+        next_idx =
+            (idx - 1) |> modBy len
+    in
+    List.Extra.getAt next_idx zone_colors
+        |> Maybe.withDefault "bogus"
+
+
 get_reachable_locs : Card -> PieceDict -> List Color -> PieceLocation -> List PieceLocation
 get_reachable_locs active_card piece_map zone_colors loc =
     let
@@ -55,6 +73,9 @@ get_reachable_locs active_card piece_map zone_colors loc =
             get_piece piece_map loc
                 |> Maybe.withDefault "bogus"
 
+        reverse_mode =
+            active_card == "4"
+
         moves_left =
             case active_card of
                 "A" ->
@@ -67,8 +88,7 @@ get_reachable_locs active_card piece_map zone_colors loc =
                     3
 
                 "4" ->
-                    -- we'll fix this when we implement reverse
-                    0
+                    4
 
                 "5" ->
                     5
@@ -105,7 +125,8 @@ get_reachable_locs active_card piece_map zone_colors loc =
                     0
     in
     reachable_locs
-        { can_fast_track = can_fast_track
+        { reverse_mode = reverse_mode
+        , can_fast_track = can_fast_track
         , moves_left = moves_left
         , loc = loc
         , active_card = active_card
@@ -115,6 +136,7 @@ get_reachable_locs active_card piece_map zone_colors loc =
         }
 
 
+reachable_locs : FindLocParams -> List PieceLocation
 reachable_locs params =
     let
         moves_left =
@@ -126,11 +148,15 @@ reachable_locs params =
 
     else
         let
-            next_locs =
-                get_next_locs params
+            locs =
+                if params.reverse_mode then
+                    get_prev_locs params
+
+                else
+                    get_next_locs params
         in
         if moves_left == 1 then
-            next_locs
+            locs
 
         else
             let
@@ -141,9 +167,10 @@ reachable_locs params =
                             , loc = loc_
                         }
             in
-            List.map recurse next_locs |> List.concat
+            List.map recurse locs |> List.concat
 
 
+get_next_locs : FindLocParams -> List PieceLocation
 get_next_locs params =
     let
         loc =
@@ -151,6 +178,9 @@ get_next_locs params =
 
         ( zone_color, id ) =
             loc
+
+        zone_colors =
+            params.zone_colors
 
         next_color =
             next_zone_color zone_color zone_colors
@@ -163,9 +193,6 @@ get_next_locs params =
 
         piece_map =
             params.piece_map
-
-        zone_colors =
-            params.zone_colors
 
         is_free loc_ =
             is_loc_free piece_map piece_color loc_
@@ -250,6 +277,88 @@ get_next_locs params =
                     []
         in
         List.map (\id_ -> ( zone_color, id_ )) next_ids
+            |> List.filter is_free
+
+
+get_prev_locs : FindLocParams -> List PieceLocation
+get_prev_locs params =
+    let
+        loc =
+            params.loc
+
+        ( zone_color, id ) =
+            loc
+
+        zone_colors =
+            params.zone_colors
+
+        prev_color =
+            prev_zone_color zone_color zone_colors
+
+        piece_color =
+            params.piece_color
+
+        piece_map =
+            params.piece_map
+
+        is_free loc_ =
+            is_loc_free piece_map piece_color loc_
+    in
+    if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
+        []
+
+    else if List.member id [ "B1", "B2", "B3", "B4" ] then
+        []
+
+    else if id == "R4" then
+        [ ( prev_color, "FT" ) ]
+
+    else
+        let
+            prev_ids =
+                if id == "HH" then
+                    [ "DS" ]
+
+                else if id == "L0" then
+                    [ "HH" ]
+
+                else if id == "L1" then
+                    [ "L0" ]
+
+                else if id == "L2" then
+                    [ "L1" ]
+
+                else if id == "L3" then
+                    [ "L2" ]
+
+                else if id == "L4" then
+                    [ "L3" ]
+
+                else if id == "FT" then
+                    [ "L4" ]
+
+                else if id == "R3" then
+                    [ "R4" ]
+
+                else if id == "R2" then
+                    [ "R3" ]
+
+                else if id == "R1" then
+                    [ "R2" ]
+
+                else if id == "R0" then
+                    [ "R1" ]
+
+                else if id == "BR" then
+                    [ "R0" ]
+
+                else if id == "DS" then
+                    [ "BR" ]
+
+                else
+                    []
+        in
+        List.map (\id_ -> ( zone_color, id_ )) prev_ids
             |> List.filter is_free
 
 
