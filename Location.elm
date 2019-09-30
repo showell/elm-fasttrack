@@ -46,6 +46,9 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
         h =
             square_size - gutter_size
 
+        radius =
+            w / 2
+
         cx_ =
             square.x * square_size
 
@@ -95,18 +98,34 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
             else
                 zone_color
 
-        s_location =
-            rect
-                [ x (String.fromFloat xpos)
-                , y (String.fromFloat ypos)
-                , fill fill_color
-                , stroke stroke_color
-                , width (String.fromFloat w)
-                , height (String.fromFloat h)
-                , onClick (ClickLocation piece_location)
-                ]
-                []
+        is_rect =
+            square.id /= "FT"
 
-        contents = [ s_location ] ++ s_pieces
+        s_location =
+            if is_rect then
+                rect
+                    [ x (String.fromFloat xpos)
+                    , y (String.fromFloat ypos)
+                    , fill fill_color
+                    , stroke stroke_color
+                    , width (String.fromFloat w)
+                    , height (String.fromFloat h)
+                    , onClick (ClickLocation piece_location)
+                    ]
+                    []
+
+            else
+                circle
+                    [ cx (String.fromFloat cx_)
+                    , cy (String.fromFloat cy_)
+                    , fill fill_color
+                    , stroke stroke_color
+                    , r (String.fromFloat radius)
+                    , onClick (ClickLocation piece_location)
+                    ]
+                    []
+
+        contents =
+            [ s_location ] ++ s_pieces
     in
     g [] contents

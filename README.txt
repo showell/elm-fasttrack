@@ -7,8 +7,6 @@ HOW TO BUILD:
 
 TODO:
 
-    extract piece code
-    draw circles for most locations
     add title hovers for squares
     replace straggling "square" references
 

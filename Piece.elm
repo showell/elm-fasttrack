@@ -3,9 +3,9 @@ module Piece exposing
     , config_pieces
     , get_piece
     , maybe_send_piece_to_pen
+    , piece_view
     , player_pieces
     , unassign_piece
-    , piece_view
     )
 
 import Config
@@ -14,8 +14,8 @@ import Config
         )
 import Dict
 import Html exposing (..)
-import Msg exposing (..)
 import List.Extra
+import Msg exposing (..)
 import Set
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
@@ -132,6 +132,7 @@ assign_piece piece_location piece_color =
     Dict.insert piece_location piece_color
 
 
+
 -- VIEW
 
 
@@ -157,4 +158,3 @@ piece_view color is_active is_playable cx_ cy_ piece_location =
         , onClick (ClickLocation piece_location)
         ]
         []
-
