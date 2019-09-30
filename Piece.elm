@@ -5,6 +5,7 @@ module Piece exposing
     , maybe_send_piece_to_pen
     , player_pieces
     , unassign_piece
+    , piece_view
     )
 
 import Config
@@ -12,8 +13,13 @@ import Config
         ( holding_pen_locations
         )
 import Dict
+import Html exposing (..)
+import Msg exposing (..)
 import List.Extra
 import Set
+import Svg exposing (..)
+import Svg.Attributes exposing (..)
+import Svg.Events exposing (onClick)
 import Type
     exposing
         ( Color
@@ -124,3 +130,31 @@ unassign_piece piece_loc =
 assign_piece : PieceLocation -> Color -> PieceDict -> PieceDict
 assign_piece piece_location piece_color =
     Dict.insert piece_location piece_color
+
+
+-- VIEW
+
+
+piece_view : Color -> Bool -> Bool -> Float -> Float -> PieceLocation -> Html Msg
+piece_view color is_active is_playable cx_ cy_ piece_location =
+    let
+        radius =
+            if is_active then
+                "7"
+
+            else if is_playable then
+                "6"
+
+            else
+                "4"
+    in
+    circle
+        [ cx (String.fromFloat cx_)
+        , cy (String.fromFloat cy_)
+        , fill color
+        , stroke color
+        , r radius
+        , onClick (ClickLocation piece_location)
+        ]
+        []
+

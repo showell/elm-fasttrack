@@ -10,6 +10,7 @@ import Msg exposing (..)
 import Piece
     exposing
         ( get_piece
+        , piece_view
         )
 import Set
 import Svg exposing (..)
@@ -60,14 +61,6 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
         my_piece =
             get_piece piece_map ( zone_color, square.id )
 
-        my_pieces =
-            case my_piece of
-                Just piece_color ->
-                    [ piece_color ]
-
-                other ->
-                    []
-
         is_active =
             is_active_location piece_location active_location
 
@@ -77,30 +70,13 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
         is_reachable =
             Set.member piece_location reachable_locs
 
-        draw_piece color_ =
-            let
-                radius =
-                    if is_active then
-                        "7"
-
-                    else if is_playable then
-                        "6"
-
-                    else
-                        "4"
-            in
-            circle
-                [ cx (String.fromFloat cx_)
-                , cy (String.fromFloat cy_)
-                , fill color_
-                , stroke color_
-                , r radius
-                , onClick (ClickLocation piece_location)
-                ]
-                []
-
         s_pieces =
-            List.map draw_piece my_pieces
+            case my_piece of
+                Just piece_color ->
+                    [ piece_view piece_color is_active is_playable cx_ cy_ piece_location ]
+
+                Nothing ->
+                    []
 
         fill_color =
             if is_active then
@@ -119,7 +95,7 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
             else
                 zone_color
 
-        s_square =
+        s_location =
             rect
                 [ x (String.fromFloat xpos)
                 , y (String.fromFloat ypos)
@@ -131,10 +107,6 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
                 ]
                 []
 
-        contents =
-            List.concat
-                [ [ s_square ]
-                , s_pieces
-                ]
+        contents = [ s_location ] ++ s_pieces
     in
     g [] contents
