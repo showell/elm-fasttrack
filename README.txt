@@ -7,7 +7,9 @@ HOW TO BUILD:
 
 TODO:
 
-    add tests for LegalMove
+    clean up zone_colors in tests
+
+    handle FT-must-move
 
     handle sevens
     jack swap/kill

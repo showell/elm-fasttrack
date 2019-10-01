@@ -1,5 +1,6 @@
 module LegalMove exposing
     ( FindLocParams
+    , get_can_go_n_spaces
     , get_reachable_locs
     , next_zone_color
     , prev_zone_color
@@ -65,6 +66,68 @@ prev_zone_color color zone_colors =
     in
     List.Extra.getAt next_idx zone_colors
         |> Maybe.withDefault "bogus"
+
+
+get_can_go_n_spaces : PieceDict -> PieceLocation -> List Color -> Int -> Bool
+get_can_go_n_spaces piece_map loc zone_colors n =
+    let
+        ( zone_color, id ) =
+            loc
+
+        can_fast_track =
+            id == "FT"
+
+        piece_color =
+            get_piece piece_map loc
+                |> Maybe.withDefault "bogus"
+    in
+    can_go_n_spaces
+        { reverse_mode = False
+        , can_fast_track = can_fast_track
+        , moves_left = n
+        , loc = loc
+        , active_card = "7"
+        , piece_color = piece_color
+        , piece_map = piece_map
+        , zone_colors = zone_colors
+        }
+
+
+can_go_n_spaces : FindLocParams -> Bool
+can_go_n_spaces params =
+    let
+        moves_left =
+            params.moves_left
+    in
+    if moves_left <= 0 then
+        -- impossible
+        False
+
+    else
+        let
+            locs =
+                get_next_locs params |> Set.toList
+        in
+        if moves_left == 1 then
+            if List.length locs >= 1 then
+                True
+
+            else
+                False
+
+        else
+            let
+                can_go loc_ =
+                    can_go_n_spaces
+                        { params
+                            | moves_left = moves_left - 1
+                            , loc = loc_
+                        }
+
+                all_paths =
+                    List.filter can_go locs
+            in
+            List.length all_paths >= 1
 
 
 get_reachable_locs : Card -> PieceDict -> List Color -> PieceLocation -> Set.Set PieceLocation
