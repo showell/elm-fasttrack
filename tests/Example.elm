@@ -6,6 +6,7 @@ import LegalMove
     exposing
         ( FindLocParams
         , get_can_go_n_spaces
+        , get_reachable_locs
         , has_piece_on_fast_track
         , next_zone_color
         , prev_zone_color
@@ -65,6 +66,33 @@ test_reachable_locs =
                 in
                 reachable_locs params
                     |> Expect.equal expected
+        , test "can only move FT piece" <|
+            \_ ->
+                let
+                    active_color =
+                        "blue"
+
+                    loc =
+                        ( "red", "L1" )
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert ( "green", "FT" ) active_color
+                            |> Dict.insert loc active_color
+
+                    active_card =
+                        "8"
+
+                    zone_colors =
+                        [ "red", "blue", "green" ]
+
+                    locs =
+                        get_reachable_locs active_card piece_map zone_colors loc
+
+                    expected =
+                        Set.empty
+                in
+                locs |> Expect.equal expected
         , test "can't jump own piece" <|
             \_ ->
                 let
@@ -164,6 +192,27 @@ test_can_go_n_spaces =
                         get_can_go_n_spaces piece_map loc zone_colors 7
                 in
                 can_go |> Expect.equal True
+        , test "cannot move 1 when other piece on FT" <|
+            \_ ->
+                let
+                    loc =
+                        ( "red", "L1" )
+
+                    blocked_loc =
+                        ( "green", "FT" )
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert loc "blue"
+                            |> Dict.insert blocked_loc "blue"
+
+                    zone_colors =
+                        [ "red", "blue", "green" ]
+
+                    can_go =
+                        get_can_go_n_spaces piece_map loc zone_colors 1
+                in
+                can_go |> Expect.equal False
         , test "cannot move 2 when blocked" <|
             \_ ->
                 let

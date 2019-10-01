@@ -103,17 +103,24 @@ get_can_go_n_spaces piece_map loc zone_colors n =
         piece_color =
             get_piece piece_map loc
                 |> Maybe.withDefault "bogus"
+
+        can_move =
+            can_fast_track || not (has_piece_on_fast_track piece_map piece_color)
     in
-    can_go_n_spaces
-        { reverse_mode = False
-        , can_fast_track = can_fast_track
-        , moves_left = n
-        , loc = loc
-        , active_card = "7"
-        , piece_color = piece_color
-        , piece_map = piece_map
-        , zone_colors = zone_colors
-        }
+    if can_move then
+        can_go_n_spaces
+            { reverse_mode = False
+            , can_fast_track = can_fast_track
+            , moves_left = n
+            , loc = loc
+            , active_card = "7"
+            , piece_color = piece_color
+            , piece_map = piece_map
+            , zone_colors = zone_colors
+            }
+
+    else
+        False
 
 
 can_go_n_spaces : FindLocParams -> Bool
@@ -171,17 +178,24 @@ get_reachable_locs active_card piece_map zone_colors loc =
 
         moves_left =
             get_moves_left active_card id
+
+        can_move =
+            can_fast_track || not (has_piece_on_fast_track piece_map piece_color)
     in
-    reachable_locs
-        { reverse_mode = reverse_mode
-        , can_fast_track = can_fast_track
-        , moves_left = moves_left
-        , loc = loc
-        , active_card = active_card
-        , piece_color = piece_color
-        , piece_map = piece_map
-        , zone_colors = zone_colors
-        }
+    if can_move then
+        reachable_locs
+            { reverse_mode = reverse_mode
+            , can_fast_track = can_fast_track
+            , moves_left = moves_left
+            , loc = loc
+            , active_card = active_card
+            , piece_color = piece_color
+            , piece_map = piece_map
+            , zone_colors = zone_colors
+            }
+
+    else
+        Set.empty
 
 
 reachable_locs : FindLocParams -> Set.Set PieceLocation
