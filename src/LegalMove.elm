@@ -1,5 +1,6 @@
 module LegalMove exposing
-    ( get_reachable_locs
+    ( FindLocParams
+    , get_reachable_locs
     , next_zone_color
     , prev_zone_color
     , reachable_locs
