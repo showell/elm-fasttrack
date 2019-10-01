@@ -2,11 +2,13 @@ module LegalMove exposing
     ( FindLocParams
     , get_can_go_n_spaces
     , get_reachable_locs
+    , has_piece_on_fast_track
     , next_zone_color
     , prev_zone_color
     , reachable_locs
     )
 
+import Dict
 import List.Extra
 import Piece
     exposing
@@ -32,6 +34,27 @@ type alias FindLocParams =
     , piece_map : PieceDict
     , zone_colors : List Color
     }
+
+
+has_piece_on_fast_track : PieceDict -> Color -> Bool
+has_piece_on_fast_track piece_map active_color =
+    let
+        is_ft ( zone_color, id ) =
+            id == "FT"
+
+        is_me loc =
+            let
+                loc_color =
+                    Dict.get loc piece_map |> Maybe.withDefault "bogus"
+            in
+            loc_color == active_color
+
+        locs =
+            Dict.keys piece_map
+                |> List.filter is_ft
+                |> List.filter is_me
+    in
+    List.length locs >= 1
 
 
 next_zone_color : Color -> List Color -> Color

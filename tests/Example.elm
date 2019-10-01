@@ -6,6 +6,7 @@ import LegalMove
     exposing
         ( FindLocParams
         , get_can_go_n_spaces
+        , has_piece_on_fast_track
         , next_zone_color
         , prev_zone_color
         , reachable_locs
@@ -79,6 +80,67 @@ test_reachable_locs =
                 in
                 reachable_locs params
                     |> Expect.equal expected
+        ]
+
+
+test_has_piece_on_fast_track : Test
+test_has_piece_on_fast_track =
+    Test.concat
+        [ test "has piece on fast track" <|
+            \_ ->
+                let
+                    loc =
+                        ( "red", "FT" )
+
+                    active_color =
+                        "blue"
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert loc "blue"
+
+                    has_piece =
+                        has_piece_on_fast_track piece_map active_color
+                in
+                has_piece |> Expect.equal True
+        , test "piece on fast track is not mine" <|
+            \_ ->
+                let
+                    loc =
+                        ( "red", "FT" )
+
+                    active_color =
+                        "blue"
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert loc "green"
+
+                    has_piece =
+                        has_piece_on_fast_track piece_map active_color
+                in
+                has_piece |> Expect.equal False
+        , test "pieces are mine but not on fast track" <|
+            \_ ->
+                let
+                    loc1 =
+                        ( "blue", "L0" )
+
+                    loc2 =
+                        ( "green", "R4" )
+
+                    active_color =
+                        "blue"
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert loc1 active_color
+                            |> Dict.insert loc2 active_color
+
+                    has_piece =
+                        has_piece_on_fast_track piece_map active_color
+                in
+                has_piece |> Expect.equal False
         ]
 
 
