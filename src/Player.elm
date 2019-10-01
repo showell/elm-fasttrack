@@ -395,7 +395,12 @@ reachable_locs_for_player active_player piece_map zone_colors =
             in
             case loc of
                 Just loc_ ->
-                    get_reachable_locs active_card piece_map zone_colors loc_
+                    if info.num_moves == 0 then
+                        get_reachable_locs active_card piece_map zone_colors loc_
+
+                    else
+                        -- TODO: need to handle split sevens here
+                        Set.empty
 
                 Nothing ->
                     Set.empty

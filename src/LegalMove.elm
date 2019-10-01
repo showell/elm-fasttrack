@@ -201,19 +201,47 @@ get_reachable_locs active_card piece_map zone_colors loc =
             can_fast_track || not (has_piece_on_fast_track piece_map piece_color)
     in
     if can_move then
-        reachable_locs
-            { reverse_mode = reverse_mode
-            , can_fast_track = can_fast_track
-            , moves_left = moves_left
-            , loc = loc
-            , active_card = active_card
-            , piece_color = piece_color
-            , piece_map = piece_map
-            , zone_colors = zone_colors
-            }
+        let
+            params =
+                { reverse_mode = reverse_mode
+                , can_fast_track = can_fast_track
+                , moves_left = moves_left
+                , loc = loc
+                , active_card = active_card
+                , piece_color = piece_color
+                , piece_map = piece_map
+                , zone_colors = zone_colors
+                }
+        in
+        if active_card == "7" then
+            get_locs_for_seven params
+
+        else
+            reachable_locs params
 
     else
         Set.empty
+
+
+get_locs_for_seven : FindLocParams -> Set.Set PieceLocation
+get_locs_for_seven params =
+    let
+        get_locs move_count =
+            reachable_locs
+                { params
+                    | moves_left = move_count
+                }
+                |> Set.toList
+
+        partial_locs =
+            List.range 1 6
+                |> List.map get_locs
+                |> List.concat
+
+        full_locs =
+            get_locs 7
+    in
+    partial_locs ++ full_locs |> Set.fromList
 
 
 reachable_locs : FindLocParams -> Set.Set PieceLocation
