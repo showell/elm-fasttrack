@@ -84,52 +84,7 @@ get_reachable_locs active_card piece_map zone_colors loc =
             active_card == "4"
 
         moves_left =
-            case active_card of
-                "A" ->
-                    1
-
-                "2" ->
-                    2
-
-                "3" ->
-                    3
-
-                "4" ->
-                    4
-
-                "5" ->
-                    5
-
-                "6" ->
-                    if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
-                        1
-
-                    else
-                        6
-
-                "7" ->
-                    7
-
-                "8" ->
-                    8
-
-                "9" ->
-                    9
-
-                "10" ->
-                    10
-
-                "J" ->
-                    1
-
-                "Q" ->
-                    1
-
-                "K" ->
-                    1
-
-                other ->
-                    0
+            get_moves_left active_card id
     in
     reachable_locs
         { reverse_mode = reverse_mode
@@ -372,6 +327,56 @@ get_prev_locs params =
         List.map (\id_ -> ( zone_color, id_ )) prev_ids
             |> List.filter is_free
             |> Set.fromList
+
+
+get_moves_left : Card -> String -> Int
+get_moves_left active_card id =
+    case active_card of
+        "A" ->
+            1
+
+        "2" ->
+            2
+
+        "3" ->
+            3
+
+        "4" ->
+            4
+
+        "5" ->
+            5
+
+        "6" ->
+            if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
+                1
+
+            else
+                6
+
+        "7" ->
+            7
+
+        "8" ->
+            8
+
+        "9" ->
+            9
+
+        "10" ->
+            10
+
+        "J" ->
+            1
+
+        "Q" ->
+            1
+
+        "K" ->
+            1
+
+        other ->
+            0
 
 
 is_loc_free piece_map piece_color loc =
