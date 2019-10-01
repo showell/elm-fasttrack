@@ -159,23 +159,26 @@ get_next_locs params =
 
         is_free loc_ =
             is_loc_free piece_map piece_color loc_
+
+        filter lst =
+            lst |> List.filter is_free |> Set.fromList
     in
     if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
         if List.member params.active_card [ "A", "joker", "6" ] then
-            Set.fromList [ ( zone_color, "L0" ) ]
+            filter [ ( zone_color, "L0" ) ]
 
         else
             Set.empty
 
     else if id == "FT" then
         if can_fast_track && (next_color /= piece_color) then
-            Set.fromList
+            filter
                 [ ( next_color, "FT" )
                 , ( next_color, "R4" )
                 ]
 
         else
-            Set.fromList
+            filter
                 [ ( next_color, "R4" )
                 ]
 
@@ -242,8 +245,7 @@ get_next_locs params =
                     []
         in
         List.map (\id_ -> ( zone_color, id_ )) next_ids
-            |> List.filter is_free
-            |> Set.fromList
+            |> filter
 
 
 get_prev_locs : FindLocParams -> Set.Set PieceLocation
@@ -269,6 +271,9 @@ get_prev_locs params =
 
         is_free loc_ =
             is_loc_free piece_map piece_color loc_
+
+        filter lst =
+            lst |> List.filter is_free |> Set.fromList
     in
     if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
         Set.empty
@@ -277,7 +282,7 @@ get_prev_locs params =
         Set.empty
 
     else if id == "R4" then
-        Set.fromList [ ( prev_color, "FT" ) ]
+        filter [ ( prev_color, "FT" ) ]
 
     else
         let
@@ -325,8 +330,7 @@ get_prev_locs params =
                     []
         in
         List.map (\id_ -> ( zone_color, id_ )) prev_ids
-            |> List.filter is_free
-            |> Set.fromList
+            |> filter
 
 
 get_moves_left : Card -> String -> Int
