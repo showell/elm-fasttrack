@@ -4,6 +4,7 @@ module LegalMove exposing
     , get_reachable_locs
     , has_piece_on_fast_track
     , next_zone_color
+    , other_mobile_pieces
     , prev_zone_color
     , reachable_locs
     )
@@ -36,23 +37,40 @@ type alias FindLocParams =
     }
 
 
+is_color : PieceDict -> Color -> PieceLocation -> Bool
+is_color piece_map color loc =
+    let
+        loc_color =
+            Dict.get loc piece_map
+    in
+    loc_color == Just color
+
+
+other_mobile_pieces : PieceDict -> Color -> PieceLocation -> Set.Set PieceLocation
+other_mobile_pieces piece_map active_color loc =
+    -- mobile pieces are not in the holding pen (and can theoretically
+    -- move forward on a split seven, until we dig deeper)
+    let
+        is_mobile ( zone_color, id ) =
+            not (List.member id [ "HP1", "HP2", "HP3", "HP4" ])
+    in
+    Dict.keys piece_map
+        |> List.filter (is_color piece_map active_color)
+        |> List.filter (\loc_ -> loc_ /= loc)
+        |> List.filter is_mobile
+        |> Set.fromList
+
+
 has_piece_on_fast_track : PieceDict -> Color -> Bool
 has_piece_on_fast_track piece_map active_color =
     let
         is_ft ( zone_color, id ) =
             id == "FT"
 
-        is_me loc =
-            let
-                loc_color =
-                    Dict.get loc piece_map |> Maybe.withDefault "bogus"
-            in
-            loc_color == active_color
-
         locs =
             Dict.keys piece_map
                 |> List.filter is_ft
-                |> List.filter is_me
+                |> List.filter (is_color piece_map active_color)
     in
     List.length locs >= 1
 

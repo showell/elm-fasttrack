@@ -9,6 +9,7 @@ import LegalMove
         , get_reachable_locs
         , has_piece_on_fast_track
         , next_zone_color
+        , other_mobile_pieces
         , prev_zone_color
         , reachable_locs
         )
@@ -47,6 +48,41 @@ get_params moves_left active_card piece_map loc =
     , piece_map = piece_map
     , zone_colors = [ "red", "blue", "green" ]
     }
+
+
+test_other_mobile_pieces : Test
+test_other_mobile_pieces =
+    Test.concat
+        [ test "other pieces can be found" <|
+            \_ ->
+                let
+                    active_color =
+                        "blue"
+
+                    loc =
+                        ( "red", "L1" )
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert loc active_color
+                            |> Dict.insert ( "green", "FT" ) active_color
+                            |> Dict.insert ( "blue", "L3" ) active_color
+                            |> Dict.insert ( "blue", "HP1" ) active_color
+                            |> Dict.insert ( "blue", "B2" ) active_color
+                            |> Dict.insert ( "blue", "FT" ) "red"
+
+                    locs =
+                        other_mobile_pieces piece_map active_color loc
+
+                    expected =
+                        Set.fromList
+                            [ ( "green", "FT" )
+                            , ( "blue", "L3" )
+                            , ( "blue", "B2" )
+                            ]
+                in
+                locs |> Expect.equal expected
+        ]
 
 
 test_reachable_locs : Test
