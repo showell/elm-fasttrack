@@ -9,9 +9,9 @@ TODO:
 
     clean up zone_colors in tests
 
-    handle FT-must-move
+    eliminate SquareKind (just use ids)
 
-    handle sevens
+    finish handling sevens
     jack swap/kill
 
     get-out pile
