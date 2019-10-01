@@ -3,7 +3,7 @@ It's still very much a work in progress.
 
 HOW TO BUILD:
 
-    elm make --optimize ft.elm --output ft.html
+    elm make --optimize src/ft.elm --output ft.html
 
 TODO:
 
