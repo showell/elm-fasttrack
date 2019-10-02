@@ -1,9 +1,5 @@
 module Move exposing (perform_move)
 
-import Config
-    exposing
-        ( get_piece_kind
-        )
 import Piece
     exposing
         ( assign_piece
@@ -20,7 +16,6 @@ import Player
 import Type
     exposing
         ( Color
-        , LocationKind(..)
         , Model
         , PieceDict
         , PieceLocation
@@ -86,12 +81,11 @@ wrong_holding_pen piece_color loc =
         ( zone_color, id ) =
             loc
     in
-    case get_piece_kind id of
-        HoldingPen ->
-            zone_color /= piece_color
+    if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
+        zone_color /= piece_color
 
-        other ->
-            False
+    else
+        False
 
 
 wrong_base : Color -> PieceLocation -> Bool
@@ -100,12 +94,11 @@ wrong_base piece_color loc =
         ( zone_color, id ) =
             loc
     in
-    case get_piece_kind id of
-        Base ->
-            zone_color /= piece_color
+    if List.member id [ "B1", "B2", "B3", "B4" ] then
+        zone_color /= piece_color
 
-        other ->
-            False
+    else
+        False
 
 
 perform_move : Model -> Move -> Color -> UpdatePlayerFunc -> Model

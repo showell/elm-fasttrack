@@ -3,7 +3,6 @@ module Type exposing
     , Card
     , Color
     , Location
-    , LocationKind(..)
     , Model
     , PieceDict
     , PieceLocation
@@ -26,19 +25,9 @@ type alias Card =
     String
 
 
-type LocationKind
-    = HoldingPen
-    | Normal
-    | FastTrack
-    | DoorStep
-    | HideyHole
-    | Base
-
-
 type alias Location =
     { x : Float
     , y : Float
-    , kind : LocationKind
     , id : String
     }
 
