@@ -5,6 +5,7 @@ import Expect exposing (Expectation)
 import LegalMove
     exposing
         ( FindLocParams
+        , distance
         , get_can_go_n_spaces
         , get_reachable_locs
         , has_piece_on_fast_track
@@ -88,6 +89,45 @@ test_other_mobile_pieces =
                             ]
                 in
                 locs |> Expect.equal expected
+        ]
+
+
+test_distance : Test
+test_distance =
+    Test.concat
+        [ test "basic distance" <|
+            \_ ->
+                let
+                    start_loc =
+                        ( "blue", "L1" )
+
+                    end_loc =
+                        ( "blue", "L4" )
+                in
+                distance zone_colors start_loc end_loc
+                    |> Expect.equal 3
+        , test "start fasttrack" <|
+            \_ ->
+                let
+                    start_loc =
+                        ( "red", "FT" )
+
+                    end_loc =
+                        ( "red", "R3" )
+                in
+                distance zone_colors start_loc end_loc
+                    |> Expect.equal 4
+        , test "rounding corner" <|
+            \_ ->
+                let
+                    start_loc =
+                        ( "red", "L4" )
+
+                    end_loc =
+                        ( "blue", "R0" )
+                in
+                distance zone_colors start_loc end_loc
+                    |> Expect.equal 6
         ]
 
 
