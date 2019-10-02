@@ -187,56 +187,53 @@ get_can_go_n_spaces piece_map loc zone_colors n =
             can_fast_track || not (has_piece_on_fast_track piece_map piece_color)
     in
     if can_move then
-        can_go_n_spaces
-            { reverse_mode = False
-            , can_fast_track = can_fast_track
-            , can_leave_pen = False
-            , moves_left = n
-            , loc = loc
-            , piece_color = piece_color
-            , piece_map = piece_map
-            , zone_colors = zone_colors
-            }
+        can_go_n_spaces can_fast_track piece_color piece_map zone_colors n loc
 
     else
         False
 
 
-can_go_n_spaces : FindLocParams -> Bool
-can_go_n_spaces params =
+can_go_n_spaces : Bool -> Color -> PieceDict -> List Color -> Int -> PieceLocation -> Bool
+can_go_n_spaces can_fast_track piece_color piece_map zone_colors n_spaces location =
     let
-        moves_left =
-            params.moves_left
-    in
-    if moves_left <= 0 then
-        -- impossible
-        False
-
-    else
-        let
-            locs =
-                get_next_locs params |> Set.toList
-        in
-        if moves_left == 1 then
-            if List.length locs >= 1 then
-                True
-
-            else
+        recurse n loc =
+            if n <= 0 then
+                -- impossible
                 False
 
-        else
-            let
-                can_go loc_ =
-                    can_go_n_spaces
-                        { params
-                            | moves_left = moves_left - 1
-                            , loc = loc_
+            else
+                let
+                    params =
+                        { reverse_mode = False
+                        , can_fast_track = can_fast_track
+                        , can_leave_pen = False
+                        , moves_left = 1
+                        , loc = loc
+                        , piece_color = piece_color
+                        , piece_map = piece_map
+                        , zone_colors = zone_colors
                         }
+                    locs =
+                        get_next_locs params |> Set.toList
+                in
+                if n == 1 then
+                    if List.length locs >= 1 then
+                        True
 
-                all_paths =
-                    List.filter can_go locs
-            in
-            List.length all_paths >= 1
+                    else
+                        False
+
+                else
+                    let
+                        can_go next_loc =
+                            recurse (n - 1) next_loc
+
+                        all_paths =
+                            List.filter can_go locs
+                    in
+                    List.length all_paths >= 1
+    in
+    recurse n_spaces location
 
 
 get_reachable_locs : MoveType -> PieceDict -> List Color -> PieceLocation -> Set.Set PieceLocation
@@ -300,8 +297,8 @@ get_reachable_locs move_type piece_map zone_colors loc =
         Set.empty
 
 
-can_finish_split : FindLocParams -> Set.Set PieceLocation -> PieceDict -> Int -> PieceLocation -> PieceLocation -> Bool
-can_finish_split params other_locs piece_map count prev_loc next_loc =
+can_finish_split : List Color -> Set.Set PieceLocation -> PieceDict -> Int -> PieceLocation -> PieceLocation -> Bool
+can_finish_split zone_colors other_locs piece_map count prev_loc next_loc =
     let
         move =
             { prev = prev_loc
@@ -312,12 +309,15 @@ can_finish_split params other_locs piece_map count prev_loc next_loc =
             move_piece move piece_map
 
         can_go other_loc =
-            can_go_n_spaces
-                { params
-                    | moves_left = count
-                    , loc = other_loc
-                    , piece_map = modified_piece_map
-                }
+            let
+                ( _, id) =
+                    other_loc
+
+                can_fast_track =
+                    id == "FT"
+
+            in
+            get_can_go_n_spaces modified_piece_map other_loc zone_colors count
 
         other_movable_locs =
             other_locs |> Set.toList |> List.filter can_go
@@ -333,6 +333,9 @@ get_locs_for_seven params =
 
         loc =
             params.loc
+
+        zone_colors =
+            params.zone_colors
 
         piece_color =
             get_piece piece_map loc
@@ -365,7 +368,7 @@ get_locs_for_seven params =
                         7 - move_count
                 in
                 get_locs move_count
-                    |> List.filter (can_finish_split params other_locs piece_map other_count prev_loc)
+                    |> List.filter (can_finish_split zone_colors other_locs piece_map other_count prev_loc)
 
             partial_locs =
                 List.range 1 6

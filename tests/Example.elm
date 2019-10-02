@@ -390,6 +390,20 @@ test_can_go_n_spaces =
                         get_can_go_n_spaces piece_map loc zone_colors 2
                 in
                 can_go |> Expect.equal False
+        , test "can move 4 into base" <|
+            \_ ->
+                let
+                    loc =
+                        ( "blue", "DS" )
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert loc "blue"
+
+                    can_go =
+                        get_can_go_n_spaces piece_map loc zone_colors 4
+                in
+                can_go |> Expect.equal True
         , test "can move 4 when partially blocked" <|
             \_ ->
                 let
