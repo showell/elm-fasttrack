@@ -18,9 +18,15 @@ import Test exposing (..)
 import Type
     exposing
         ( Card
+        , Color
         , PieceDict
         , PieceLocation
         )
+
+
+zone_colors : List Color
+zone_colors =
+    [ "red", "blue", "green" ]
 
 
 test_zone_colors : Test
@@ -28,12 +34,12 @@ test_zone_colors =
     Test.concat
         [ test "can find prev colors" <|
             \_ ->
-                prev_zone_color "green" [ "blue", "red", "green" ]
-                    |> Expect.equal "red"
+                prev_zone_color "green" zone_colors
+                    |> Expect.equal "blue"
         , test "can find next colors" <|
             \_ ->
-                next_zone_color "green" [ "blue", "red", "green" ]
-                    |> Expect.equal "blue"
+                next_zone_color "green" zone_colors
+                    |> Expect.equal "red"
         ]
 
 
@@ -46,7 +52,7 @@ get_params moves_left active_card piece_map loc =
     , active_card = active_card
     , piece_color = "blue"
     , piece_map = piece_map
-    , zone_colors = [ "red", "blue", "green" ]
+    , zone_colors = zone_colors
     }
 
 
@@ -118,9 +124,6 @@ test_reachable_locs =
 
                     active_card =
                         "8"
-
-                    zone_colors =
-                        [ "red", "blue", "green" ]
 
                     locs =
                         get_reachable_locs active_card piece_map zone_colors loc
@@ -221,9 +224,6 @@ test_can_go_n_spaces =
                         Dict.empty
                             |> Dict.insert loc "blue"
 
-                    zone_colors =
-                        [ "red", "blue", "green" ]
-
                     can_go =
                         get_can_go_n_spaces piece_map loc zone_colors 7
                 in
@@ -241,9 +241,6 @@ test_can_go_n_spaces =
                         Dict.empty
                             |> Dict.insert loc "blue"
                             |> Dict.insert blocked_loc "blue"
-
-                    zone_colors =
-                        [ "red", "blue", "green" ]
 
                     can_go =
                         get_can_go_n_spaces piece_map loc zone_colors 1
@@ -263,9 +260,6 @@ test_can_go_n_spaces =
                             |> Dict.insert loc "blue"
                             |> Dict.insert blocked_loc "blue"
 
-                    zone_colors =
-                        [ "red", "blue", "green" ]
-
                     can_go =
                         get_can_go_n_spaces piece_map loc zone_colors 2
                 in
@@ -284,9 +278,6 @@ test_can_go_n_spaces =
                             |> Dict.insert loc "blue"
                             |> Dict.insert blocked_loc "blue"
 
-                    zone_colors =
-                        [ "red", "blue", "green" ]
-
                     can_go =
                         get_can_go_n_spaces piece_map loc zone_colors 4
                 in
@@ -304,9 +295,6 @@ test_can_go_n_spaces =
                         Dict.empty
                             |> Dict.insert loc "blue"
                             |> Dict.insert blocked_loc "blue"
-
-                    zone_colors =
-                        [ "red", "blue", "green" ]
 
                     can_go =
                         get_can_go_n_spaces piece_map loc zone_colors 5

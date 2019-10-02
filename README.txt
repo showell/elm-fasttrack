@@ -7,8 +7,6 @@ HOW TO BUILD:
 
 TODO:
 
-    clean up zone_colors in tests
-
     eliminate SquareKind (just use ids)
 
     finish handling sevens
