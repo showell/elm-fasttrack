@@ -78,8 +78,8 @@ has_piece_on_fast_track piece_map active_color =
     List.length locs >= 1
 
 
-distance : List Color -> PieceLocation -> PieceLocation -> Int
-distance zone_colors start_loc end_loc =
+distance : List Color -> Color -> PieceLocation -> PieceLocation -> Int
+distance zone_colors active_color start_loc end_loc =
     -- This only computes distances for presumably
     -- valid moves.  Any two squares that are reachable
     -- from each other are always the same distance apart,
@@ -91,7 +91,7 @@ distance zone_colors start_loc end_loc =
     -- so we can computer how many places to advance the second
     -- piece.)
     let
-        ( zone_color, id ) =
+        ( _, id ) =
             start_loc
     in
     if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
@@ -109,7 +109,7 @@ distance zone_colors start_loc end_loc =
                     , can_leave_pen = False
                     , moves_left = 99
                     , loc = loc
-                    , piece_color = "ignore"
+                    , piece_color = active_color
                     , piece_map = Dict.empty
                     , zone_colors = zone_colors
                     }

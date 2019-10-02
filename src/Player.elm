@@ -168,13 +168,13 @@ maybe_replenish_hand active_color model =
         replenish_hand active_color model
 
 
-finish_move : List Color -> PieceLocation -> PieceLocation -> Player -> Player
-finish_move zone_colors start_loc end_loc player =
+finish_move : List Color -> Color -> PieceLocation -> PieceLocation -> Player -> Player
+finish_move zone_colors active_color start_loc end_loc player =
     case player.turn of
         TurnCard info ->
             let
                 distance_moved =
-                    distance zone_colors start_loc end_loc
+                    distance zone_colors active_color start_loc end_loc
 
                 turn =
                     maybe_finish_card

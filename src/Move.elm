@@ -122,7 +122,7 @@ perform_move model move active_color update_active_player =
                             model.zone_colors
 
                         model_ =
-                            update_active_player (finish_move zone_colors move.prev move.next)
+                            update_active_player (finish_move zone_colors active_color move.prev move.next)
                                 |> maybe_replenish_hand active_color
                     in
                     { model_ | piece_map = new_map }

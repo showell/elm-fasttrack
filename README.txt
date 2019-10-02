@@ -8,6 +8,8 @@ HOW TO BUILD:
 TODO:
 
 
+    fix bug with can_go_n_spaces (and FT)
+
     extract next_ids
 
     finish handling sevens

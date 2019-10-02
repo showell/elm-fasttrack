@@ -105,18 +105,18 @@ test_distance =
                     end_loc =
                         ( "blue", "L4" )
                 in
-                distance zone_colors start_loc end_loc
+                distance zone_colors "blue" start_loc end_loc
                     |> Expect.equal 3
         , test "start fasttrack" <|
             \_ ->
                 let
                     start_loc =
-                        ( "red", "FT" )
+                        ( "blue", "FT" )
 
                     end_loc =
-                        ( "red", "R3" )
+                        ( "blue", "R3" )
                 in
-                distance zone_colors start_loc end_loc
+                distance zone_colors "blue" start_loc end_loc
                     |> Expect.equal 4
         , test "start holding pen" <|
             \_ ->
@@ -127,7 +127,7 @@ test_distance =
                     end_loc =
                         ( "red", "L0" )
                 in
-                distance zone_colors start_loc end_loc
+                distance zone_colors "blue" start_loc end_loc
                     |> Expect.equal 1
         , test "rounding corner" <|
             \_ ->
@@ -138,8 +138,30 @@ test_distance =
                     end_loc =
                         ( "blue", "R0" )
                 in
-                distance zone_colors start_loc end_loc
+                distance zone_colors "blue" start_loc end_loc
                     |> Expect.equal 6
+        , test "approaching base" <|
+            \_ ->
+                let
+                    start_loc =
+                        ( "blue", "BR" )
+
+                    end_loc =
+                        ( "blue", "DS" )
+                in
+                distance zone_colors "blue" start_loc end_loc
+                    |> Expect.equal 1
+        , test "entering base" <|
+            \_ ->
+                let
+                    start_loc =
+                        ( "red", "L4" )
+
+                    end_loc =
+                        ( "blue", "B2" )
+                in
+                distance zone_colors "blue" start_loc end_loc
+                    |> Expect.equal 10
         ]
 
 
