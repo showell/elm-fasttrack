@@ -24,7 +24,8 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import LegalMove
     exposing
-        ( get_reachable_locs
+        ( distance
+        , get_reachable_locs
         )
 import List.Extra
 import Msg
@@ -138,7 +139,11 @@ maybe_finish_card info =
     let
         max_moves =
             if info.active_card == "7" then
-                2
+                if info.distance_moved == 7 then
+                    1
+
+                else
+                    2
 
             else
                 1
@@ -163,17 +168,21 @@ maybe_replenish_hand active_color model =
         replenish_hand active_color model
 
 
-finish_move : Player -> Player
-finish_move player =
+finish_move : List Color -> PieceLocation -> PieceLocation -> Player -> Player
+finish_move zone_colors start_loc end_loc player =
     case player.turn of
         TurnCard info ->
             let
+                distance_moved =
+                    distance zone_colors start_loc end_loc
+
                 turn =
                     maybe_finish_card
                         { info
                             | active_location = Nothing
                             , move_error = Nothing
                             , num_moves = info.num_moves + 1
+                            , distance_moved = distance_moved
                         }
             in
             { player | turn = turn }
@@ -250,6 +259,7 @@ activate_card idx player =
                 , active_location = Nothing
                 , move_error = Nothing
                 , num_moves = 0
+                , distance_moved = 0
                 }
     in
     { player
@@ -400,8 +410,11 @@ reachable_locs_for_player active_player piece_map zone_colors =
                         get_reachable_locs (WithCard active_card) piece_map zone_colors loc_
 
                     else
-                        -- TODO: need to handle split sevens here
-                        Set.empty
+                        let
+                            move_count =
+                                7 - info.distance_moved
+                        in
+                        get_reachable_locs (ForceCount move_count) piece_map zone_colors loc_
 
                 Nothing ->
                     Set.empty
