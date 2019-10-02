@@ -2,10 +2,8 @@ module Move exposing (perform_move)
 
 import Piece
     exposing
-        ( assign_piece
-        , get_piece
-        , maybe_send_piece_to_pen
-        , unassign_piece
+        ( get_piece
+        , move_piece
         )
 import Player
     exposing
@@ -17,16 +15,11 @@ import Type
     exposing
         ( Color
         , Model
+        , Move
         , PieceDict
         , PieceLocation
         , UpdatePlayerFunc
         )
-
-
-type alias Move =
-    { prev : PieceLocation
-    , next : PieceLocation
-    }
 
 
 validate_move : PieceDict -> Move -> Result String String
@@ -107,14 +100,8 @@ perform_move model move active_color update_active_player =
         piece_map =
             model.piece_map
 
-        prev_loc =
-            move.prev
-
-        next_loc =
-            move.next
-
         piece_color =
-            get_piece piece_map prev_loc
+            get_piece piece_map move.prev
     in
     case piece_color of
         Nothing ->
@@ -129,9 +116,7 @@ perform_move model move active_color update_active_player =
                     let
                         new_map =
                             piece_map
-                                |> maybe_send_piece_to_pen next_loc
-                                |> unassign_piece prev_loc
-                                |> assign_piece next_loc piece_color_
+                                |> move_piece move
 
                         model_ =
                             update_active_player finish_move

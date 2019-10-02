@@ -1,11 +1,9 @@
 module Piece exposing
-    ( assign_piece
-    , config_pieces
+    ( config_pieces
     , get_piece
-    , maybe_send_piece_to_pen
+    , move_piece
     , piece_view
     , player_pieces
-    , unassign_piece
     )
 
 import Config
@@ -23,6 +21,7 @@ import Svg.Events exposing (onClick)
 import Type
     exposing
         ( Color
+        , Move
         , PieceDict
         , PieceLocation
         )
@@ -120,6 +119,25 @@ config_pieces zone_colors =
             Dict.empty
     in
     List.foldl config_zone_pieces dct zone_colors
+
+
+move_piece : Move -> PieceDict -> PieceDict
+move_piece move piece_map =
+    let
+        prev_loc =
+            move.prev
+
+        next_loc =
+            move.next
+
+        piece_color =
+            get_piece piece_map prev_loc
+                |> Maybe.withDefault "bogus"
+    in
+    piece_map
+        |> maybe_send_piece_to_pen next_loc
+        |> unassign_piece prev_loc
+        |> assign_piece next_loc piece_color
 
 
 unassign_piece : PieceLocation -> PieceDict -> PieceDict

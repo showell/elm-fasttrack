@@ -7,8 +7,6 @@ HOW TO BUILD:
 
 TODO:
 
-    eliminate SquareKind (just use ids)
-
     finish handling sevens
     jack swap/kill
 

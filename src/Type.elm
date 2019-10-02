@@ -4,6 +4,7 @@ module Type exposing
     , Color
     , Location
     , Model
+    , Move
     , PieceDict
     , PieceLocation
     , Player
@@ -38,6 +39,12 @@ type alias PieceLocation =
 
 type alias PieceDict =
     Dict.Dict PieceLocation Color
+
+
+type alias Move =
+    { prev : PieceLocation
+    , next : PieceLocation
+    }
 
 
 type alias TurnCardInfo =
