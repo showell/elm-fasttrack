@@ -316,13 +316,6 @@ can_finish_split zone_colors other_locs piece_map count prev_loc next_loc =
             move_piece move piece_map
 
         can_go other_loc =
-            let
-                ( _, id ) =
-                    other_loc
-
-                can_fast_track =
-                    id == "FT"
-            in
             get_can_go_n_spaces modified_piece_map other_loc zone_colors count
 
         other_movable_locs =
