@@ -530,9 +530,8 @@ console_view turn_info color =
     in
     case turn_info.active_location of
         Just _ ->
-            span []
-                [ active_card_view
-                , div [] [ Html.text "now click piece's new location" ]
+            div []
+                [ span [] [ active_card_view, Html.text "now click piece's new location" ]
                 ]
 
         Nothing ->
