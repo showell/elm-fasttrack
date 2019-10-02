@@ -118,6 +118,12 @@ distance zone_colors active_color start_loc end_loc =
                 if Set.member end_loc neighbors then
                     cnt
 
+                else if cnt > 10 then
+                    -- punt on reverse moves, jack swaps, etc.
+                    -- This is defensive; callers should only
+                    -- call us on forward moves.
+                    99
+
                 else
                     let
                         next_neighbors =

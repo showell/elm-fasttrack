@@ -174,7 +174,16 @@ finish_move zone_colors active_color start_loc end_loc player =
         TurnCard info ->
             let
                 distance_moved =
-                    distance zone_colors active_color start_loc end_loc
+                    if info.active_card == "4" then
+                        -4
+
+                    else if info.active_card == "J" then
+                        -- when using J to swap pieces, the distance
+                        -- concept will become irrelevant
+                        0
+
+                    else
+                        distance zone_colors active_color start_loc end_loc
 
                 turn =
                     maybe_finish_card

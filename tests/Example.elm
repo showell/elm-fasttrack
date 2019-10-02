@@ -107,6 +107,28 @@ test_distance =
                 in
                 distance zone_colors "blue" start_loc end_loc
                     |> Expect.equal 3
+        , test "backward" <|
+            \_ ->
+                let
+                    start_loc =
+                        ( "blue", "R0" )
+
+                    end_loc =
+                        ( "blue", "R4" )
+                in
+                distance zone_colors "blue" start_loc end_loc
+                    |> Expect.equal 99
+        , test "backward around corner" <|
+            \_ ->
+                let
+                    start_loc =
+                        ( "blue", "R3" )
+
+                    end_loc =
+                        ( "red", "DS" )
+                in
+                distance zone_colors "blue" start_loc end_loc
+                    |> Expect.equal 99
         , test "start fasttrack" <|
             \_ ->
                 let
