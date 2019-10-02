@@ -213,6 +213,7 @@ can_go_n_spaces can_fast_track piece_color piece_map zone_colors n_spaces locati
                         , piece_map = piece_map
                         , zone_colors = zone_colors
                         }
+
                     locs =
                         get_next_locs params |> Set.toList
                 in
@@ -310,12 +311,11 @@ can_finish_split zone_colors other_locs piece_map count prev_loc next_loc =
 
         can_go other_loc =
             let
-                ( _, id) =
+                ( _, id ) =
                     other_loc
 
                 can_fast_track =
                     id == "FT"
-
             in
             get_can_go_n_spaces modified_piece_map other_loc zone_colors count
 
@@ -468,64 +468,7 @@ get_next_locs params =
     else
         let
             next_ids =
-                if id == "HH" then
-                    [ "L0" ]
-
-                else if id == "L0" then
-                    [ "L1" ]
-
-                else if id == "L1" then
-                    [ "L2" ]
-
-                else if id == "L2" then
-                    [ "L3" ]
-
-                else if id == "L3" then
-                    [ "L4" ]
-
-                else if id == "L4" then
-                    [ "FT" ]
-
-                else if id == "R4" then
-                    [ "R3" ]
-
-                else if id == "R3" then
-                    [ "R2" ]
-
-                else if id == "R2" then
-                    [ "R1" ]
-
-                else if id == "R1" then
-                    [ "R0" ]
-
-                else if id == "R0" then
-                    [ "BR" ]
-
-                else if id == "BR" then
-                    [ "DS" ]
-
-                else if id == "DS" then
-                    if zone_color == piece_color then
-                        [ "B1" ]
-
-                    else
-                        [ "HH" ]
-
-                else if id == "B1" then
-                    [ "B2" ]
-
-                else if id == "B2" then
-                    [ "B3" ]
-
-                else if id == "B3" then
-                    [ "B4" ]
-
-                else if id == "B4" then
-                    -- we're home!
-                    []
-
-                else
-                    []
+                next_ids_in_zone id piece_color zone_color
         in
         List.map (\id_ -> ( zone_color, id_ )) next_ids
             |> filter
@@ -569,51 +512,24 @@ get_prev_locs params =
 
     else
         let
-            prev_ids =
-                if id == "HH" then
-                    [ "DS" ]
-
-                else if id == "L0" then
-                    [ "HH" ]
-
-                else if id == "L1" then
-                    [ "L0" ]
-
-                else if id == "L2" then
-                    [ "L1" ]
-
-                else if id == "L3" then
-                    [ "L2" ]
-
-                else if id == "L4" then
-                    [ "L3" ]
-
-                else if id == "FT" then
-                    [ "L4" ]
-
-                else if id == "R3" then
-                    [ "R4" ]
-
-                else if id == "R2" then
-                    [ "R3" ]
-
-                else if id == "R1" then
-                    [ "R2" ]
-
-                else if id == "R0" then
-                    [ "R1" ]
-
-                else if id == "BR" then
-                    [ "R0" ]
-
-                else if id == "DS" then
-                    [ "BR" ]
-
-                else
-                    []
+            prev_id =
+                prev_id_in_zone id
         in
-        List.map (\id_ -> ( zone_color, id_ )) prev_ids
+        [ ( zone_color, prev_id ) ]
             |> filter
+
+
+is_loc_free piece_map piece_color loc =
+    let
+        other_piece =
+            get_piece piece_map loc
+    in
+    case other_piece of
+        Nothing ->
+            True
+
+        Just color ->
+            color /= piece_color
 
 
 get_moves_left : Card -> String -> Int
@@ -666,14 +582,114 @@ get_moves_left active_card id =
             0
 
 
-is_loc_free piece_map piece_color loc =
-    let
-        other_piece =
-            get_piece piece_map loc
-    in
-    case other_piece of
-        Nothing ->
-            True
+next_ids_in_zone : String -> Color -> Color -> List String
+next_ids_in_zone id piece_color zone_color =
+    -- Note, this does handle holding pen locations nor
+    -- fast track locations--the caller handles those
+    -- special cases.
+    if id == "HH" then
+        [ "L0" ]
 
-        Just color ->
-            color /= piece_color
+    else if id == "L0" then
+        [ "L1" ]
+
+    else if id == "L1" then
+        [ "L2" ]
+
+    else if id == "L2" then
+        [ "L3" ]
+
+    else if id == "L3" then
+        [ "L4" ]
+
+    else if id == "L4" then
+        [ "FT" ]
+
+    else if id == "R4" then
+        [ "R3" ]
+
+    else if id == "R3" then
+        [ "R2" ]
+
+    else if id == "R2" then
+        [ "R1" ]
+
+    else if id == "R1" then
+        [ "R0" ]
+
+    else if id == "R0" then
+        [ "BR" ]
+
+    else if id == "BR" then
+        [ "DS" ]
+
+    else if id == "DS" then
+        if zone_color == piece_color then
+            [ "B1" ]
+
+        else
+            [ "HH" ]
+
+    else if id == "B1" then
+        [ "B2" ]
+
+    else if id == "B2" then
+        [ "B3" ]
+
+    else if id == "B3" then
+        [ "B4" ]
+
+    else if id == "B4" then
+        -- we're home!
+        []
+
+    else
+        []
+
+
+prev_id_in_zone : String -> String
+prev_id_in_zone id =
+    -- This only handles cases where there is an obvious previous
+    -- location to move to.  The caller handles R4, plus holding pen
+    -- locations and base locations.
+    if id == "HH" then
+        "DS"
+
+    else if id == "L0" then
+        "HH"
+
+    else if id == "L1" then
+        "L0"
+
+    else if id == "L2" then
+        "L1"
+
+    else if id == "L3" then
+        "L2"
+
+    else if id == "L4" then
+        "L3"
+
+    else if id == "FT" then
+        "L4"
+
+    else if id == "R3" then
+        "R4"
+
+    else if id == "R2" then
+        "R3"
+
+    else if id == "R1" then
+        "R2"
+
+    else if id == "R0" then
+        "R1"
+
+    else if id == "BR" then
+        "R0"
+
+    else if id == "DS" then
+        "BR"
+
+    else
+        "bogus"

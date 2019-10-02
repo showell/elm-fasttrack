@@ -8,9 +8,7 @@ HOW TO BUILD:
 TODO:
 
 
-    fix bug with can_go_n_spaces (and FT)
-
-    extract next_ids
+    improve messaging for second seven
 
     finish handling sevens
     show only pieces that can move
