@@ -80,8 +80,8 @@ has_piece_on_fast_track piece_map active_color =
 
 distance : List Color -> PieceLocation -> PieceLocation -> Int
 distance zone_colors start_loc end_loc =
-    -- This only computes distances for valid moves outside
-    -- the holding pen.  Any two squares that are reachable
+    -- This only computes distances for presumably
+    -- valid moves.  Any two squares that are reachable
     -- from each other are always the same distance apart,
     -- but sometimes that does include the fast track.  (You
     -- could take longer paths between some pairs of locations,
@@ -93,39 +93,44 @@ distance zone_colors start_loc end_loc =
     let
         ( zone_color, id ) =
             start_loc
-
-        can_fast_track =
-            id == "FT"
-
-        next_locs loc =
-            get_next_locs
-                { reverse_mode = False
-                , can_fast_track = can_fast_track
-                , can_leave_pen = False
-                , moves_left = 99
-                , loc = loc
-                , piece_color = "ignore"
-                , piece_map = Dict.empty
-                , zone_colors = zone_colors
-                }
-
-        f neighbors cnt =
-            if Set.member end_loc neighbors then
-                cnt
-
-            else
-                let
-                    next_neighbors =
-                        neighbors
-                            |> Set.toList
-                            |> List.map next_locs
-                            |> List.map Set.toList
-                            |> List.concat
-                            |> Set.fromList
-                in
-                f next_neighbors (cnt + 1)
     in
-    f (next_locs start_loc) 1
+    if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
+        1
+
+    else
+        let
+            can_fast_track =
+                id == "FT"
+
+            next_locs loc =
+                get_next_locs
+                    { reverse_mode = False
+                    , can_fast_track = can_fast_track
+                    , can_leave_pen = False
+                    , moves_left = 99
+                    , loc = loc
+                    , piece_color = "ignore"
+                    , piece_map = Dict.empty
+                    , zone_colors = zone_colors
+                    }
+
+            f neighbors cnt =
+                if Set.member end_loc neighbors then
+                    cnt
+
+                else
+                    let
+                        next_neighbors =
+                            neighbors
+                                |> Set.toList
+                                |> List.map next_locs
+                                |> List.map Set.toList
+                                |> List.concat
+                                |> Set.fromList
+                    in
+                    f next_neighbors (cnt + 1)
+        in
+        f (next_locs start_loc) 1
 
 
 next_zone_color : Color -> List Color -> Color

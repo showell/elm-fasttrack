@@ -118,6 +118,17 @@ test_distance =
                 in
                 distance zone_colors start_loc end_loc
                     |> Expect.equal 4
+        , test "start holding pen" <|
+            \_ ->
+                let
+                    start_loc =
+                        ( "red", "HP3" )
+
+                    end_loc =
+                        ( "red", "L0" )
+                in
+                distance zone_colors start_loc end_loc
+                    |> Expect.equal 1
         , test "rounding corner" <|
             \_ ->
                 let
