@@ -42,6 +42,7 @@ import Type
         ( Card
         , Color
         , Model
+        , MoveType(..)
         , PieceDict
         , PieceLocation
         , Player
@@ -396,7 +397,7 @@ reachable_locs_for_player active_player piece_map zone_colors =
             case loc of
                 Just loc_ ->
                     if info.num_moves == 0 then
-                        get_reachable_locs active_card piece_map zone_colors loc_
+                        get_reachable_locs (WithCard active_card) piece_map zone_colors loc_
 
                     else
                         -- TODO: need to handle split sevens here

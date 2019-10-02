@@ -20,6 +20,7 @@ import Type
     exposing
         ( Card
         , Color
+        , MoveType(..)
         , PieceDict
         , PieceLocation
         )
@@ -44,13 +45,13 @@ test_zone_colors =
         ]
 
 
-get_params : Int -> Card -> PieceDict -> PieceLocation -> FindLocParams
-get_params moves_left active_card piece_map loc =
+get_params : Int -> PieceDict -> PieceLocation -> FindLocParams
+get_params moves_left piece_map loc =
     { reverse_mode = False
     , can_fast_track = False
+    , can_leave_pen = False
     , moves_left = moves_left
     , loc = loc
-    , active_card = active_card
     , piece_color = "blue"
     , piece_map = piece_map
     , zone_colors = zone_colors
@@ -141,7 +142,7 @@ test_reachable_locs =
                         Dict.empty
 
                     params =
-                        get_params 8 "8" piece_map ( "red", "L1" )
+                        get_params 8 piece_map ( "red", "L1" )
 
                     expected =
                         Set.fromList [ ( "blue", "R1" ) ]
@@ -161,11 +162,11 @@ test_reachable_locs =
                         Dict.empty
                             |> Dict.insert loc active_color
 
-                    active_card =
-                        "7"
+                    move_type =
+                        WithCard "7"
 
                     locs =
-                        get_reachable_locs active_card piece_map zone_colors loc
+                        get_reachable_locs move_type piece_map zone_colors loc
 
                     expected =
                         Set.fromList
@@ -187,11 +188,11 @@ test_reachable_locs =
                             |> Dict.insert ( "blue", "R1" ) active_color
                             |> Dict.insert loc active_color
 
-                    active_card =
-                        "7"
+                    move_type =
+                        WithCard "7"
 
                     locs =
-                        get_reachable_locs active_card piece_map zone_colors loc
+                        get_reachable_locs move_type piece_map zone_colors loc
 
                     expected =
                         Set.fromList
@@ -214,11 +215,11 @@ test_reachable_locs =
                             |> Dict.insert ( "green", "FT" ) active_color
                             |> Dict.insert loc active_color
 
-                    active_card =
-                        "8"
+                    move_type =
+                        WithCard "8"
 
                     locs =
-                        get_reachable_locs active_card piece_map zone_colors loc
+                        get_reachable_locs move_type piece_map zone_colors loc
 
                     expected =
                         Set.empty
@@ -232,7 +233,7 @@ test_reachable_locs =
                             |> Dict.insert ( "blue", "R3" ) "blue"
 
                     params =
-                        get_params 8 "8" piece_map ( "red", "L1" )
+                        get_params 8 piece_map ( "red", "L1" )
 
                     expected =
                         Set.empty

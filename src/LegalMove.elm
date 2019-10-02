@@ -22,6 +22,7 @@ import Type
     exposing
         ( Card
         , Color
+        , MoveType(..)
         , PieceDict
         , PieceLocation
         )
@@ -29,10 +30,10 @@ import Type
 
 type alias FindLocParams =
     { can_fast_track : Bool
+    , can_leave_pen : Bool
     , reverse_mode : Bool
     , moves_left : Int
     , loc : PieceLocation
-    , active_card : Card
     , piece_color : Color
     , piece_map : PieceDict
     , zone_colors : List Color
@@ -100,9 +101,9 @@ distance zone_colors start_loc end_loc =
             get_next_locs
                 { reverse_mode = False
                 , can_fast_track = can_fast_track
+                , can_leave_pen = False
                 , moves_left = 99
                 , loc = loc
-                , active_card = "ignore"
                 , piece_color = "ignore"
                 , piece_map = Dict.empty
                 , zone_colors = zone_colors
@@ -163,6 +164,9 @@ prev_zone_color color zone_colors =
 
 get_can_go_n_spaces : PieceDict -> PieceLocation -> List Color -> Int -> Bool
 get_can_go_n_spaces piece_map loc zone_colors n =
+    -- This function should only be called in the context of splitting
+    -- sevens, so we don't account for cards being able to leave the
+    -- holding pen.
     let
         ( zone_color, id ) =
             loc
@@ -181,9 +185,9 @@ get_can_go_n_spaces piece_map loc zone_colors n =
         can_go_n_spaces
             { reverse_mode = False
             , can_fast_track = can_fast_track
+            , can_leave_pen = False
             , moves_left = n
             , loc = loc
-            , active_card = "7"
             , piece_color = piece_color
             , piece_map = piece_map
             , zone_colors = zone_colors
@@ -230,8 +234,8 @@ can_go_n_spaces params =
             List.length all_paths >= 1
 
 
-get_reachable_locs : Card -> PieceDict -> List Color -> PieceLocation -> Set.Set PieceLocation
-get_reachable_locs active_card piece_map zone_colors loc =
+get_reachable_locs : MoveType -> PieceDict -> List Color -> PieceLocation -> Set.Set PieceLocation
+get_reachable_locs move_type piece_map zone_colors loc =
     let
         ( zone_color, id ) =
             loc
@@ -243,11 +247,27 @@ get_reachable_locs active_card piece_map zone_colors loc =
             get_piece piece_map loc
                 |> Maybe.withDefault "bogus"
 
+        active_card =
+            case move_type of
+                WithCard card ->
+                    card
+
+                ForceCount count ->
+                    "ignore"
+
+        can_leave_pen =
+            List.member active_card [ "A", "joker", "6" ]
+
         reverse_mode =
             active_card == "4"
 
         moves_left =
-            get_moves_left active_card id
+            case move_type of
+                WithCard card ->
+                    get_moves_left active_card id
+
+                ForceCount count ->
+                    count
 
         can_move =
             can_fast_track || not (has_piece_on_fast_track piece_map piece_color)
@@ -257,9 +277,9 @@ get_reachable_locs active_card piece_map zone_colors loc =
             params =
                 { reverse_mode = reverse_mode
                 , can_fast_track = can_fast_track
+                , can_leave_pen = can_leave_pen
                 , moves_left = moves_left
                 , loc = loc
-                , active_card = active_card
                 , piece_color = piece_color
                 , piece_map = piece_map
                 , zone_colors = zone_colors
@@ -406,6 +426,9 @@ get_next_locs params =
         can_fast_track =
             params.can_fast_track
 
+        can_leave_pen =
+            params.can_leave_pen
+
         piece_map =
             params.piece_map
 
@@ -416,7 +439,7 @@ get_next_locs params =
             lst |> List.filter is_free |> Set.fromList
     in
     if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
-        if List.member params.active_card [ "A", "joker", "6" ] then
+        if can_leave_pen then
             filter [ ( zone_color, "L0" ) ]
 
         else

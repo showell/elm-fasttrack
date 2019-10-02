@@ -5,6 +5,7 @@ module Type exposing
     , Location
     , Model
     , Move
+    , MoveType(..)
     , PieceDict
     , PieceLocation
     , Player
@@ -45,6 +46,11 @@ type alias Move =
     { prev : PieceLocation
     , next : PieceLocation
     }
+
+
+type MoveType
+    = WithCard Card
+    | ForceCount Int
 
 
 type alias TurnCardInfo =

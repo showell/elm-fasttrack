@@ -7,8 +7,10 @@ HOW TO BUILD:
 
 TODO:
 
-    finish handling sevens
 
+    extract next_ids
+
+    finish handling sevens
     show only pieces that can move
     handle end-game need-to-reverse
 
