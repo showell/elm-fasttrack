@@ -108,6 +108,58 @@ test_reachable_locs =
                 in
                 reachable_locs params
                     |> Expect.equal expected
+        , test "seven full" <|
+            \_ ->
+                let
+                    active_color =
+                        "blue"
+
+                    loc =
+                        ( "blue", "L2" )
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert loc active_color
+
+                    active_card =
+                        "7"
+
+                    locs =
+                        get_reachable_locs active_card piece_map zone_colors loc
+
+                    expected =
+                        Set.fromList
+                            [ ( "green", "R1" )
+                            ]
+                in
+                locs |> Expect.equal expected
+        , test "seven split" <|
+            \_ ->
+                let
+                    active_color =
+                        "blue"
+
+                    loc =
+                        ( "blue", "B1" )
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert ( "blue", "R1" ) active_color
+                            |> Dict.insert loc active_color
+
+                    active_card =
+                        "7"
+
+                    locs =
+                        get_reachable_locs active_card piece_map zone_colors loc
+
+                    expected =
+                        Set.fromList
+                            [ ( "blue", "B3" )
+                            , ( "blue", "B4" )
+                            ]
+                in
+                locs |> Expect.equal expected
         , test "can only move FT piece" <|
             \_ ->
                 let

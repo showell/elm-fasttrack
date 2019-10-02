@@ -10,6 +10,7 @@ TODO:
     finish handling sevens
     jack swap/kill
 
+    make it easier to change pieces
     get-out pile
 
     UI to pick number of players:

@@ -14,6 +14,7 @@ import List.Extra
 import Piece
     exposing
         ( get_piece
+        , move_piece
         )
 import Set
 import Type
@@ -223,9 +224,44 @@ get_reachable_locs active_card piece_map zone_colors loc =
         Set.empty
 
 
+can_finish_split : FindLocParams -> Set.Set PieceLocation -> PieceDict -> Int -> PieceLocation -> PieceLocation -> Bool
+can_finish_split params other_locs piece_map count prev_loc next_loc =
+    let
+        move =
+            { prev = prev_loc
+            , next = next_loc
+            }
+
+        modified_piece_map =
+            move_piece move piece_map
+
+        can_go other_loc =
+            can_go_n_spaces
+                { params
+                    | moves_left = count
+                    , loc = other_loc
+                    , piece_map = modified_piece_map
+                }
+
+        other_movable_locs =
+            other_locs |> Set.toList |> List.filter can_go
+    in
+    List.length other_movable_locs > 0
+
+
 get_locs_for_seven : FindLocParams -> Set.Set PieceLocation
 get_locs_for_seven params =
     let
+        piece_map =
+            params.piece_map
+
+        loc =
+            params.loc
+
+        piece_color =
+            get_piece piece_map loc
+                |> Maybe.withDefault "bogus"
+
         get_locs move_count =
             reachable_locs
                 { params
@@ -233,15 +269,34 @@ get_locs_for_seven params =
                 }
                 |> Set.toList
 
-        partial_locs =
-            List.range 1 6
-                |> List.map get_locs
-                |> List.concat
-
         full_locs =
             get_locs 7
+
+        other_locs =
+            other_mobile_pieces piece_map piece_color loc
     in
-    partial_locs ++ full_locs |> Set.fromList
+    if Set.size other_locs == 0 then
+        full_locs |> Set.fromList
+
+    else
+        let
+            prev_loc =
+                loc
+
+            get_partial_locs move_count =
+                let
+                    other_count =
+                        7 - move_count
+                in
+                get_locs move_count
+                    |> List.filter (can_finish_split params other_locs piece_map other_count prev_loc)
+
+            partial_locs =
+                List.range 1 6
+                    |> List.map get_partial_locs
+                    |> List.concat
+        in
+        partial_locs ++ full_locs |> Set.fromList
 
 
 reachable_locs : FindLocParams -> Set.Set PieceLocation
