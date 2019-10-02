@@ -577,6 +577,9 @@ get_moves_left active_card id =
         "K" ->
             1
 
+        "joker" ->
+            1
+
         other ->
             0
 
