@@ -7,6 +7,8 @@ HOW TO BUILD:
 
 TODO:
 
+    fix sevens in need-to-reverse
+
     handle end-game need-to-reverse
 
     improve messaging for second seven

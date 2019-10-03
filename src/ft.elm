@@ -329,7 +329,7 @@ normal_view model =
         board =
             div
                 []
-                [ board_view piece_map zone_colors players active_color ]
+                [ board_view piece_map zone_colors players active_color moves ]
 
         player_console =
             player_view players active_color playable_cards

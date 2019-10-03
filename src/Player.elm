@@ -42,6 +42,7 @@ import Set
 import Type
     exposing
         ( Card
+        , CardStartEnd
         , Color
         , Model
         , MoveType(..)
@@ -417,8 +418,8 @@ can_player_start_move_here player player_color piece_map loc =
                 False
 
 
-reachable_locs_for_player : Player -> PieceDict -> List Color -> Set.Set PieceLocation
-reachable_locs_for_player active_player piece_map zone_colors =
+reachable_locs_for_player : Player -> PieceDict -> List Color -> Set.Set CardStartEnd -> Set.Set PieceLocation
+reachable_locs_for_player active_player piece_map zone_colors moves =
     case active_player.turn of
         TurnCard info ->
             let
@@ -429,16 +430,19 @@ reachable_locs_for_player active_player piece_map zone_colors =
                     info.active_card
             in
             case loc of
-                Just loc_ ->
+                Just start_loc ->
                     if info.num_moves == 0 then
-                        get_reachable_locs (WithCard active_card) piece_map zone_colors loc_
+                        moves
+                            |> Set.filter (\( card, start, end ) -> card == active_card)
+                            |> Set.filter (\( card, start, end ) -> start == start_loc)
+                            |> Set.map (\( card, start, end ) -> end)
 
                     else
                         let
                             move_count =
                                 7 - info.distance_moved
                         in
-                        get_reachable_locs (ForceCount move_count) piece_map zone_colors loc_
+                        get_reachable_locs (ForceCount move_count) piece_map zone_colors start_loc
 
                 Nothing ->
                     Set.empty

@@ -35,7 +35,8 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Type
     exposing
-        ( Color
+        ( CardStartEnd
+        , Color
         , PieceDict
         , PieceLocation
         , PlayerDict
@@ -51,8 +52,8 @@ rotate_board zones =
 -- VIEW
 
 
-board_view : PieceDict -> List Color -> PlayerDict -> Color -> Html Msg
-board_view piece_map zone_colors players active_color =
+board_view : PieceDict -> List Color -> PlayerDict -> Color -> Set.Set CardStartEnd -> Html Msg
+board_view piece_map zone_colors players active_color moves =
     let
         active_player =
             get_player players active_color
@@ -68,7 +69,7 @@ board_view piece_map zone_colors players active_color =
                 Set.empty
 
         reachable_locs =
-            reachable_locs_for_player active_player piece_map zone_colors
+            reachable_locs_for_player active_player piece_map zone_colors moves
 
         content =
             List.map (draw_zone piece_map playable_locs reachable_locs active_location zone_colors) zone_colors
