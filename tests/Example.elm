@@ -96,6 +96,31 @@ test_get_moves_for_player =
                             ]
                 in
                 locs |> Expect.equal expected
+        , test "get forced reverse" <|
+            \_ ->
+                let
+                    active_color =
+                        "blue"
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert ( "blue", "B1" ) active_color
+                            |> Dict.insert ( "blue", "B2" ) active_color
+                            |> Dict.insert ( "blue", "R0" ) active_color
+
+                    cards =
+                        Set.fromList [ "3", "8" ]
+
+                    locs =
+                        get_moves_for_player cards piece_map zone_colors active_color
+
+                    expected =
+                        Set.fromList
+                            [ ( "3", ( "blue", "R0" ), ( "blue", "R3" ) )
+                            , ( "8", ( "blue", "R0" ), ( "red", "L2" ) )
+                            ]
+                in
+                locs |> Expect.equal expected
         ]
 
 

@@ -281,7 +281,11 @@ get_moves_for_player cards piece_map zone_colors active_color =
         forward_moves =
             f WithCard
     in
-    forward_moves
+    if Set.size forward_moves > 0 then
+        forward_moves
+
+    else
+        f ForceReverse
 
 
 get_locs_for_move_type : MoveType -> PieceDict -> List Color -> Color -> Set.Set ( PieceLocation, PieceLocation )
@@ -330,6 +334,9 @@ get_reachable_locs move_type piece_map zone_colors loc =
                 WithCard card ->
                     card
 
+                ForceReverse card ->
+                    card
+
                 ForceCount count ->
                     "ignore"
 
@@ -337,11 +344,19 @@ get_reachable_locs move_type piece_map zone_colors loc =
             List.member active_card [ "A", "joker", "6" ]
 
         reverse_mode =
-            active_card == "4"
+            case move_type of
+                ForceReverse _ ->
+                    True
+
+                other ->
+                    active_card == "4"
 
         moves_left =
             case move_type of
                 WithCard card ->
+                    get_moves_left active_card id
+
+                ForceReverse card ->
                     get_moves_left active_card id
 
                 ForceCount count ->
