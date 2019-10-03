@@ -451,8 +451,17 @@ card_css color =
 view_hand_card : Color -> Player -> Int -> Card -> Html Msg
 view_hand_card color player idx card =
     let
+        enabled =
+            player.turn == TurnInProgress
+
+        border_color =
+            if enabled then
+                color
+            else
+                "gray"
+
         css =
-            card_css color
+            card_css border_color
 
         attrs =
             case player.turn of
