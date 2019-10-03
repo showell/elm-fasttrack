@@ -3,6 +3,7 @@ module LegalMove exposing
     , distance
     , get_can_go_n_spaces
     , get_locs_for_move_type
+    , get_moves_for_player
     , get_reachable_locs
     , has_piece_on_fast_track
     , my_pieces
@@ -248,6 +249,39 @@ can_go_n_spaces can_fast_track piece_color piece_map zone_colors n_spaces locati
                     List.length all_paths >= 1
     in
     recurse n_spaces location
+
+
+get_moves_for_player : Set.Set Card -> PieceDict -> List Color -> Color -> Set.Set ( Card, PieceLocation, PieceLocation )
+get_moves_for_player cards piece_map zone_colors active_color =
+    let
+        f make_move_type =
+            let
+                get_moves : Card -> List ( Card, PieceLocation, PieceLocation )
+                get_moves card =
+                    let
+                        move_type =
+                            make_move_type card
+
+                        moves =
+                            get_locs_for_move_type move_type piece_map zone_colors active_color
+
+                        make_tup ( start_loc, end_loc ) =
+                            ( card, start_loc, end_loc )
+                    in
+                    moves
+                        |> Set.toList
+                        |> List.map make_tup
+            in
+            cards
+                |> Set.toList
+                |> List.map get_moves
+                |> List.concat
+                |> Set.fromList
+
+        forward_moves =
+            f WithCard
+    in
+    forward_moves
 
 
 get_locs_for_move_type : MoveType -> PieceDict -> List Color -> Color -> Set.Set ( PieceLocation, PieceLocation )

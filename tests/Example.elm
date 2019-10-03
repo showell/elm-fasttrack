@@ -8,6 +8,7 @@ import LegalMove
         , distance
         , get_can_go_n_spaces
         , get_locs_for_move_type
+        , get_moves_for_player
         , get_reachable_locs
         , has_piece_on_fast_track
         , my_pieces
@@ -58,6 +59,44 @@ get_params moves_left piece_map loc =
     , piece_map = piece_map
     , zone_colors = zone_colors
     }
+
+
+test_get_moves_for_player : Test
+test_get_moves_for_player =
+    Test.concat
+        [ test "get moves 2/3 away" <|
+            \_ ->
+                let
+                    active_color =
+                        "blue"
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert ( "red", "L0" ) active_color
+                            |> Dict.insert ( "green", "R3" ) active_color
+                            |> Dict.insert ( "blue", "L3" ) active_color
+                            |> Dict.insert ( "blue", "L0" ) active_color
+                            |> Dict.insert ( "green", "L3" ) "green"
+
+                    cards =
+                        Set.fromList [ "2", "3" ]
+
+                    locs =
+                        get_moves_for_player cards piece_map zone_colors active_color
+
+                    expected =
+                        Set.fromList
+                            [ ( "2", ( "red", "L0" ), ( "red", "L2" ) )
+                            , ( "2", ( "green", "R3" ), ( "green", "R1" ) )
+                            , ( "2", ( "blue", "L3" ), ( "blue", "FT" ) )
+                            , ( "2", ( "blue", "L0" ), ( "blue", "L2" ) )
+                            , ( "3", ( "red", "L0" ), ( "red", "L3" ) )
+                            , ( "3", ( "green", "R3" ), ( "green", "R0" ) )
+                            , ( "3", ( "blue", "L3" ), ( "green", "R4" ) )
+                            ]
+                in
+                locs |> Expect.equal expected
+        ]
 
 
 test_get_locs_for_move_type : Test
