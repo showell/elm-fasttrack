@@ -7,8 +7,6 @@ HOW TO BUILD:
 
 TODO:
 
-    change prev/next to start/end in Move type
-
     handle end-game need-to-reverse
 
     improve messaging for second seven

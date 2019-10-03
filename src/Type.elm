@@ -43,8 +43,8 @@ type alias PieceDict =
 
 
 type alias Move =
-    { prev : PieceLocation
-    , next : PieceLocation
+    { start : PieceLocation
+    , end : PieceLocation
     }
 
 

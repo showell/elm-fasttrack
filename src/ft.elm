@@ -253,11 +253,11 @@ handle_loc_click model location =
             else
                 model
 
-        Just prev ->
+        Just start ->
             let
                 move =
-                    { prev = prev
-                    , next = location
+                    { start = start
+                    , end = location
                     }
             in
             perform_move model move active_color update_player

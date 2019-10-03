@@ -389,11 +389,11 @@ get_reachable_locs move_type piece_map zone_colors loc =
 
 
 can_finish_split : List Color -> Set.Set PieceLocation -> PieceDict -> Int -> PieceLocation -> PieceLocation -> Bool
-can_finish_split zone_colors other_locs piece_map count prev_loc next_loc =
+can_finish_split zone_colors other_locs piece_map count start_loc end_loc =
     let
         move =
-            { prev = prev_loc
-            , next = next_loc
+            { start = start_loc
+            , end = end_loc
             }
 
         modified_piece_map =

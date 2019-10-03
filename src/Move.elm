@@ -25,33 +25,33 @@ import Type
 validate_move : PieceDict -> Move -> Result String String
 validate_move piece_map move =
     let
-        prev =
-            move.prev
+        start =
+            move.start
 
-        next =
-            move.next
+        end =
+            move.end
 
         spc =
-            get_piece piece_map prev
+            get_piece piece_map start
 
         tpc =
-            get_piece piece_map next
+            get_piece piece_map end
     in
     case spc of
         Nothing ->
             Err "No source piece color"
 
         Just source_piece_color ->
-            if prev == next then
+            if start == end then
                 Err "You must move somewhere else"
 
             else if same_color source_piece_color tpc then
                 Err "You cannot land on your own piece"
 
-            else if wrong_holding_pen source_piece_color next then
+            else if wrong_holding_pen source_piece_color end then
                 Err "You cannot move to their holding pen"
 
-            else if wrong_base source_piece_color next then
+            else if wrong_base source_piece_color end then
                 Err "You cannot move to their base"
 
             else
@@ -101,7 +101,7 @@ perform_move model move active_color update_active_player =
             model.piece_map
 
         piece_color =
-            get_piece piece_map move.prev
+            get_piece piece_map move.start
     in
     case piece_color of
         Nothing ->
@@ -122,7 +122,7 @@ perform_move model move active_color update_active_player =
                             model.zone_colors
 
                         model_ =
-                            update_active_player (finish_move zone_colors active_color move.prev move.next)
+                            update_active_player (finish_move zone_colors active_color move.start move.end)
                                 |> maybe_replenish_hand active_color
                     in
                     { model_ | piece_map = new_map }

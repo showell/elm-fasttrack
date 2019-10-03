@@ -124,20 +124,20 @@ config_pieces zone_colors =
 move_piece : Move -> PieceDict -> PieceDict
 move_piece move piece_map =
     let
-        prev_loc =
-            move.prev
+        start_loc =
+            move.start
 
-        next_loc =
-            move.next
+        end_loc =
+            move.end
 
         piece_color =
-            get_piece piece_map prev_loc
+            get_piece piece_map start_loc
                 |> Maybe.withDefault "bogus"
     in
     piece_map
-        |> maybe_send_piece_to_pen next_loc
-        |> unassign_piece prev_loc
-        |> assign_piece next_loc piece_color
+        |> maybe_send_piece_to_pen end_loc
+        |> unassign_piece start_loc
+        |> assign_piece end_loc piece_color
 
 
 unassign_piece : PieceLocation -> PieceDict -> PieceDict
