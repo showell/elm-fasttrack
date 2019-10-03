@@ -7,6 +7,7 @@ import LegalMove
         ( FindLocParams
         , distance
         , get_can_go_n_spaces
+        , get_locs_for_move_type
         , get_reachable_locs
         , has_piece_on_fast_track
         , my_pieces
@@ -57,6 +58,39 @@ get_params moves_left piece_map loc =
     , piece_map = piece_map
     , zone_colors = zone_colors
     }
+
+
+test_get_locs_for_move_type : Test
+test_get_locs_for_move_type =
+    Test.concat
+        [ test "get locs 2 away" <|
+            \_ ->
+                let
+                    active_color =
+                        "blue"
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert ( "red", "L0" ) active_color
+                            |> Dict.insert ( "green", "R4" ) active_color
+                            |> Dict.insert ( "blue", "L3" ) active_color
+                            |> Dict.insert ( "green", "L3" ) "green"
+
+                    move_type =
+                        WithCard "2"
+
+                    locs =
+                        get_locs_for_move_type move_type piece_map zone_colors active_color
+
+                    expected =
+                        Set.fromList
+                            [ ( ( "red", "L0" ), ( "red", "L2" ) )
+                            , ( ( "green", "R4" ), ( "green", "R2" ) )
+                            , ( ( "blue", "L3" ), ( "blue", "FT" ) )
+                            ]
+                in
+                locs |> Expect.equal expected
+        ]
 
 
 test_my_pieces : Test

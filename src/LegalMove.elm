@@ -2,6 +2,7 @@ module LegalMove exposing
     ( FindLocParams
     , distance
     , get_can_go_n_spaces
+    , get_locs_for_move_type
     , get_reachable_locs
     , has_piece_on_fast_track
     , my_pieces
@@ -23,6 +24,7 @@ import Type
     exposing
         ( Card
         , Color
+        , Move
         , MoveType(..)
         , PieceDict
         , PieceLocation
@@ -246,6 +248,34 @@ can_go_n_spaces can_fast_track piece_color piece_map zone_colors n_spaces locati
                     List.length all_paths >= 1
     in
     recurse n_spaces location
+
+
+get_locs_for_move_type : MoveType -> PieceDict -> List Color -> Color -> Set.Set ( PieceLocation, PieceLocation )
+get_locs_for_move_type move_type piece_map zone_colors active_color =
+    let
+        start_locs : Set.Set PieceLocation
+        start_locs =
+            my_pieces piece_map active_color
+
+        get_moves : PieceLocation -> List ( PieceLocation, PieceLocation )
+        get_moves start_loc =
+            let
+                end_locs =
+                    get_reachable_locs move_type piece_map zone_colors start_loc
+
+                make_move : PieceLocation -> ( PieceLocation, PieceLocation )
+                make_move end_loc =
+                    ( start_loc, end_loc )
+            in
+            end_locs
+                |> Set.toList
+                |> List.map make_move
+    in
+    start_locs
+        |> Set.toList
+        |> List.map get_moves
+        |> List.concat
+        |> Set.fromList
 
 
 get_reachable_locs : MoveType -> PieceDict -> List Color -> PieceLocation -> Set.Set PieceLocation

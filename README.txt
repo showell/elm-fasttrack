@@ -7,12 +7,14 @@ HOW TO BUILD:
 
 TODO:
 
+    change prev/next to start/end in Move type
+
+    handle end-game need-to-reverse
 
     improve messaging for second seven
 
     finish handling sevens
     show only pieces that can move
-    handle end-game need-to-reverse
 
 
     jack swap/kill
