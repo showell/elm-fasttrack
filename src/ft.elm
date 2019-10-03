@@ -11,6 +11,10 @@ import Config
         ( get_zone_colors
         )
 import Html exposing (..)
+import LegalMove
+    exposing
+        ( get_moves_for_player
+        )
 import Move
     exposing
         ( perform_move
@@ -31,6 +35,7 @@ import Player
         , finish_card
         , get_active_location
         , get_player
+        , get_player_cards
         , player_view
         , replenish_hand
         , set_active_location
@@ -38,6 +43,7 @@ import Player
         , update_player
         )
 import Random
+import Set
 import Task
 import Time
 import Type
@@ -295,21 +301,43 @@ view model =
 normal_view : Model -> Browser.Document Msg
 normal_view model =
     let
+        piece_map =
+            model.piece_map
+
+        zone_colors =
+            model.zone_colors
+
+        players =
+            model.players
+
         active_color =
-            get_active_color model.zone_colors
+            get_active_color zone_colors
+
+        active_player =
+            get_player players active_color
+
+        cards =
+            get_player_cards active_player
+
+        moves =
+            get_moves_for_player cards piece_map zone_colors active_color
+
+        playable_cards =
+            moves
+                |> Set.map (\( card, start, end ) -> card)
 
         board =
             div
                 []
-                [ board_view model.piece_map model.zone_colors model.players active_color ]
+                [ board_view piece_map zone_colors players active_color ]
 
-        cards =
-            player_view model.players active_color
+        player_console =
+            player_view players active_color playable_cards
 
         body =
             [ board
             , hr [] []
-            , cards
+            , player_console
             ]
     in
     { title = "Fast Track"

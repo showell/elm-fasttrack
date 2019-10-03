@@ -6,6 +6,7 @@ module Player exposing
     , finish_move
     , get_active_location
     , get_player
+    , get_player_cards
     , maybe_replenish_hand
     , player_view
     , reachable_locs_for_player
@@ -51,6 +52,20 @@ import Type
         , Turn(..)
         , TurnCardInfo
         )
+
+
+get_player_cards : Player -> Set.Set Card
+get_player_cards player =
+    let
+        cards =
+            case player.turn of
+                TurnCard info ->
+                    player.hand ++ [ info.active_card ]
+
+                other ->
+                    player.hand
+    in
+    cards |> Set.fromList
 
 
 config_player : Color -> Color -> Player
@@ -448,15 +463,16 @@ card_css color =
     ]
 
 
-view_hand_card : Color -> Player -> Int -> Card -> Html Msg
-view_hand_card color player idx card =
+view_hand_card : Color -> Player -> Set.Set Card -> Int -> Card -> Html Msg
+view_hand_card color player playable_cards idx card =
     let
         enabled =
-            player.turn == TurnInProgress
+            player.turn == TurnInProgress && Set.member card playable_cards
 
         border_color =
             if enabled then
                 color
+
             else
                 "gray"
 
@@ -498,8 +514,8 @@ deck_view player color =
         span [] []
 
 
-player_view : PlayerDict -> Color -> Html Msg
-player_view players color =
+player_view : PlayerDict -> Color -> Set.Set Card -> Html Msg
+player_view players color playable_cards =
     let
         player =
             get_player players color
@@ -508,7 +524,7 @@ player_view players color =
             deck_view player color
 
         hand_cards =
-            List.indexedMap (view_hand_card color player) player.hand
+            List.indexedMap (view_hand_card color player playable_cards) player.hand
 
         hand =
             span [] hand_cards
