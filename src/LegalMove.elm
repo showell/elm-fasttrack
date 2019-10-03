@@ -24,6 +24,7 @@ import Set
 import Type
     exposing
         ( Card
+        , CardStartEnd
         , Color
         , Move
         , MoveType(..)
@@ -251,12 +252,12 @@ can_go_n_spaces can_fast_track piece_color piece_map zone_colors n_spaces locati
     recurse n_spaces location
 
 
-get_moves_for_player : Set.Set Card -> PieceDict -> List Color -> Color -> Set.Set ( Card, PieceLocation, PieceLocation )
+get_moves_for_player : Set.Set Card -> PieceDict -> List Color -> Color -> Set.Set CardStartEnd
 get_moves_for_player cards piece_map zone_colors active_color =
     let
         f make_move_type =
             let
-                get_moves : Card -> List ( Card, PieceLocation, PieceLocation )
+                get_moves : Card -> List CardStartEnd
                 get_moves card =
                     let
                         move_type =

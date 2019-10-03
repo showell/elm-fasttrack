@@ -1,6 +1,7 @@
 module Type exposing
     ( AppState(..)
     , Card
+    , CardStartEnd
     , Color
     , Location
     , Model
@@ -76,6 +77,10 @@ type alias Player =
     , discard_pile : List Card
     , turn : Turn
     }
+
+
+type alias CardStartEnd =
+    ( Card, PieceLocation, PieceLocation )
 
 
 type alias PlayerDict =
