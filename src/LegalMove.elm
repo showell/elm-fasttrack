@@ -4,6 +4,7 @@ module LegalMove exposing
     , get_can_go_n_spaces
     , get_reachable_locs
     , has_piece_on_fast_track
+    , my_pieces
     , next_zone_color
     , other_mobile_pieces
     , prev_zone_color
@@ -49,6 +50,13 @@ is_color piece_map color loc =
     loc_color == Just color
 
 
+my_pieces : PieceDict -> Color -> Set.Set PieceLocation
+my_pieces piece_map active_color =
+    Dict.keys piece_map
+        |> List.filter (is_color piece_map active_color)
+        |> Set.fromList
+
+
 other_mobile_pieces : PieceDict -> Color -> PieceLocation -> Set.Set PieceLocation
 other_mobile_pieces piece_map active_color loc =
     -- mobile pieces are not in the holding pen (and can theoretically
@@ -57,11 +65,9 @@ other_mobile_pieces piece_map active_color loc =
         is_mobile ( zone_color, id ) =
             not (List.member id [ "HP1", "HP2", "HP3", "HP4" ])
     in
-    Dict.keys piece_map
-        |> List.filter (is_color piece_map active_color)
-        |> List.filter (\loc_ -> loc_ /= loc)
-        |> List.filter is_mobile
-        |> Set.fromList
+    my_pieces piece_map active_color
+        |> Set.filter (\loc_ -> loc_ /= loc)
+        |> Set.filter is_mobile
 
 
 has_piece_on_fast_track : PieceDict -> Color -> Bool
@@ -71,11 +77,10 @@ has_piece_on_fast_track piece_map active_color =
             id == "FT"
 
         locs =
-            Dict.keys piece_map
-                |> List.filter is_ft
-                |> List.filter (is_color piece_map active_color)
+            my_pieces piece_map active_color
+                |> Set.filter is_ft
     in
-    List.length locs >= 1
+    Set.size locs >= 1
 
 
 distance : List Color -> Color -> PieceLocation -> PieceLocation -> Int

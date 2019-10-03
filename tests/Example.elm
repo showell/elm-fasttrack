@@ -9,6 +9,7 @@ import LegalMove
         , get_can_go_n_spaces
         , get_reachable_locs
         , has_piece_on_fast_track
+        , my_pieces
         , next_zone_color
         , other_mobile_pieces
         , prev_zone_color
@@ -56,6 +57,42 @@ get_params moves_left piece_map loc =
     , piece_map = piece_map
     , zone_colors = zone_colors
     }
+
+
+test_my_pieces : Test
+test_my_pieces =
+    Test.concat
+        [ test "find my pieces" <|
+            \_ ->
+                let
+                    active_color =
+                        "blue"
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert ( "red", "L0" ) active_color
+                            |> Dict.insert ( "red", "L2" ) "red"
+                            |> Dict.insert ( "green", "FT" ) active_color
+                            |> Dict.insert ( "blue", "L3" ) active_color
+                            |> Dict.insert ( "blue", "L4" ) "green"
+                            |> Dict.insert ( "blue", "HP1" ) active_color
+                            |> Dict.insert ( "blue", "B2" ) active_color
+                            |> Dict.insert ( "blue", "FT" ) "red"
+
+                    locs =
+                        my_pieces piece_map active_color
+
+                    expected =
+                        Set.fromList
+                            [ ( "red", "L0" )
+                            , ( "green", "FT" )
+                            , ( "blue", "L3" )
+                            , ( "blue", "HP1" )
+                            , ( "blue", "B2" )
+                            ]
+                in
+                locs |> Expect.equal expected
+        ]
 
 
 test_other_mobile_pieces : Test
