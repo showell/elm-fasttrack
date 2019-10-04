@@ -17,7 +17,6 @@ import LegalMove
     exposing
         ( get_moves_for_player
         )
-import Msg exposing (..)
 import Piece
     exposing
         ( get_piece
@@ -42,6 +41,7 @@ import Type
         , Color
         , Location
         , Model
+        , Msg(..)
         , PieceDict
         , PieceLocation
         , Player

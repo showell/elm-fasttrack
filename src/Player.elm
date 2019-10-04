@@ -25,10 +25,6 @@ import LegalMove
         , get_reachable_locs
         )
 import List.Extra
-import Msg
-    exposing
-        ( Msg(..)
-        )
 import Piece
     exposing
         ( get_piece

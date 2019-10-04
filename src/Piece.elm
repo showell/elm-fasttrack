@@ -11,7 +11,6 @@ import Config
         )
 import Dict
 import List.Extra
-import Msg exposing (..)
 import Set
 import Type
     exposing

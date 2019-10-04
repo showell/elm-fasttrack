@@ -7,6 +7,7 @@ module Type exposing
     , Model
     , Move
     , MoveType(..)
+    , Msg(..)
     , PieceDict
     , PieceLocation
     , Player
@@ -18,6 +19,7 @@ module Type exposing
 
 import Dict
 import Random
+import Time
 
 
 type alias Color =
@@ -103,3 +105,13 @@ type alias Model =
 
 type alias UpdatePlayerFunc =
     (Player -> Player) -> Model
+
+
+type Msg
+    = ClickLocation PieceLocation
+    | ReplenishHand
+    | ActivateCard Color Int
+    | FinishCard Color
+    | RotateBoard
+    | LoadGame Time.Posix
+    | NewSeed Time.Posix

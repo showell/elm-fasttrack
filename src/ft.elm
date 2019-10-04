@@ -9,10 +9,6 @@ import Move
     exposing
         ( perform_move
         )
-import Msg
-    exposing
-        ( Msg(..)
-        )
 import Piece
     exposing
         ( config_pieces
@@ -40,6 +36,7 @@ import Type
         , Color
         , Location
         , Model
+        , Msg(..)
         , PieceLocation
         , Player
         , Turn(..)

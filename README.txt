@@ -8,8 +8,10 @@ HOW TO BUILD:
 TODO:
     code cleanup:
         flatten console_view
-        put Msg into Type
         put active_color on model (and de-dup get_active_color)
+        use holding_pen_locations
+        add base_locations
+        grow Config
 
     show only pieces that can move
 
