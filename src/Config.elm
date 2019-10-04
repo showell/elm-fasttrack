@@ -1,11 +1,11 @@
 module Config exposing
     ( config_locations
-    , get_moves_left
     , get_zone_colors
     , gutter_size
     , holding_pen_locations
     , is_base_id
     , is_holding_pen_id
+    , move_count_for_card
     , next_ids_in_zone
     , prev_id_in_zone
     , square_size
@@ -153,8 +153,8 @@ config_locations =
     ]
 
 
-get_moves_left : Card -> String -> Int
-get_moves_left active_card id =
+move_count_for_card : Card -> String -> Int
+move_count_for_card active_card id =
     case active_card of
         "A" ->
             1

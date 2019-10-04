@@ -14,9 +14,9 @@ module LegalMove exposing
 
 import Config
     exposing
-        ( get_moves_left
-        , is_base_id
+        ( is_base_id
         , is_holding_pen_id
+        , move_count_for_card
         , next_ids_in_zone
         , prev_id_in_zone
         )
@@ -350,10 +350,10 @@ get_reachable_locs move_type piece_map zone_colors loc =
         moves_left =
             case move_type of
                 WithCard _ ->
-                    get_moves_left active_card id
+                    move_count_for_card active_card id
 
                 ForceReverse _ ->
-                    get_moves_left active_card id
+                    move_count_for_card active_card id
 
                 ForceCount count ->
                     count

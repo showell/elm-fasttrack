@@ -6,8 +6,6 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
-    rename get_moves_left
-
     auto-move when only one choice
     make it more clear where to click
 
