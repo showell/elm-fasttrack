@@ -6,6 +6,10 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
+    code cleanup:
+        flatten console_view
+        put Msg into Type
+        put active_color on model (and de-dup get_active_color)
 
     show only pieces that can move
 

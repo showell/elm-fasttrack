@@ -1,19 +1,9 @@
 module Main exposing (..)
 
-import Board
-    exposing
-        ( board_view
-        , rotate_board
-        )
 import Browser
 import Config
     exposing
         ( get_zone_colors
-        )
-import Html exposing (..)
-import LegalMove
-    exposing
-        ( get_moves_for_player
         )
 import Move
     exposing
@@ -35,8 +25,6 @@ import Player
         , finish_card
         , get_active_location
         , get_player
-        , get_player_cards
-        , player_view
         , replenish_hand
         , set_active_location
         , set_turn
@@ -56,6 +44,10 @@ import Type
         , Player
         , Turn(..)
         , UpdatePlayerFunc
+        )
+import View
+    exposing
+        ( view
         )
 
 
@@ -100,13 +92,6 @@ randomize =
     Task.perform NewSeed Time.now
 
 
-get_active_color : List Color -> Color
-get_active_color zone_colors =
-    -- appease compiler with Maybe
-    List.head zone_colors
-        |> Maybe.withDefault "bogus"
-
-
 update_active_player : Model -> UpdatePlayerFunc
 update_active_player model f =
     let
@@ -131,6 +116,17 @@ replenish_active_hand model =
 seed_from_time : Time.Posix -> Random.Seed
 seed_from_time time =
     Random.initialSeed (Time.posixToMillis time)
+
+
+
+-- TODO: just put this on model
+
+
+get_active_color : List Color -> Color
+get_active_color zone_colors =
+    -- appease compiler with Maybe
+    List.head zone_colors
+        |> Maybe.withDefault "bogus"
 
 
 
@@ -226,6 +222,11 @@ update msg model =
             ( model_, Cmd.none )
 
 
+rotate_board : List Color -> List Color
+rotate_board zones =
+    List.drop 1 zones ++ List.take 1 zones
+
+
 handle_loc_click : Model -> PieceLocation -> Model
 handle_loc_click model location =
     let
@@ -279,67 +280,4 @@ subscriptions model =
 
 
 
--- VIEW
-
-
-view : Model -> Browser.Document Msg
-view model =
-    case model.state of
-        Loading ->
-            -- The load should basically happen instantly, so this
-            -- is just defensive against race conditions.  Of course,
-            -- this may change in the future if we do things like
-            -- connect to a server.
-            { title = "Fast Track"
-            , body = [ Html.text "loading..." ]
-            }
-
-        Ready ->
-            normal_view model
-
-
-normal_view : Model -> Browser.Document Msg
-normal_view model =
-    let
-        piece_map =
-            model.piece_map
-
-        zone_colors =
-            model.zone_colors
-
-        players =
-            model.players
-
-        active_color =
-            get_active_color zone_colors
-
-        active_player =
-            get_player players active_color
-
-        cards =
-            get_player_cards active_player
-
-        moves =
-            get_moves_for_player cards piece_map zone_colors active_color
-
-        playable_cards =
-            moves
-                |> Set.map (\( card, start, end ) -> card)
-
-        board =
-            div
-                []
-                [ board_view piece_map zone_colors players active_color moves ]
-
-        player_console =
-            player_view players active_color playable_cards
-
-        body =
-            [ board
-            , hr [] []
-            , player_console
-            ]
-    in
-    { title = "Fast Track"
-    , body = body
-    }
+-- for VIEW, see View.elm
