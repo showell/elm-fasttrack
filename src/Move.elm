@@ -32,7 +32,7 @@ perform_move model move active_color update_active_player =
         Nothing ->
             model
 
-        Just piece_color_ ->
+        Just _ ->
             let
                 new_map =
                     piece_map

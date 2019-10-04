@@ -10,7 +10,6 @@ import Config
         )
 import Dict
 import List.Extra
-import Set
 import Type
     exposing
         ( Color
@@ -43,12 +42,8 @@ open_holding_pen_location piece_map color =
         is_open id =
             is_open_location piece_map ( color, id )
     in
-    case List.Extra.find is_open holding_pen_locations of
-        Nothing ->
-            Nothing
-
-        Just id ->
-            Just ( color, id )
+    List.Extra.find is_open holding_pen_locations
+        |> Maybe.andThen (\id -> Just ( color, id ))
 
 
 maybe_send_piece_to_pen : PieceLocation -> PieceDict -> PieceDict

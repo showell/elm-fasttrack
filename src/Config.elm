@@ -11,14 +11,12 @@ module Config exposing
     , square_size
     )
 
-import List.Extra
 import Set
 import Type
     exposing
         ( Card
         , Color
         , Location
-        , PieceLocation
         )
 
 
@@ -204,7 +202,7 @@ get_moves_left active_card id =
         "joker" ->
             1
 
-        other ->
+        _ ->
             0
 
 

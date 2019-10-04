@@ -6,6 +6,8 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
+    rename get_moves_left
+
     auto-move when only one choice
     make it more clear where to click
 
@@ -30,4 +32,4 @@ TODO:
     basic undo
     have landing screen between players
     add title hovers for squares
-    add css for move errors
+    do bold with style

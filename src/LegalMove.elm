@@ -34,7 +34,6 @@ import Type
         , CardStartEnd
         , Color
         , FindLocParams
-        , Move
         , MoveType(..)
         , PieceDict
         , PieceLocation
@@ -62,7 +61,7 @@ other_mobile_pieces piece_map active_color loc =
     -- mobile pieces are not in the holding pen (and can theoretically
     -- move forward on a split seven, until we dig deeper)
     let
-        is_mobile ( zone_color, id ) =
+        is_mobile ( _, id ) =
             not (is_holding_pen_id id)
     in
     my_pieces piece_map active_color
@@ -73,7 +72,7 @@ other_mobile_pieces piece_map active_color loc =
 has_piece_on_fast_track : PieceDict -> Color -> Bool
 has_piece_on_fast_track piece_map active_color =
     let
-        is_ft ( zone_color, id ) =
+        is_ft ( _, id ) =
             id == "FT"
 
         locs =
@@ -184,7 +183,7 @@ get_can_go_n_spaces piece_map loc zone_colors n =
     -- sevens, so we don't account for cards being able to leave the
     -- holding pen.
     let
-        ( zone_color, id ) =
+        ( _, id ) =
             loc
 
         can_fast_track =
@@ -316,7 +315,7 @@ get_locs_for_move_type move_type piece_map zone_colors active_color =
 get_reachable_locs : MoveType -> PieceDict -> List Color -> PieceLocation -> Set.Set PieceLocation
 get_reachable_locs move_type piece_map zone_colors loc =
     let
-        ( zone_color, id ) =
+        ( _, id ) =
             loc
 
         can_fast_track =
@@ -334,7 +333,7 @@ get_reachable_locs move_type piece_map zone_colors loc =
                 ForceReverse card ->
                     card
 
-                ForceCount count ->
+                ForceCount _ ->
                     "ignore"
 
         can_leave_pen =
@@ -345,15 +344,15 @@ get_reachable_locs move_type piece_map zone_colors loc =
                 ForceReverse _ ->
                     True
 
-                other ->
+                _ ->
                     active_card == "4"
 
         moves_left =
             case move_type of
-                WithCard card ->
+                WithCard _ ->
                     get_moves_left active_card id
 
-                ForceReverse card ->
+                ForceReverse _ ->
                     get_moves_left active_card id
 
                 ForceCount count ->
@@ -599,6 +598,7 @@ get_prev_locs params =
             |> filter
 
 
+is_loc_free : PieceDict -> Color -> PieceLocation -> Bool
 is_loc_free piece_map piece_color loc =
     let
         other_piece =

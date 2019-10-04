@@ -55,7 +55,7 @@ get_player_cards player =
                 TurnCard info ->
                     player.hand ++ [ info.active_card ]
 
-                other ->
+                _ ->
                     player.hand
     in
     cards |> Set.fromList
@@ -175,7 +175,7 @@ finish_move zone_colors active_color start_loc end_loc player =
             in
             { player | turn = turn }
 
-        other ->
+        _ ->
             player
 
 
@@ -192,7 +192,7 @@ set_active_location loc player =
             in
             { player | turn = turn }
 
-        other ->
+        _ ->
             player
 
 
@@ -202,7 +202,7 @@ get_active_location player =
         TurnCard info ->
             info.active_location
 
-        other ->
+        _ ->
             Nothing
 
 
@@ -260,7 +260,7 @@ maybe_replenish_deck deck =
         0 ->
             full_deck
 
-        other ->
+        _ ->
             deck
 
 
@@ -372,7 +372,7 @@ can_player_start_move_here player player_color piece_map loc =
                     TurnCard _ ->
                         True
 
-                    other ->
+                    _ ->
                         False
 
             else
@@ -394,8 +394,8 @@ start_locs_for_player active_player piece_map zone_colors moves active_color =
                 Nothing ->
                     if info.num_moves == 0 then
                         moves
-                            |> Set.filter (\( card, start, end ) -> card == active_card)
-                            |> Set.map (\( card, start, end ) -> start)
+                            |> Set.filter (\( card, _, _ ) -> card == active_card)
+                            |> Set.map (\( _, start, _ ) -> start)
 
                     else
                         let
@@ -403,12 +403,12 @@ start_locs_for_player active_player piece_map zone_colors moves active_color =
                                 7 - info.distance_moved
                         in
                         get_locs_for_move_type (ForceCount move_count) piece_map zone_colors active_color
-                            |> Set.map (\( start, end ) -> start)
+                            |> Set.map (\( start, _ ) -> start)
 
                 Just _ ->
                     Set.empty
 
-        other ->
+        _ ->
             Set.empty
 
 
@@ -427,9 +427,9 @@ end_locs_for_player active_player piece_map zone_colors moves =
                 Just start_loc ->
                     if info.num_moves == 0 then
                         moves
-                            |> Set.filter (\( card, start, end ) -> card == active_card)
-                            |> Set.filter (\( card, start, end ) -> start == start_loc)
-                            |> Set.map (\( card, start, end ) -> end)
+                            |> Set.filter (\( card, _, _ ) -> card == active_card)
+                            |> Set.filter (\( _, start, _ ) -> start == start_loc)
+                            |> Set.map (\( _, _, end ) -> end)
 
                     else
                         let
@@ -441,5 +441,5 @@ end_locs_for_player active_player piece_map zone_colors moves =
                 Nothing ->
                     Set.empty
 
-        other ->
+        _ ->
             Set.empty

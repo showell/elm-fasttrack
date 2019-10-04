@@ -9,8 +9,20 @@ import Config
         , is_holding_pen_id
         , square_size
         )
-import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html
+    exposing
+        ( Html
+        , b
+        , button
+        , div
+        , hr
+        , span
+        )
+import Html.Attributes
+    exposing
+        ( disabled
+        , style
+        )
 import Html.Events
     exposing
         ( onClick
@@ -32,8 +44,27 @@ import Player
         , start_locs_for_player
         )
 import Set
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
+import Svg
+    exposing
+        ( circle
+        , g
+        , rect
+        , svg
+        )
+import Svg.Attributes
+    exposing
+        ( cx
+        , cy
+        , fill
+        , height
+        , r
+        , rx
+        , stroke
+        , transform
+        , width
+        , x
+        , y
+        )
 import Type
     exposing
         ( AppState(..)
@@ -50,22 +81,6 @@ import Type
         , Turn(..)
         , TurnCardInfo
         )
-
-
-
--- HELPERS
-
-
-style =
-    Html.Attributes.style
-
-
-width =
-    Svg.Attributes.width
-
-
-height =
-    Svg.Attributes.height
 
 
 
@@ -114,7 +129,7 @@ normal_view model =
 
         playable_cards =
             moves
-                |> Set.map (\( card, start, end ) -> card)
+                |> Set.map (\( card, _, _ ) -> card)
 
         board =
             div
@@ -143,9 +158,6 @@ board_view piece_map zone_colors players active_color moves =
 
         active_location =
             get_active_location active_player
-
-        get_start_loc ( card, start, end ) =
-            start
 
         playable_locs =
             start_locs_for_player active_player piece_map zone_colors moves active_color
@@ -345,19 +357,19 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
         s_pieces =
             case my_piece of
                 Just piece_color ->
-                    [ piece_view piece_color is_active is_playable cx_ cy_ piece_location loc_handlers ]
+                    [ piece_view piece_color is_active is_playable cx_ cy_ loc_handlers ]
 
                 Nothing ->
                     []
 
         contents =
-            [ s_location ] ++ s_pieces
+            s_location :: s_pieces
     in
     g [] contents
 
 
-piece_view : Color -> Bool -> Bool -> Float -> Float -> PieceLocation -> List (Svg.Attribute Msg) -> Html Msg
-piece_view color is_active is_playable cx_ cy_ piece_location handlers =
+piece_view : Color -> Bool -> Bool -> Float -> Float -> List (Svg.Attribute Msg) -> Html Msg
+piece_view color is_active is_playable cx_ cy_ handlers =
     let
         radius =
             if is_active then
@@ -415,7 +427,7 @@ view_hand_card color player playable_cards idx card =
                 TurnInProgress ->
                     [ onClick (ActivateCard color idx) ]
 
-                other ->
+                _ ->
                     [ disabled True ]
     in
     button
@@ -475,7 +487,7 @@ player_view players color playable_cards =
                         , rotate_button
                         ]
 
-                other ->
+                _ ->
                     div [] []
     in
     div []
