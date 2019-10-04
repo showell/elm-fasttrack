@@ -379,7 +379,7 @@ get_reachable_locs move_type piece_map zone_colors loc =
                 , zone_colors = zone_colors
                 }
         in
-        if active_card == "7" then
+        if move_type == WithCard "7" then
             get_locs_for_seven params
 
         else

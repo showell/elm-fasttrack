@@ -121,6 +121,62 @@ test_get_moves_for_player =
                             ]
                 in
                 locs |> Expect.equal expected
+        , test "reverse with seven" <|
+            \_ ->
+                let
+                    active_color =
+                        "blue"
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert ( "blue", "B3" ) active_color
+                            |> Dict.insert ( "blue", "B1" ) active_color
+                            |> Dict.insert ( "blue", "R0" ) active_color
+
+                    cards =
+                        Set.fromList [ "7" ]
+
+                    locs =
+                        get_moves_for_player cards piece_map zone_colors active_color
+
+                    expected =
+                        Set.fromList
+                            [ ( "7", ( "blue", "R0" ), ( "red", "L3" ) )
+                            ]
+                in
+                locs |> Expect.equal expected
+        , test "seven with FT edge case" <|
+            \_ ->
+                -- when splitting sevens, don't land your first piece on the fast
+                -- track if you're trying to split
+                let
+                    active_color =
+                        "blue"
+
+                    -- we can move 4, 6, or 7 with L0 on the 7
+                    -- then we can move 1, 2, or 3 with B3
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert ( "blue", "B1" ) active_color
+                            |> Dict.insert ( "blue", "L0" ) active_color
+
+                    cards =
+                        Set.fromList [ "7" ]
+
+                    locs =
+                        get_moves_for_player cards piece_map zone_colors active_color
+
+                    expected =
+                        Set.fromList
+                            [ ( "7", ( "blue", "L0" ), ( "blue", "L4" ) )
+                            , ( "7", ( "blue", "L0" ), ( "green", "R3" ) )
+                            , ( "7", ( "blue", "L0" ), ( "green", "R4" ) )
+                            , ( "7", ( "blue", "B1" ), ( "blue", "B2" ) )
+                            , ( "7", ( "blue", "B1" ), ( "blue", "B3" ) )
+                            , ( "7", ( "blue", "B1" ), ( "blue", "B4" ) )
+                            ]
+                in
+                locs |> Expect.equal expected
         ]
 
 
