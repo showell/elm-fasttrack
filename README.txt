@@ -7,7 +7,6 @@ HOW TO BUILD:
 
 TODO:
     code cleanup:
-        put active_color on model (and de-dup get_active_color)
         use holding_pen_locations
         add base_locations
         grow Config

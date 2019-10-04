@@ -100,6 +100,7 @@ type alias Model =
     , players : PlayerDict
     , seed : Random.Seed
     , state : AppState
+    , get_active_color : List Color -> Color
     }
 
 

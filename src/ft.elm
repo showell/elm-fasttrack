@@ -79,6 +79,7 @@ init flags =
             , players = config_players active_color zone_colors
             , seed = Random.initialSeed 42
             , state = Loading
+            , get_active_color = get_active_color
             }
     in
     ( model, Task.perform LoadGame Time.now )

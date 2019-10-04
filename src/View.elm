@@ -55,13 +55,6 @@ import Type
 -- HELPERS
 
 
-get_active_color : List Color -> Color
-get_active_color zone_colors =
-    -- appease compiler with Maybe
-    List.head zone_colors
-        |> Maybe.withDefault "bogus"
-
-
 style =
     Html.Attributes.style
 
@@ -107,7 +100,7 @@ normal_view model =
             model.players
 
         active_color =
-            get_active_color zone_colors
+            model.get_active_color zone_colors
 
         active_player =
             get_player players active_color
