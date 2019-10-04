@@ -25,11 +25,11 @@ import Piece
         )
 import Player
     exposing
-        ( get_active_location
+        ( end_locs_for_player
+        , get_active_location
         , get_player
         , get_player_cards
-        , reachable_locs_for_player
-        , ready_to_play
+        , start_locs_for_player
         )
 import Set
 import Svg exposing (..)
@@ -148,15 +148,10 @@ board_view piece_map zone_colors players active_color moves =
             start
 
         playable_locs =
-            if ready_to_play active_player then
-                moves
-                    |> Set.map get_start_loc
-
-            else
-                Set.empty
+            start_locs_for_player active_player piece_map zone_colors moves active_color
 
         reachable_locs =
-            reachable_locs_for_player active_player piece_map zone_colors moves
+            end_locs_for_player active_player piece_map zone_colors moves
 
         content =
             List.map (draw_zone piece_map playable_locs reachable_locs active_location zone_colors) zone_colors
@@ -292,14 +287,6 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
         is_reachable =
             Set.member piece_location reachable_locs
 
-        s_pieces =
-            case my_piece of
-                Just piece_color ->
-                    [ piece_view piece_color is_active is_playable cx_ cy_ piece_location ]
-
-                Nothing ->
-                    []
-
         fill_color =
             if is_active then
                 "lightblue"
@@ -320,29 +307,47 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
         is_rect =
             is_holding_pen_id id || is_base_id id
 
+        loc_handlers =
+            if is_reachable || is_playable then
+                [ onClick (ClickLocation piece_location)
+                ]
+
+            else
+                []
+
         s_location =
             if is_rect then
                 rect
-                    [ x (String.fromFloat xpos)
-                    , y (String.fromFloat ypos)
-                    , fill fill_color
-                    , stroke stroke_color
-                    , width (String.fromFloat w)
-                    , height (String.fromFloat h)
-                    , onClick (ClickLocation piece_location)
-                    , rx "2"
-                    ]
+                    ([ x (String.fromFloat xpos)
+                     , y (String.fromFloat ypos)
+                     , fill fill_color
+                     , stroke stroke_color
+                     , width (String.fromFloat w)
+                     , height (String.fromFloat h)
+                     , rx "2"
+                     ]
+                        ++ loc_handlers
+                    )
                     []
 
             else
                 circle
-                    [ cx (String.fromFloat cx_)
-                    , cy (String.fromFloat cy_)
-                    , fill fill_color
-                    , stroke stroke_color
-                    , r (String.fromFloat radius)
-                    , onClick (ClickLocation piece_location)
-                    ]
+                    ([ cx (String.fromFloat cx_)
+                     , cy (String.fromFloat cy_)
+                     , fill fill_color
+                     , stroke stroke_color
+                     , r (String.fromFloat radius)
+                     ]
+                        ++ loc_handlers
+                    )
+                    []
+
+        s_pieces =
+            case my_piece of
+                Just piece_color ->
+                    [ piece_view piece_color is_active is_playable cx_ cy_ piece_location loc_handlers ]
+
+                Nothing ->
                     []
 
         contents =
@@ -351,8 +356,8 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
     g [] contents
 
 
-piece_view : Color -> Bool -> Bool -> Float -> Float -> PieceLocation -> Html Msg
-piece_view color is_active is_playable cx_ cy_ piece_location =
+piece_view : Color -> Bool -> Bool -> Float -> Float -> PieceLocation -> List (Svg.Attribute Msg) -> Html Msg
+piece_view color is_active is_playable cx_ cy_ piece_location handlers =
     let
         radius =
             if is_active then
@@ -363,15 +368,17 @@ piece_view color is_active is_playable cx_ cy_ piece_location =
 
             else
                 "4"
+
+        attrs =
+            [ cx (String.fromFloat cx_)
+            , cy (String.fromFloat cy_)
+            , fill color
+            , stroke color
+            , r radius
+            ]
     in
     circle
-        [ cx (String.fromFloat cx_)
-        , cy (String.fromFloat cy_)
-        , fill color
-        , stroke color
-        , r radius
-        , onClick (ClickLocation piece_location)
-        ]
+        (attrs ++ handlers)
         []
 
 

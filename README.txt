@@ -7,7 +7,6 @@ HOW TO BUILD:
 
 TODO:
     auto-move when only one choice
-    enforce legal moves
     rip out validation code
     seven: force split move once started
 
@@ -18,8 +17,10 @@ TODO:
     maybe rename HH/DS/BR
 
     improve messaging for second seven
-    make it easier to change pieces
-    get-out pile
+
+    get-out pile:
+        build credits
+        also make clicks more rigorous
 
     UI to pick number of players:
         clean up Msg/Model to have game vs. setup

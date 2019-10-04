@@ -2,18 +2,18 @@ module Player exposing
     ( activate_card
     , can_player_start_move_here
     , config_players
+    , end_locs_for_player
     , finish_card
     , finish_move
     , get_active_location
     , get_player
     , get_player_cards
     , maybe_replenish_hand
-    , reachable_locs_for_player
-    , ready_to_play
     , replenish_hand
     , set_active_location
     , set_move_error
     , set_turn
+    , start_locs_for_player
     , update_player
     )
 
@@ -22,6 +22,7 @@ import Dict
 import LegalMove
     exposing
         ( distance
+        , get_locs_for_move_type
         , get_reachable_locs
         )
 import List.Extra
@@ -98,16 +99,6 @@ get_player players color =
     -- The "Maybe" is just to satisfy the compiler
     Dict.get color players
         |> Maybe.withDefault (config_player "bogus" "bogus")
-
-
-ready_to_play : Player -> Bool
-ready_to_play player =
-    case player.turn of
-        TurnCard info ->
-            info.active_location == Nothing
-
-        other ->
-            False
 
 
 set_move_error : String -> Player -> Player
@@ -410,8 +401,41 @@ can_player_start_move_here player player_color piece_map loc =
                 False
 
 
-reachable_locs_for_player : Player -> PieceDict -> List Color -> Set.Set CardStartEnd -> Set.Set PieceLocation
-reachable_locs_for_player active_player piece_map zone_colors moves =
+start_locs_for_player : Player -> PieceDict -> List Color -> Set.Set CardStartEnd -> Color -> Set.Set PieceLocation
+start_locs_for_player active_player piece_map zone_colors moves active_color =
+    case active_player.turn of
+        TurnCard info ->
+            let
+                loc =
+                    info.active_location
+
+                active_card =
+                    info.active_card
+            in
+            case loc of
+                Nothing ->
+                    if info.num_moves == 0 then
+                        moves
+                            |> Set.filter (\( card, start, end ) -> card == active_card)
+                            |> Set.map (\( card, start, end ) -> start)
+
+                    else
+                        let
+                            move_count =
+                                7 - info.distance_moved
+                        in
+                        get_locs_for_move_type (ForceCount move_count) piece_map zone_colors active_color
+                            |> Set.map (\( start, end ) -> start)
+
+                Just _ ->
+                    Set.empty
+
+        other ->
+            Set.empty
+
+
+end_locs_for_player : Player -> PieceDict -> List Color -> Set.Set CardStartEnd -> Set.Set PieceLocation
+end_locs_for_player active_player piece_map zone_colors moves =
     case active_player.turn of
         TurnCard info ->
             let
