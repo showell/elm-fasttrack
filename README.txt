@@ -7,8 +7,6 @@ HOW TO BUILD:
 
 TODO:
     code cleanup:
-        use holding_pen_locations
-        add base_locations
         grow Config
         put FindLocParam in type
 

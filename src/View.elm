@@ -5,6 +5,8 @@ import Config
     exposing
         ( config_locations
         , gutter_size
+        , is_base_id
+        , is_holding_pen_id
         , square_size
         )
 import Html exposing (..)
@@ -313,7 +315,7 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
                 zone_color
 
         is_rect =
-            List.member id [ "HP1", "HP2", "HP3", "HP4", "B1", "B2", "B3", "B4" ]
+            is_holding_pen_id id || is_base_id id
 
         s_location =
             if is_rect then

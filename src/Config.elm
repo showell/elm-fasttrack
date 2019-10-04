@@ -3,10 +3,13 @@ module Config exposing
     , get_zone_colors
     , gutter_size
     , holding_pen_locations
+    , is_base_id
+    , is_holding_pen_id
     , square_size
     )
 
 import List.Extra
+import Set
 import Type
     exposing
         ( Location
@@ -29,9 +32,24 @@ get_zone_colors num_players =
     List.take num_players [ "red", "blue", "green", "purple", "aqua", "brown" ]
 
 
+base_locations : List String
+base_locations =
+    [ "B1", "B2", "B3", "B4" ]
+
+
+is_base_id : String -> Bool
+is_base_id id =
+    Set.member id (Set.fromList base_locations)
+
+
 holding_pen_locations : List String
 holding_pen_locations =
     [ "HP1", "HP2", "HP3", "HP4" ]
+
+
+is_holding_pen_id : String -> Bool
+is_holding_pen_id id =
+    Set.member id (Set.fromList holding_pen_locations)
 
 
 config_locations : List Location

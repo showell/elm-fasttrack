@@ -13,6 +13,11 @@ module LegalMove exposing
     , reachable_locs
     )
 
+import Config
+    exposing
+        ( is_base_id
+        , is_holding_pen_id
+        )
 import Dict
 import List.Extra
 import Piece
@@ -67,7 +72,7 @@ other_mobile_pieces piece_map active_color loc =
     -- move forward on a split seven, until we dig deeper)
     let
         is_mobile ( zone_color, id ) =
-            not (List.member id [ "HP1", "HP2", "HP3", "HP4" ])
+            not (is_holding_pen_id id)
     in
     my_pieces piece_map active_color
         |> Set.filter (\loc_ -> loc_ /= loc)
@@ -103,7 +108,7 @@ distance zone_colors active_color start_loc end_loc =
         ( _, id ) =
             start_loc
     in
-    if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
+    if is_holding_pen_id id then
         1
 
     else
@@ -530,7 +535,7 @@ get_next_locs params =
         filter lst =
             lst |> List.filter is_free |> Set.fromList
     in
-    if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
+    if is_holding_pen_id id then
         if can_leave_pen then
             filter [ ( zone_color, "L0" ) ]
 
@@ -585,10 +590,10 @@ get_prev_locs params =
         filter lst =
             lst |> List.filter is_free |> Set.fromList
     in
-    if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
+    if is_holding_pen_id id then
         Set.empty
 
-    else if List.member id [ "B1", "B2", "B3", "B4" ] then
+    else if is_base_id id then
         Set.empty
 
     else if id == "R4" then
@@ -635,7 +640,7 @@ get_moves_left active_card id =
             5
 
         "6" ->
-            if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
+            if is_holding_pen_id id then
                 1
 
             else

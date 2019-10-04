@@ -1,5 +1,10 @@
 module Move exposing (perform_move)
 
+import Config
+    exposing
+        ( is_base_id
+        , is_holding_pen_id
+        )
 import Piece
     exposing
         ( get_piece
@@ -74,7 +79,7 @@ wrong_holding_pen piece_color loc =
         ( zone_color, id ) =
             loc
     in
-    if List.member id [ "HP1", "HP2", "HP3", "HP4" ] then
+    if is_holding_pen_id id then
         zone_color /= piece_color
 
     else
@@ -87,7 +92,7 @@ wrong_base piece_color loc =
         ( zone_color, id ) =
             loc
     in
-    if List.member id [ "B1", "B2", "B3", "B4" ] then
+    if is_base_id id then
         zone_color /= piece_color
 
     else
