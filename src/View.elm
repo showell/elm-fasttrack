@@ -489,7 +489,6 @@ rotate_button =
         ]
 
 
-
 active_card_view : TurnCardInfo -> Color -> String -> Html Msg
 active_card_view turn_info color instructions =
     let
@@ -504,6 +503,7 @@ active_card_view turn_info color instructions =
             b css [ Html.text turn_info.active_card ]
     in
     span [] [ card, Html.text instructions ]
+
 
 player_click_view : TurnCardInfo -> Color -> Html Msg
 player_click_view turn_info color =

@@ -11,12 +11,15 @@ TODO:
         use holding_pen_locations
         add base_locations
         grow Config
+        put FindLocParam in type
 
     show only pieces that can move
 
     auto-move when only one choice
 
     jack swap/kill
+
+    maybe merge Move/LegalMove
 
     improve messaging for second seven
     make it easier to change pieces
