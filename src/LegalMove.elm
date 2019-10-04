@@ -1,6 +1,5 @@
 module LegalMove exposing
-    ( FindLocParams
-    , distance
+    ( distance
     , get_can_go_n_spaces
     , get_locs_for_move_type
     , get_moves_for_player
@@ -34,23 +33,12 @@ import Type
         ( Card
         , CardStartEnd
         , Color
+        , FindLocParams
         , Move
         , MoveType(..)
         , PieceDict
         , PieceLocation
         )
-
-
-type alias FindLocParams =
-    { can_fast_track : Bool
-    , can_leave_pen : Bool
-    , reverse_mode : Bool
-    , moves_left : Int
-    , loc : PieceLocation
-    , piece_color : Color
-    , piece_map : PieceDict
-    , zone_colors : List Color
-    }
 
 
 is_color : PieceDict -> Color -> PieceLocation -> Bool

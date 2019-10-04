@@ -6,9 +6,6 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
-    code cleanup:
-        put FindLocParam in type
-
     show only pieces that can move
 
     auto-move when only one choice

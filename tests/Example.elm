@@ -4,8 +4,7 @@ import Dict
 import Expect exposing (Expectation)
 import LegalMove
     exposing
-        ( FindLocParams
-        , distance
+        ( distance
         , get_can_go_n_spaces
         , get_locs_for_move_type
         , get_moves_for_player
@@ -23,6 +22,7 @@ import Type
     exposing
         ( Card
         , Color
+        , FindLocParams
         , MoveType(..)
         , PieceDict
         , PieceLocation
