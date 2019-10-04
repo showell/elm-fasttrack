@@ -458,7 +458,7 @@ player_view players color playable_cards =
         console =
             case player.turn of
                 TurnCard turn_info ->
-                    console_view turn_info color
+                    player_click_view turn_info color
 
                 TurnInProgress ->
                     div [] [ Html.text "click a card above" ]
@@ -489,8 +489,9 @@ rotate_button =
         ]
 
 
-console_view : TurnCardInfo -> Color -> Html Msg
-console_view turn_info color =
+
+active_card_view : TurnCardInfo -> Color -> String -> Html Msg
+active_card_view turn_info color instructions =
     let
         css =
             [ style "color" color
@@ -499,15 +500,14 @@ console_view turn_info color =
             , style "font-size" "110%"
             ]
 
-        active_card_view =
+        card =
             b css [ Html.text turn_info.active_card ]
     in
-    case turn_info.active_location of
-        Just _ ->
-            div []
-                [ span [] [ active_card_view, Html.text "now click piece's new location" ]
-                ]
+    span [] [ card, Html.text instructions ]
 
+player_click_view : TurnCardInfo -> Color -> Html Msg
+player_click_view turn_info color =
+    case turn_info.active_location of
         Nothing ->
             let
                 finish_button =
@@ -522,12 +522,14 @@ console_view turn_info color =
 
                         Nothing ->
                             div [] []
-
-                instructions =
-                    "Click a piece to start move"
             in
             div []
-                [ span [] [ active_card_view, Html.text instructions ]
+                [ active_card_view turn_info color "click a piece to start move"
                 , div [] [ finish_button ]
                 , move_error
+                ]
+
+        Just _ ->
+            div []
+                [ active_card_view turn_info color "now click piece's new location"
                 ]
