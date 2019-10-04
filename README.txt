@@ -7,16 +7,13 @@ HOW TO BUILD:
 
 TODO:
 
-    handle end-game need-to-reverse
-
-    improve messaging for second seven
-
-    finish handling sevens
     show only pieces that can move
 
+    auto-move when only one choice
 
     jack swap/kill
 
+    improve messaging for second seven
     make it easier to change pieces
     get-out pile
 
