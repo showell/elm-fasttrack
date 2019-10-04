@@ -1,10 +1,13 @@
 module Config exposing
     ( config_locations
+    , get_moves_left
     , get_zone_colors
     , gutter_size
     , holding_pen_locations
     , is_base_id
     , is_holding_pen_id
+    , next_ids_in_zone
+    , prev_id_in_zone
     , square_size
     )
 
@@ -12,7 +15,9 @@ import List.Extra
 import Set
 import Type
     exposing
-        ( Location
+        ( Card
+        , Color
+        , Location
         , PieceLocation
         )
 
@@ -148,3 +153,169 @@ config_locations =
       , id = "R4"
       }
     ]
+
+
+get_moves_left : Card -> String -> Int
+get_moves_left active_card id =
+    case active_card of
+        "A" ->
+            1
+
+        "2" ->
+            2
+
+        "3" ->
+            3
+
+        "4" ->
+            4
+
+        "5" ->
+            5
+
+        "6" ->
+            if is_holding_pen_id id then
+                1
+
+            else
+                6
+
+        "7" ->
+            7
+
+        "8" ->
+            8
+
+        "9" ->
+            9
+
+        "10" ->
+            10
+
+        "J" ->
+            1
+
+        "Q" ->
+            1
+
+        "K" ->
+            1
+
+        "joker" ->
+            1
+
+        other ->
+            0
+
+
+next_ids_in_zone : String -> Color -> Color -> List String
+next_ids_in_zone id piece_color zone_color =
+    -- Note, this does handle holding pen locations nor
+    -- fast track locations--the caller handles those
+    -- special cases.
+    if id == "HH" then
+        [ "L0" ]
+
+    else if id == "L0" then
+        [ "L1" ]
+
+    else if id == "L1" then
+        [ "L2" ]
+
+    else if id == "L2" then
+        [ "L3" ]
+
+    else if id == "L3" then
+        [ "L4" ]
+
+    else if id == "L4" then
+        [ "FT" ]
+
+    else if id == "R4" then
+        [ "R3" ]
+
+    else if id == "R3" then
+        [ "R2" ]
+
+    else if id == "R2" then
+        [ "R1" ]
+
+    else if id == "R1" then
+        [ "R0" ]
+
+    else if id == "R0" then
+        [ "BR" ]
+
+    else if id == "BR" then
+        [ "DS" ]
+
+    else if id == "DS" then
+        if zone_color == piece_color then
+            [ "B1" ]
+
+        else
+            [ "HH" ]
+
+    else if id == "B1" then
+        [ "B2" ]
+
+    else if id == "B2" then
+        [ "B3" ]
+
+    else if id == "B3" then
+        [ "B4" ]
+
+    else if id == "B4" then
+        -- we're home!
+        []
+
+    else
+        []
+
+
+prev_id_in_zone : String -> String
+prev_id_in_zone id =
+    -- This only handles cases where there is an obvious previous
+    -- location to move to.  The caller handles R4, plus holding pen
+    -- locations and base locations.
+    if id == "HH" then
+        "DS"
+
+    else if id == "L0" then
+        "HH"
+
+    else if id == "L1" then
+        "L0"
+
+    else if id == "L2" then
+        "L1"
+
+    else if id == "L3" then
+        "L2"
+
+    else if id == "L4" then
+        "L3"
+
+    else if id == "FT" then
+        "L4"
+
+    else if id == "R3" then
+        "R4"
+
+    else if id == "R2" then
+        "R3"
+
+    else if id == "R1" then
+        "R2"
+
+    else if id == "R0" then
+        "R1"
+
+    else if id == "BR" then
+        "R0"
+
+    else if id == "DS" then
+        "BR"
+
+    else
+        "bogus"
