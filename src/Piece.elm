@@ -2,7 +2,6 @@ module Piece exposing
     ( config_pieces
     , get_piece
     , move_piece
-    , player_pieces
     )
 
 import Config
@@ -24,28 +23,6 @@ import Type
 get_piece : PieceDict -> PieceLocation -> Maybe String
 get_piece piece_map piece_loc =
     Dict.get piece_loc piece_map
-
-
-player_pieces : PieceDict -> Color -> Set.Set PieceLocation
-player_pieces piece_map active_color =
-    let
-        locs =
-            Dict.keys piece_map
-
-        is_active loc =
-            let
-                piece_color =
-                    Dict.get loc piece_map
-            in
-            case piece_color of
-                Just piece_color_ ->
-                    active_color == piece_color_
-
-                Nothing ->
-                    False
-    in
-    List.filter is_active locs
-        |> Set.fromList
 
 
 is_open_location : PieceDict -> PieceLocation -> Bool

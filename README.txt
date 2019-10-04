@@ -6,9 +6,10 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
-    show only pieces that can move
-
     auto-move when only one choice
+    enforce legal moves
+    rip out validation code
+    seven: force split move once started
 
     jack swap/kill
 

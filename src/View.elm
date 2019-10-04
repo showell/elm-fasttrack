@@ -22,7 +22,6 @@ import LegalMove
 import Piece
     exposing
         ( get_piece
-        , player_pieces
         )
 import Player
     exposing
@@ -145,9 +144,13 @@ board_view piece_map zone_colors players active_color moves =
         active_location =
             get_active_location active_player
 
+        get_start_loc ( card, start, end ) =
+            start
+
         playable_locs =
             if ready_to_play active_player then
-                player_pieces piece_map active_color
+                moves
+                    |> Set.map get_start_loc
 
             else
                 Set.empty
