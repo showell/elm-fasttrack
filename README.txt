@@ -7,8 +7,7 @@ HOW TO BUILD:
 
 TODO:
     auto-move when only one choice
-    rip out validation code
-    seven: force split move once started
+    make it more clear where to click
 
     jack swap/kill
 
@@ -21,6 +20,9 @@ TODO:
     get-out pile:
         build credits
         also make clicks more rigorous
+
+    fix before-turn-card experience:
+        show pieces that can be moved
 
     UI to pick number of players:
         clean up Msg/Model to have game vs. setup

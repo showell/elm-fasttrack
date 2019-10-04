@@ -1,10 +1,5 @@
 module Move exposing (perform_move)
 
-import Config
-    exposing
-        ( is_base_id
-        , is_holding_pen_id
-        )
 import Piece
     exposing
         ( get_piece
@@ -14,89 +9,14 @@ import Player
     exposing
         ( finish_move
         , maybe_replenish_hand
-        , set_move_error
         )
 import Type
     exposing
         ( Color
         , Model
         , Move
-        , PieceDict
-        , PieceLocation
         , UpdatePlayerFunc
         )
-
-
-validate_move : PieceDict -> Move -> Result String String
-validate_move piece_map move =
-    let
-        start =
-            move.start
-
-        end =
-            move.end
-
-        spc =
-            get_piece piece_map start
-
-        tpc =
-            get_piece piece_map end
-    in
-    case spc of
-        Nothing ->
-            Err "No source piece color"
-
-        Just source_piece_color ->
-            if start == end then
-                Err "You must move somewhere else"
-
-            else if same_color source_piece_color tpc then
-                Err "You cannot land on your own piece"
-
-            else if wrong_holding_pen source_piece_color end then
-                Err "You cannot move to their holding pen"
-
-            else if wrong_base source_piece_color end then
-                Err "You cannot move to their base"
-
-            else
-                Ok "success"
-
-
-same_color : Color -> Maybe String -> Bool
-same_color source_piece_color tpc =
-    case tpc of
-        Nothing ->
-            False
-
-        Just target_piece_color ->
-            source_piece_color == target_piece_color
-
-
-wrong_holding_pen : Color -> PieceLocation -> Bool
-wrong_holding_pen piece_color loc =
-    let
-        ( zone_color, id ) =
-            loc
-    in
-    if is_holding_pen_id id then
-        zone_color /= piece_color
-
-    else
-        False
-
-
-wrong_base : Color -> PieceLocation -> Bool
-wrong_base piece_color loc =
-    let
-        ( zone_color, id ) =
-            loc
-    in
-    if is_base_id id then
-        zone_color /= piece_color
-
-    else
-        False
 
 
 perform_move : Model -> Move -> Color -> UpdatePlayerFunc -> Model
@@ -113,21 +33,16 @@ perform_move model move active_color update_active_player =
             model
 
         Just piece_color_ ->
-            case validate_move piece_map move of
-                Err status ->
-                    update_active_player (set_move_error status)
+            let
+                new_map =
+                    piece_map
+                        |> move_piece move
 
-                Ok _ ->
-                    let
-                        new_map =
-                            piece_map
-                                |> move_piece move
+                zone_colors =
+                    model.zone_colors
 
-                        zone_colors =
-                            model.zone_colors
-
-                        model_ =
-                            update_active_player (finish_move zone_colors active_color move.start move.end)
-                                |> maybe_replenish_hand active_color
-                    in
-                    { model_ | piece_map = new_map }
+                model_ =
+                    update_active_player (finish_move zone_colors active_color move.start move.end)
+                        |> maybe_replenish_hand active_color
+            in
+            { model_ | piece_map = new_map }

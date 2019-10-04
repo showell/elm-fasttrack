@@ -61,7 +61,6 @@ type MoveType
 type alias TurnCardInfo =
     { active_card : Card
     , active_location : Maybe PieceLocation
-    , move_error : Maybe String
     , num_moves : Int
     , distance_moved : Int
     }

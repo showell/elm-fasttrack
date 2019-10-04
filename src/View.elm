@@ -519,19 +519,10 @@ player_click_view turn_info color =
                     button
                         [ onClick (FinishCard color) ]
                         [ Html.text "Done" ]
-
-                move_error =
-                    case turn_info.move_error of
-                        Just error ->
-                            div [] [ Html.text error ]
-
-                        Nothing ->
-                            div [] []
             in
             div []
                 [ active_card_view turn_info color "click a piece to start move"
                 , div [] [ finish_button ]
-                , move_error
                 ]
 
         Just _ ->

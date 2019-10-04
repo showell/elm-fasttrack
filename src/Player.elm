@@ -11,7 +11,6 @@ module Player exposing
     , maybe_replenish_hand
     , replenish_hand
     , set_active_location
-    , set_move_error
     , set_turn
     , start_locs_for_player
     , update_player
@@ -101,24 +100,6 @@ get_player players color =
         |> Maybe.withDefault (config_player "bogus" "bogus")
 
 
-set_move_error : String -> Player -> Player
-set_move_error error player =
-    case player.turn of
-        TurnCard info ->
-            let
-                turn =
-                    TurnCard
-                        { info
-                            | active_location = Nothing
-                            , move_error = Just error
-                        }
-            in
-            { player | turn = turn }
-
-        other ->
-            player
-
-
 is_move_again_card : Card -> Bool
 is_move_again_card card =
     List.member card [ "A", "K", "Q", "J", "joker", "6" ]
@@ -188,7 +169,6 @@ finish_move zone_colors active_color start_loc end_loc player =
                     maybe_finish_card
                         { info
                             | active_location = Nothing
-                            , move_error = Nothing
                             , num_moves = info.num_moves + 1
                             , distance_moved = distance_moved
                         }
@@ -208,7 +188,6 @@ set_active_location loc player =
                     TurnCard
                         { info
                             | active_location = Just loc
-                            , move_error = Nothing
                         }
             in
             { player | turn = turn }
@@ -265,7 +244,6 @@ activate_card idx player =
             TurnCard
                 { active_card = active_card
                 , active_location = Nothing
-                , move_error = Nothing
                 , num_moves = 0
                 , distance_moved = 0
                 }
