@@ -6,8 +6,6 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
-    make it more clear where to click
-
     jack swap/kill
 
     maybe merge Move/LegalMove
