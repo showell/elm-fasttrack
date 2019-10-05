@@ -16,7 +16,6 @@ import Piece
 import Player
     exposing
         ( activate_card
-        , can_player_start_move_here
         , config_players
         , finish_card
         , get_active_location
@@ -245,18 +244,7 @@ handle_loc_click model location =
     in
     case active_location of
         Nothing ->
-            let
-                piece_map =
-                    model.piece_map
-
-                can_move =
-                    can_player_start_move_here active_player active_color piece_map location
-            in
-            if can_move then
-                update_player (set_active_location location)
-
-            else
-                model
+            update_player (set_active_location location)
 
         Just start ->
             let

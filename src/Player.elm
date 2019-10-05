@@ -1,6 +1,5 @@
 module Player exposing
     ( activate_card
-    , can_player_start_move_here
     , config_players
     , end_locs_for_player
     , finish_card
@@ -354,29 +353,6 @@ finish_card active_color model =
             }
     in
     model_ |> maybe_replenish_hand active_color
-
-
-can_player_start_move_here : Player -> Color -> PieceDict -> PieceLocation -> Bool
-can_player_start_move_here player player_color piece_map loc =
-    let
-        piece_color =
-            get_piece piece_map loc
-    in
-    case piece_color of
-        Nothing ->
-            False
-
-        Just piece_color_ ->
-            if piece_color_ == player_color then
-                case player.turn of
-                    TurnCard _ ->
-                        True
-
-                    _ ->
-                        False
-
-            else
-                False
 
 
 start_locs_for_player : Player -> PieceDict -> List Color -> Set.Set CardStartEnd -> Color -> Set.Set PieceLocation
