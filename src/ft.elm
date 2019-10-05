@@ -7,7 +7,8 @@ import Config
         )
 import Move
     exposing
-        ( perform_move
+        ( maybe_auto_move
+        , perform_move
         )
 import Piece
     exposing
@@ -245,6 +246,7 @@ handle_loc_click model location =
     case active_location of
         Nothing ->
             update_player (set_active_location location)
+                |> maybe_auto_move location update_player
 
         Just start ->
             let

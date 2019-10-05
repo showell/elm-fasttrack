@@ -24,10 +24,6 @@ import LegalMove
         , get_reachable_locs
         )
 import List.Extra
-import Piece
-    exposing
-        ( get_piece
-        )
 import Random
 import Set
 import Type
