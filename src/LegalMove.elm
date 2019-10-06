@@ -26,6 +26,7 @@ import List.Extra
 import Piece
     exposing
         ( get_piece
+        , get_the_piece
         , move_piece
         )
 import Set
@@ -208,8 +209,7 @@ get_can_go_n_spaces piece_map loc zone_colors n =
             id == "FT"
 
         piece_color =
-            get_piece piece_map loc
-                |> Maybe.withDefault "bogus"
+            get_the_piece piece_map loc
 
         can_move =
             can_fast_track || not (has_piece_on_fast_track piece_map piece_color)
@@ -340,8 +340,7 @@ get_reachable_locs move_type piece_map zone_colors loc =
             id == "FT"
 
         piece_color =
-            get_piece piece_map loc
-                |> Maybe.withDefault "bogus"
+            get_the_piece piece_map loc
 
         active_card =
             case move_type of
@@ -436,8 +435,7 @@ get_locs_for_jack params =
             params.loc
 
         piece_color =
-            get_piece piece_map start_loc
-                |> Maybe.withDefault "bogus"
+            get_the_piece piece_map start_loc
 
         trade_locs =
             if is_normal_loc start_loc then
@@ -462,8 +460,7 @@ get_locs_for_seven params =
             params.zone_colors
 
         piece_color =
-            get_piece piece_map loc
-                |> Maybe.withDefault "bogus"
+            get_the_piece piece_map loc
 
         get_locs move_count =
             reachable_locs

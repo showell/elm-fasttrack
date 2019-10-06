@@ -238,26 +238,29 @@ set_turn color turn players =
 
 activate_card : Int -> Player -> Player
 activate_card idx player =
-    let
-        active_card =
-            List.Extra.getAt idx player.hand
-                |> Maybe.withDefault "bogus"
+    case List.Extra.getAt idx player.hand of
+        Nothing ->
+            -- some kind of programming error or race
+            -- condition must have happened
+            player
 
-        new_hand =
-            List.Extra.removeAt idx player.hand
+        Just active_card ->
+            let
+                new_hand =
+                    List.Extra.removeAt idx player.hand
 
-        turn =
-            TurnCard
-                { active_card = active_card
-                , active_location = Nothing
-                , num_moves = 0
-                , distance_moved = 0
-                }
-    in
-    { player
-        | turn = turn
-        , hand = new_hand
-    }
+                turn =
+                    TurnCard
+                        { active_card = active_card
+                        , active_location = Nothing
+                        , num_moves = 0
+                        , distance_moved = 0
+                        }
+            in
+            { player
+                | turn = turn
+                , hand = new_hand
+            }
 
 
 maybe_replenish_deck : List Card -> List Card

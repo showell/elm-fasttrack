@@ -1,6 +1,8 @@
 module Piece exposing
     ( config_pieces
+    , fake_location
     , get_piece
+    , get_the_piece
     , move_piece
     )
 
@@ -19,9 +21,25 @@ import Type
         )
 
 
+fake_location : PieceLocation
+fake_location =
+    ( "bogus", "bogus" )
+
+
 get_piece : PieceDict -> PieceLocation -> Maybe String
 get_piece piece_map piece_loc =
     Dict.get piece_loc piece_map
+
+
+get_the_piece : PieceDict -> PieceLocation -> String
+get_the_piece piece_map piece_loc =
+    -- This should be called ONLY when we know there's
+    -- a piece at the location.  Most use cases are when
+    -- our callers already know the location has a valid
+    -- piece, because they're iterating through some kind
+    -- of list of moves that have already been validated.
+    Dict.get piece_loc piece_map
+        |> Maybe.withDefault "bogus"
 
 
 is_open_location : PieceDict -> PieceLocation -> Bool
@@ -46,7 +64,7 @@ open_holding_pen_location piece_map color =
     in
     List.Extra.find is_open holding_pen_locations
         |> Maybe.andThen (\id -> Just ( color, id ))
-        |> Maybe.withDefault ( "bogus", "bogus" )
+        |> Maybe.withDefault fake_location
 
 
 config_zone_pieces : String -> PieceDict -> PieceDict
@@ -80,8 +98,7 @@ move_piece move piece_map =
             move.end
 
         start_color =
-            get_piece piece_map start_loc
-                |> Maybe.withDefault "bogus"
+            get_the_piece piece_map start_loc
 
         maybe_end_color =
             get_piece piece_map end_loc

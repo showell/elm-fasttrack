@@ -87,25 +87,31 @@ maybe_auto_move start_loc update_active_player model =
 
         end_locs =
             end_locs_for_player active_player piece_map zone_colors moves
-    in
-    if Set.size end_locs == 1 then
-        let
-            end_loc =
+
+        unique_end_loc =
+            if Set.size end_locs == 1 then
                 end_locs
                     |> Set.toList
                     |> List.head
-                    |> Maybe.withDefault ( "bogus", "bogus" )
 
-            want_trade =
-                player_played_jack active_player
+            else
+                Nothing
+    in
+    case unique_end_loc of
+        Nothing ->
+            -- If we don't have exactly one location, don't update the
+            -- model (and we'll have UI to let the user pick the location).
+            model
 
-            move =
-                { start = start_loc
-                , end = end_loc
-                , want_trade = want_trade
-                }
-        in
-        perform_move model move active_color update_active_player
+        Just end_loc ->
+            let
+                want_trade =
+                    player_played_jack active_player
 
-    else
-        model
+                move =
+                    { start = start_loc
+                    , end = end_loc
+                    , want_trade = want_trade
+                    }
+            in
+            perform_move model move active_color update_active_player
