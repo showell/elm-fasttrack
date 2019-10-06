@@ -15,6 +15,7 @@ import LegalMove
         , other_mobile_pieces
         , prev_zone_color
         , reachable_locs
+        , swappable_locs
         )
 import Set
 import Test exposing (..)
@@ -547,6 +548,40 @@ test_has_piece_on_fast_track =
                         has_piece_on_fast_track piece_map active_color
                 in
                 has_piece |> Expect.equal False
+        ]
+
+
+test_swappable_locs : Test
+test_swappable_locs =
+    Test.concat
+        [ test "swappable_locs" <|
+            \_ ->
+                let
+                    active_color =
+                        "blue"
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert ( "blue", "L0" ) active_color
+                            |> Dict.insert ( "green", "L1" ) active_color
+                            |> Dict.insert ( "green", "HP1" ) "green"
+                            |> Dict.insert ( "red", "HP1" ) "red"
+                            |> Dict.insert ( "red", "B1" ) "red"
+                            |> Dict.insert ( "green", "L0" ) "green"
+                            |> Dict.insert ( "blue", "L1" ) "green"
+                            |> Dict.insert ( "red", "R3" ) "red"
+
+                    swap_locs =
+                        swappable_locs piece_map active_color
+
+                    expected =
+                        Set.fromList
+                            [ ( "green", "L0" )
+                            , ( "blue", "L1" )
+                            , ( "red", "R3" )
+                            ]
+                in
+                swap_locs |> Expect.equal expected
         ]
 
 

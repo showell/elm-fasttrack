@@ -10,6 +10,7 @@ module LegalMove exposing
     , other_mobile_pieces
     , prev_zone_color
     , reachable_locs
+    , swappable_locs
     )
 
 import Config
@@ -47,6 +48,23 @@ is_color piece_map color loc =
             Dict.get loc piece_map
     in
     loc_color == Just color
+
+
+is_normal_loc : PieceLocation -> Bool
+is_normal_loc ( _, id ) =
+    not (is_holding_pen_id id) && not (is_base_id id)
+
+
+swappable_locs : PieceDict -> Color -> Set.Set PieceLocation
+swappable_locs piece_map active_color =
+    let
+        is_them loc =
+            not (is_color piece_map active_color loc)
+    in
+    Dict.keys piece_map
+        |> List.filter is_them
+        |> List.filter is_normal_loc
+        |> Set.fromList
 
 
 my_pieces : PieceDict -> Color -> Set.Set PieceLocation
@@ -377,6 +395,9 @@ get_reachable_locs move_type piece_map zone_colors loc =
         if move_type == WithCard "7" then
             get_locs_for_seven params
 
+        else if move_type == WithCard "J" then
+            get_locs_for_jack params
+
         else
             reachable_locs params
 
@@ -390,6 +411,7 @@ can_finish_split zone_colors other_locs piece_map count start_loc end_loc =
         move =
             { start = start_loc
             , end = end_loc
+            , want_trade = False
             }
 
         modified_piece_map =
@@ -402,6 +424,29 @@ can_finish_split zone_colors other_locs piece_map count start_loc end_loc =
             other_locs |> Set.toList |> List.filter can_go
     in
     List.length other_movable_locs > 0
+
+
+get_locs_for_jack : FindLocParams -> Set.Set PieceLocation
+get_locs_for_jack params =
+    let
+        piece_map =
+            params.piece_map
+
+        start_loc =
+            params.loc
+
+        piece_color =
+            get_piece piece_map start_loc
+                |> Maybe.withDefault "bogus"
+
+        trade_locs =
+            if is_normal_loc start_loc then
+                swappable_locs piece_map piece_color
+
+            else
+                Set.empty
+    in
+    Set.union (reachable_locs params) trade_locs
 
 
 get_locs_for_seven : FindLocParams -> Set.Set PieceLocation

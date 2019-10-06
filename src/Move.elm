@@ -19,6 +19,7 @@ import Player
         , get_player
         , get_player_cards
         , maybe_replenish_hand
+        , player_played_jack
         )
 import Set
 import Type
@@ -95,9 +96,13 @@ maybe_auto_move start_loc update_active_player model =
                     |> List.head
                     |> Maybe.withDefault ( "bogus", "bogus" )
 
+            want_trade =
+                player_played_jack active_player
+
             move =
                 { start = start_loc
                 , end = end_loc
+                , want_trade = want_trade
                 }
         in
         perform_move model move active_color update_active_player

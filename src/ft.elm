@@ -21,6 +21,7 @@ import Player
         , finish_card
         , get_active_location
         , get_player
+        , player_played_jack
         , replenish_hand
         , set_active_location
         , set_turn
@@ -250,9 +251,13 @@ handle_loc_click model location =
 
         Just start ->
             let
+                want_trade =
+                    player_played_jack active_player
+
                 move =
                     { start = start
                     , end = location
+                    , want_trade = want_trade
                     }
             in
             perform_move model move active_color update_player

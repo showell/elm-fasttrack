@@ -8,6 +8,7 @@ module Player exposing
     , get_player
     , get_player_cards
     , maybe_replenish_hand
+    , player_played_jack
     , replenish_hand
     , set_active_location
     , set_turn
@@ -54,6 +55,16 @@ get_player_cards player =
                     player.hand
     in
     cards |> Set.fromList
+
+
+player_played_jack : Player -> Bool
+player_played_jack player =
+    case player.turn of
+        TurnCard info ->
+            info.active_card == "J"
+
+        _ ->
+            False
 
 
 config_player : Color -> Color -> Player

@@ -36,37 +36,17 @@ is_open_location piece_map piece_loc =
             False
 
 
-open_holding_pen_location : PieceDict -> Color -> Maybe PieceLocation
+open_holding_pen_location : PieceDict -> Color -> PieceLocation
 open_holding_pen_location piece_map color =
+    -- We expect to only be called when we know we're sending a
+    -- piece home, so there should always be a square.
     let
         is_open id =
             is_open_location piece_map ( color, id )
     in
     List.Extra.find is_open holding_pen_locations
         |> Maybe.andThen (\id -> Just ( color, id ))
-
-
-maybe_send_piece_to_pen : PieceLocation -> PieceDict -> PieceDict
-maybe_send_piece_to_pen piece_loc piece_map =
-    let
-        color =
-            get_piece piece_map piece_loc
-    in
-    case color of
-        Nothing ->
-            -- we are not landing on a piece, so do nothing
-            piece_map
-
-        Just color_ ->
-            case open_holding_pen_location piece_map color_ of
-                Nothing ->
-                    -- this should never happen!
-                    piece_map
-
-                Just holding_pen_loc ->
-                    -- assign piece we "killed" to the
-                    -- color's holding pen
-                    assign_piece holding_pen_loc color_ piece_map
+        |> Maybe.withDefault ( "bogus", "bogus" )
 
 
 config_zone_pieces : String -> PieceDict -> PieceDict
@@ -90,27 +70,40 @@ config_pieces zone_colors =
 move_piece : Move -> PieceDict -> PieceDict
 move_piece move piece_map =
     let
+        want_trade =
+            move.want_trade
+
         start_loc =
             move.start
 
         end_loc =
             move.end
 
-        piece_color =
+        start_color =
             get_piece piece_map start_loc
                 |> Maybe.withDefault "bogus"
+
+        maybe_end_color =
+            get_piece piece_map end_loc
     in
-    piece_map
-        |> maybe_send_piece_to_pen end_loc
-        |> unassign_piece start_loc
-        |> assign_piece end_loc piece_color
+    case maybe_end_color of
+        Just end_color ->
+            if want_trade then
+                piece_map
+                    |> Dict.insert start_loc end_color
+                    |> Dict.insert end_loc start_color
 
+            else
+                let
+                    pen_loc =
+                        open_holding_pen_location piece_map end_color
+                in
+                piece_map
+                    |> Dict.insert pen_loc end_color
+                    |> Dict.remove start_loc
+                    |> Dict.insert end_loc start_color
 
-unassign_piece : PieceLocation -> PieceDict -> PieceDict
-unassign_piece piece_loc =
-    Dict.remove piece_loc
-
-
-assign_piece : PieceLocation -> Color -> PieceDict -> PieceDict
-assign_piece piece_location piece_color =
-    Dict.insert piece_location piece_color
+        _ ->
+            piece_map
+                |> Dict.remove start_loc
+                |> Dict.insert end_loc start_color

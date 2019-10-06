@@ -8,6 +8,8 @@ HOW TO BUILD:
 TODO:
     jack swap/kill
 
+    clean up some "bogus" defaults
+
     maybe merge Move/LegalMove
     maybe merge Config/Deck
     maybe rename HH/DS/BR

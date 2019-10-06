@@ -49,6 +49,7 @@ type alias PieceDict =
 type alias Move =
     { start : PieceLocation
     , end : PieceLocation
+    , want_trade : Bool
     }
 
 
