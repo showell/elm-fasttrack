@@ -68,7 +68,7 @@ type alias TurnNeedStartLocInfo =
 
 type alias TurnNeedEndLocInfo =
     { active_card : Card
-    , active_location : PieceLocation
+    , start_location : PieceLocation
     , num_moves : Int
     , distance_moved : Int
     }

@@ -265,7 +265,7 @@ handle_end_loc_click model location =
                     player_played_jack active_player
 
                 move =
-                    { start = info.active_location
+                    { start = info.start_location
                     , end = location
                     , want_trade = want_trade
                     }

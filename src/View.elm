@@ -38,7 +38,7 @@ import Piece
 import Player
     exposing
         ( end_locs_for_player
-        , get_active_location
+        , get_start_location
         , get_player
         , get_player_cards
         , start_locs_for_player
@@ -155,8 +155,8 @@ board_view piece_map zone_colors players active_color moves =
         active_player =
             get_player players active_color
 
-        active_location =
-            get_active_location active_player
+        start_location =
+            get_start_location active_player
 
         playable_locs =
             start_locs_for_player active_player piece_map zone_colors moves active_color
@@ -165,7 +165,7 @@ board_view piece_map zone_colors players active_color moves =
             end_locs_for_player active_player piece_map zone_colors moves
 
         content =
-            List.map (draw_zone piece_map playable_locs reachable_locs active_color active_location zone_colors) zone_colors
+            List.map (draw_zone piece_map playable_locs reachable_locs active_color start_location zone_colors) zone_colors
 
         board_size =
             String.fromFloat (2 * get_zone_height zone_colors + 3 * square_size)
@@ -211,7 +211,7 @@ get_zone_height zone_colors =
 
 
 draw_zone : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> List Color -> Color -> Html Msg
-draw_zone piece_map playable_locs reachable_locs active_color active_location zone_colors zone_color =
+draw_zone piece_map playable_locs reachable_locs active_color start_location zone_colors zone_color =
     let
         locations =
             config_locations
@@ -241,14 +241,14 @@ draw_zone piece_map playable_locs reachable_locs active_color active_location zo
             translate ++ " " ++ rotate
 
         drawn_locations =
-            List.map (location_view zone_height piece_map color playable_locs reachable_locs active_color active_location) locations
+            List.map (location_view zone_height piece_map color playable_locs reachable_locs active_color start_location) locations
     in
     g [ transform transform_ ] drawn_locations
 
 
-is_active_location : PieceLocation -> Maybe PieceLocation -> Bool
-is_active_location loc active_location =
-    case active_location of
+is_start_location : PieceLocation -> Maybe PieceLocation -> Bool
+is_start_location loc start_location =
+    case start_location of
         Nothing ->
             False
 
@@ -257,7 +257,7 @@ is_active_location loc active_location =
 
 
 location_view : Float -> PieceDict -> String -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html Msg
-location_view zone_height piece_map zone_color playable_locs reachable_locs active_color active_location location_info =
+location_view zone_height piece_map zone_color playable_locs reachable_locs active_color start_location location_info =
     let
         id =
             location_info.id
@@ -293,7 +293,7 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
             my_piece == Just active_color
 
         is_active =
-            is_active_location piece_location active_location
+            is_start_location piece_location start_location
 
         is_playable =
             Set.member piece_location playable_locs

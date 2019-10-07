@@ -4,7 +4,7 @@ module Player exposing
     , end_locs_for_player
     , finish_card
     , finish_move
-    , get_active_location
+    , get_start_location
     , get_player
     , get_player_cards
     , maybe_replenish_hand
@@ -200,7 +200,7 @@ set_start_location loc player =
                 turn =
                     TurnNeedEndLoc
                         { active_card = info.active_card
-                        , active_location = loc
+                        , start_location = loc
                         , num_moves = info.num_moves
                         , distance_moved = info.distance_moved
                         }
@@ -211,11 +211,11 @@ set_start_location loc player =
             player
 
 
-get_active_location : Player -> Maybe PieceLocation
-get_active_location player =
+get_start_location : Player -> Maybe PieceLocation
+get_start_location player =
     case player.turn of
         TurnNeedEndLoc info ->
-            Just info.active_location
+            Just info.start_location
 
         _ ->
             Nothing
@@ -417,7 +417,7 @@ end_locs_for_player active_player piece_map zone_colors moves =
         TurnNeedEndLoc info ->
             let
                 start_loc =
-                    info.active_location
+                    info.start_location
 
                 active_card =
                     info.active_card
