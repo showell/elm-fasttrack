@@ -13,7 +13,7 @@ module Player exposing
     , set_active_location
     , set_turn
     , start_locs_for_player
-    , update_player
+    , update_active_player
     )
 
 import Config
@@ -43,6 +43,7 @@ import Type
         , PlayerDict
         , Turn(..)
         , TurnCardInfo
+        , UpdatePlayerFunc
         )
 
 
@@ -127,6 +128,7 @@ maybe_finish_card : TurnCardInfo -> Turn
 maybe_finish_card info =
     if info.active_card == "7" && info.distance_moved < 7 && info.num_moves < 2 then
         TurnCard info
+
     else
         maybe_finish_turn info
 
@@ -200,6 +202,18 @@ get_active_location player =
 
         _ ->
             Nothing
+
+
+update_active_player : Model -> UpdatePlayerFunc -> Model
+update_active_player model f =
+    let
+        active_color =
+            model.get_active_color model.zone_colors
+
+        players =
+            update_player model.players active_color f
+    in
+    { model | players = players }
 
 
 update_player : PlayerDict -> Color -> (Player -> Player) -> PlayerDict

@@ -20,6 +20,7 @@ import Player
         , get_player_cards
         , maybe_replenish_hand
         , player_played_jack
+        , update_active_player
         )
 import Set
 import Type
@@ -28,12 +29,11 @@ import Type
         , Model
         , Move
         , PieceLocation
-        , UpdatePlayerFunc
         )
 
 
-perform_move : Model -> Move -> Color -> UpdatePlayerFunc -> Model
-perform_move model move active_color update_active_player =
+perform_move : Model -> Move -> Color -> Model
+perform_move model move active_color =
     let
         piece_map =
             model.piece_map
@@ -55,14 +55,14 @@ perform_move model move active_color update_active_player =
                     model.zone_colors
 
                 model_ =
-                    update_active_player (finish_move zone_colors active_color move.start move.end)
+                    update_active_player model (finish_move zone_colors active_color move.start move.end)
                         |> maybe_replenish_hand active_color
             in
             { model_ | piece_map = new_map }
 
 
-maybe_auto_move : PieceLocation -> UpdatePlayerFunc -> Model -> Model
-maybe_auto_move start_loc update_active_player model =
+maybe_auto_move : PieceLocation -> Model -> Model
+maybe_auto_move start_loc model =
     let
         piece_map =
             model.piece_map
@@ -114,4 +114,4 @@ maybe_auto_move start_loc update_active_player model =
                     , want_trade = want_trade
                     }
             in
-            perform_move model move active_color update_active_player
+            perform_move model move active_color

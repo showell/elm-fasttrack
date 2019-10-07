@@ -118,7 +118,7 @@ type alias Model =
 
 
 type alias UpdatePlayerFunc =
-    (Player -> Player) -> Model
+    Player -> Player
 
 
 type Msg

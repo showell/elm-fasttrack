@@ -25,7 +25,7 @@ import Player
         , replenish_hand
         , set_active_location
         , set_turn
-        , update_player
+        , update_active_player
         )
 import Random
 import Set
@@ -41,7 +41,6 @@ import Type
         , PieceLocation
         , Player
         , Turn(..)
-        , UpdatePlayerFunc
         )
 import View
     exposing
@@ -89,18 +88,6 @@ init flags =
 randomize : Cmd Msg
 randomize =
     Task.perform NewSeed Time.now
-
-
-update_active_player : Model -> UpdatePlayerFunc
-update_active_player model f =
-    let
-        active_color =
-            get_active_color model.zone_colors
-
-        players =
-            update_player model.players active_color f
-    in
-    { model | players = players }
 
 
 replenish_active_hand : Model -> Model
@@ -235,9 +222,6 @@ handle_loc_click model location =
         players =
             model.players
 
-        update_player =
-            update_active_player model
-
         active_player =
             get_player players active_color
 
@@ -246,8 +230,8 @@ handle_loc_click model location =
     in
     case active_location of
         Nothing ->
-            update_player (set_active_location location)
-                |> maybe_auto_move location update_player
+            update_active_player model (set_active_location location)
+                |> maybe_auto_move location
 
         Just start ->
             let
@@ -260,7 +244,7 @@ handle_loc_click model location =
                     , want_trade = want_trade
                     }
             in
-            perform_move model move active_color update_player
+            perform_move model move active_color
 
 
 
