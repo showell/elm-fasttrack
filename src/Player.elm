@@ -318,7 +318,7 @@ draw_card : Int -> Player -> Player
 draw_card idx player =
     case List.Extra.getAt idx player.deck of
         Nothing ->
-            -- this should never happen..idx should always be valid
+            -- this should never happen...idx should always be valid
             player
 
         Just card ->
