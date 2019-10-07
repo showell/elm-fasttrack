@@ -8,9 +8,6 @@ HOW TO BUILD:
 TODO:
     jack swap/kill
 
-    maybe merge Move/LegalMove
-    maybe rename HH/DS/BR
-
     improve messaging for second seven
 
     get-out pile:
@@ -20,10 +17,19 @@ TODO:
     fix before-turn-card experience:
         show pieces that can be moved
 
+    basic undo
+
     UI to pick number of players:
         clean up Msg/Model to have game vs. setup
 
-    basic undo
+    --
+
+    consider opaque type for piece
+
+    log moves
+
+    maybe rename HH/DS/BR
+
     have landing screen between players
+
     add title hovers for squares
-    do bold with style
