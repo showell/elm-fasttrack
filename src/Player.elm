@@ -125,23 +125,10 @@ maybe_finish_turn info =
 
 maybe_finish_card : TurnCardInfo -> Turn
 maybe_finish_card info =
-    let
-        max_moves =
-            if info.active_card == "7" then
-                if info.distance_moved == 7 then
-                    1
-
-                else
-                    2
-
-            else
-                1
-    in
-    if info.num_moves == max_moves then
-        maybe_finish_turn info
-
-    else
+    if info.active_card == "7" && info.distance_moved < 7 && info.num_moves < 2 then
         TurnCard info
+    else
+        maybe_finish_turn info
 
 
 maybe_replenish_hand : Color -> Model -> Model
