@@ -8,6 +8,9 @@ HOW TO BUILD:
 TODO:
     rename playable_locs -> start_locs
 
+    avoid 7 splitting w/same piece:
+        loopholes exist for FT otherwise
+
     jack swap/kill
 
     get-out pile:

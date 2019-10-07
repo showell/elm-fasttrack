@@ -542,6 +542,14 @@ active_card_view active_card color instructions =
 player_need_start : PlayType -> Color -> Html Msg
 player_need_start play_type color =
     let
+        instructions =
+            case play_type of
+                UsingCard _ ->
+                    "click a piece to start move"
+
+                FinishingSplit count ->
+                    "click a piece to finish split (moving " ++ String.fromInt count ++ ")"
+
         active_card =
             get_card_for_play_type play_type
 
@@ -552,7 +560,7 @@ player_need_start play_type color =
                 [ Html.text "Done" ]
     in
     div []
-        [ active_card_view active_card color "click a piece to start move"
+        [ active_card_view active_card color instructions
         , div [] [ finish_button ]
         ]
 
@@ -562,7 +570,10 @@ player_need_end play_type color =
     let
         active_card =
             get_card_for_play_type play_type
+
+        instructions =
+            "now click piece's end location"
     in
     div []
-        [ active_card_view active_card color "now click piece's new location"
+        [ active_card_view active_card color instructions
         ]
