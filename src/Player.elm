@@ -16,7 +16,10 @@ module Player exposing
     , update_player
     )
 
-import Deck exposing (full_deck)
+import Config
+    exposing
+        ( full_deck
+        )
 import Dict
 import LegalMove
     exposing

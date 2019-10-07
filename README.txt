@@ -9,7 +9,6 @@ TODO:
     jack swap/kill
 
     maybe merge Move/LegalMove
-    maybe merge Config/Deck
     maybe rename HH/DS/BR
 
     improve messaging for second seven
