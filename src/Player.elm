@@ -75,7 +75,7 @@ config_player active_color color =
     let
         turn =
             if active_color == color then
-                TurnInProgress
+                TurnNeedCard
 
             else
                 TurnIdle
@@ -117,7 +117,7 @@ is_move_again_card card =
 maybe_finish_turn : TurnCardInfo -> Turn
 maybe_finish_turn info =
     if is_move_again_card info.active_card then
-        TurnInProgress
+        TurnNeedCard
 
     else
         TurnDone

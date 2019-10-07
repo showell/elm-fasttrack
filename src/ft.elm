@@ -209,7 +209,7 @@ update msg model =
                 players =
                     model.players
                         |> set_turn old_player_color TurnIdle
-                        |> set_turn new_player_color TurnInProgress
+                        |> set_turn new_player_color TurnNeedCard
 
                 model_ =
                     { model

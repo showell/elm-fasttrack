@@ -419,7 +419,7 @@ view_hand_card : Color -> Player -> Set.Set Card -> Int -> Card -> Html Msg
 view_hand_card color player playable_cards idx card =
     let
         enabled =
-            player.turn == TurnInProgress && Set.member card playable_cards
+            player.turn == TurnNeedCard && Set.member card playable_cards
 
         border_color =
             if enabled then
@@ -433,7 +433,7 @@ view_hand_card color player playable_cards idx card =
 
         attrs =
             case player.turn of
-                TurnInProgress ->
+                TurnNeedCard ->
                     [ onClick (ActivateCard color idx) ]
 
                 _ ->
@@ -486,7 +486,7 @@ player_view players color playable_cards =
                 TurnCard turn_info ->
                     player_click_view turn_info color
 
-                TurnInProgress ->
+                TurnNeedCard ->
                     div [] [ Html.text "click a card above" ]
 
                 TurnDone ->

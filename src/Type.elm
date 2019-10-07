@@ -69,7 +69,7 @@ type alias TurnCardInfo =
 
 type Turn
     = TurnIdle
-    | TurnInProgress
+    | TurnNeedCard
     | TurnCard TurnCardInfo
     | TurnDone
 
