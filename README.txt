@@ -6,8 +6,6 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
-    kill "bogus" in draw_card
-
     jack swap/kill
 
     maybe merge Move/LegalMove

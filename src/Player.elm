@@ -316,25 +316,23 @@ get_card_idx player seed =
 
 draw_card : Int -> Player -> Player
 draw_card idx player =
-    let
-        card =
-            case List.Extra.getAt idx player.deck of
-                Nothing ->
-                    "bogus"
+    case List.Extra.getAt idx player.deck of
+        Nothing ->
+            -- this should never happen..idx should always be valid
+            player
 
-                Just card_ ->
-                    card_
+        Just card ->
+            let
+                hand =
+                    List.append player.hand [ card ]
 
-        hand =
-            List.append player.hand [ card ]
-
-        deck =
-            List.Extra.removeAt idx player.deck
-    in
-    { player
-        | deck = maybe_replenish_deck deck
-        , hand = hand
-    }
+                deck =
+                    List.Extra.removeAt idx player.deck
+            in
+            { player
+                | deck = maybe_replenish_deck deck
+                , hand = hand
+            }
 
 
 finish_card : Color -> Model -> Model
