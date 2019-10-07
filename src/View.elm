@@ -79,7 +79,6 @@ import Type
         , Player
         , PlayerDict
         , Turn(..)
-        , TurnCardInfo
         )
 
 
@@ -329,8 +328,12 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
             is_holding_pen_id id || is_base_id id
 
         loc_handlers =
-            if is_reachable || is_playable then
-                [ onClick (ClickLocation piece_location)
+            if is_playable then
+                [ onClick (SetStartLocation piece_location)
+                ]
+
+            else if is_reachable then
+                [ onClick (SetEndLocation piece_location)
                 ]
 
             else
@@ -483,11 +486,14 @@ player_view players color playable_cards =
 
         console =
             case player.turn of
-                TurnCard turn_info ->
-                    player_click_view turn_info color
-
                 TurnNeedCard ->
                     div [] [ Html.text "click a card above" ]
+
+                TurnNeedStartLoc turn_info ->
+                    player_need_start turn_info.active_card color
+
+                TurnNeedEndLoc turn_info ->
+                    player_need_end turn_info.active_card color
 
                 TurnDone ->
                     div
@@ -515,8 +521,8 @@ rotate_button =
         ]
 
 
-active_card_view : TurnCardInfo -> Color -> String -> Html Msg
-active_card_view turn_info color instructions =
+active_card_view : Card -> Color -> String -> Html Msg
+active_card_view active_card color instructions =
     let
         css =
             [ style "color" color
@@ -526,27 +532,28 @@ active_card_view turn_info color instructions =
             ]
 
         card =
-            b css [ Html.text turn_info.active_card ]
+            b css [ Html.text active_card ]
     in
     span [] [ card, Html.text instructions ]
 
 
-player_click_view : TurnCardInfo -> Color -> Html Msg
-player_click_view turn_info color =
-    case turn_info.active_location of
-        Nothing ->
-            let
-                finish_button =
-                    button
-                        [ onClick (FinishCard color) ]
-                        [ Html.text "Done" ]
-            in
-            div []
-                [ active_card_view turn_info color "click a piece to start move"
-                , div [] [ finish_button ]
-                ]
+player_need_start : Card -> Color -> Html Msg
+player_need_start active_card color =
+    let
+        -- We will get rid of this once we have a new state for discards.
+        finish_button =
+            button
+                [ onClick (FinishCard color) ]
+                [ Html.text "Done" ]
+    in
+    div []
+        [ active_card_view active_card color "click a piece to start move"
+        , div [] [ finish_button ]
+        ]
 
-        Just _ ->
-            div []
-                [ active_card_view turn_info color "now click piece's new location"
-                ]
+
+player_need_end : Card -> Color -> Html Msg
+player_need_end active_card color =
+    div []
+        [ active_card_view active_card color "now click piece's new location"
+        ]

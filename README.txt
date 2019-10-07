@@ -6,9 +6,13 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
-    jack swap/kill
+    rename info.active_location
+    rename get_active_location/set_active_location
+    rename playable_locs -> start_locs
 
     improve messaging for second seven
+
+    jack swap/kill
 
     get-out pile:
         build credits

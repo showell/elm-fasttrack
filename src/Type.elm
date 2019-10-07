@@ -14,8 +14,8 @@ module Type exposing
     , Player
     , PlayerDict
     , Turn(..)
-    , TurnCardInfo
-    , UpdatePlayerFunc
+    , TurnNeedEndLocInfo
+    , TurnNeedStartLocInfo
     )
 
 import Dict
@@ -59,9 +59,16 @@ type MoveType
     | ForceCount Int
 
 
-type alias TurnCardInfo =
+type alias TurnNeedStartLocInfo =
     { active_card : Card
-    , active_location : Maybe PieceLocation
+    , num_moves : Int
+    , distance_moved : Int
+    }
+
+
+type alias TurnNeedEndLocInfo =
+    { active_card : Card
+    , active_location : PieceLocation
     , num_moves : Int
     , distance_moved : Int
     }
@@ -70,7 +77,8 @@ type alias TurnCardInfo =
 type Turn
     = TurnIdle
     | TurnNeedCard
-    | TurnCard TurnCardInfo
+    | TurnNeedStartLoc TurnNeedStartLocInfo
+    | TurnNeedEndLoc TurnNeedEndLocInfo
     | TurnDone
 
 
@@ -117,15 +125,12 @@ type alias Model =
     }
 
 
-type alias UpdatePlayerFunc =
-    Player -> Player
-
-
 type Msg
-    = ClickLocation PieceLocation
-    | ReplenishHand
+    = ReplenishHand
     | ActivateCard Color Int
     | FinishCard Color
     | RotateBoard
+    | SetEndLocation PieceLocation
+    | SetStartLocation PieceLocation
     | LoadGame Time.Posix
     | NewSeed Time.Posix

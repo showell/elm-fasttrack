@@ -19,11 +19,10 @@ import Player
         ( activate_card
         , config_players
         , finish_card
-        , get_active_location
         , get_player
         , player_played_jack
         , replenish_hand
-        , set_active_location
+        , set_start_location
         , set_turn
         , update_active_player
         )
@@ -41,6 +40,8 @@ import Type
         , PieceLocation
         , Player
         , Turn(..)
+        , TurnNeedEndLocInfo
+        , TurnNeedStartLocInfo
         )
 import View
     exposing
@@ -151,10 +152,17 @@ update msg model =
             in
             ( model_, Cmd.none )
 
-        ClickLocation clicked_loc ->
+        SetStartLocation clicked_loc ->
             let
                 model_ =
-                    handle_loc_click model clicked_loc
+                    handle_start_loc_click model clicked_loc
+            in
+            ( model_, Cmd.none )
+
+        SetEndLocation clicked_loc ->
+            let
+                model_ =
+                    handle_end_loc_click model clicked_loc
             in
             ( model_, Cmd.none )
 
@@ -213,8 +221,8 @@ rotate_board zones =
     List.drop 1 zones ++ List.take 1 zones
 
 
-handle_loc_click : Model -> PieceLocation -> Model
-handle_loc_click model location =
+handle_start_loc_click : Model -> PieceLocation -> Model
+handle_start_loc_click model location =
     let
         active_color =
             get_active_color model.zone_colors
@@ -224,27 +232,49 @@ handle_loc_click model location =
 
         active_player =
             get_player players active_color
-
-        active_location =
-            get_active_location active_player
     in
-    case active_location of
-        Nothing ->
-            update_active_player model (set_active_location location)
+    case active_player.turn of
+        TurnNeedStartLoc _ ->
+            update_active_player model (set_start_location location)
                 |> maybe_auto_move location
 
-        Just start ->
+        _ ->
+            -- something is wrong with our click handlers
+            model
+
+
+handle_end_loc_click : Model -> PieceLocation -> Model
+handle_end_loc_click model location =
+    let
+        active_color =
+            get_active_color model.zone_colors
+
+        players =
+            model.players
+
+        update_player =
+            update_active_player model
+
+        active_player =
+            get_player players active_color
+    in
+    case active_player.turn of
+        TurnNeedEndLoc info ->
             let
                 want_trade =
                     player_played_jack active_player
 
                 move =
-                    { start = start
+                    { start = info.active_location
                     , end = location
                     , want_trade = want_trade
                     }
             in
             perform_move model move active_color
+
+        _ ->
+            -- something is wrong with our click handlers
+            model
 
 
 
