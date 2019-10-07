@@ -4,9 +4,10 @@ module Player exposing
     , end_locs_for_player
     , finish_card
     , finish_move
-    , get_start_location
+    , get_card_for_play_type
     , get_player
     , get_player_cards
+    , get_start_location
     , maybe_replenish_hand
     , player_played_jack
     , replenish_hand
@@ -39,21 +40,31 @@ import Type
         , MoveType(..)
         , PieceDict
         , PieceLocation
+        , PlayType(..)
         , Player
         , PlayerDict
         , Turn(..)
-        , TurnNeedEndLocInfo
         )
+
+
+get_card_for_play_type : PlayType -> Card
+get_card_for_play_type play_type =
+    case play_type of
+        UsingCard card ->
+            card
+
+        FinishingSplit _ ->
+            "7"
 
 
 get_active_card : Player -> Maybe Card
 get_active_card player =
     case player.turn of
         TurnNeedStartLoc info ->
-            Just info.active_card
+            Just (get_card_for_play_type info.play_type)
 
         TurnNeedEndLoc info ->
-            Just info.active_card
+            Just (get_card_for_play_type info.play_type)
 
         _ ->
             Nothing
@@ -127,26 +138,28 @@ is_move_again_card card =
     List.member card [ "A", "K", "Q", "J", "joker", "6" ]
 
 
-maybe_finish_turn : Card -> Turn
-maybe_finish_turn active_card =
-    if is_move_again_card active_card then
+maybe_finish_turn : PlayType -> Turn
+maybe_finish_turn play_type =
+    let
+        card =
+            get_card_for_play_type play_type
+    in
+    if is_move_again_card card then
         TurnNeedCard
 
     else
         TurnDone
 
 
-maybe_finish_card : TurnNeedEndLocInfo -> Turn
-maybe_finish_card info =
-    if info.active_card == "7" && info.distance_moved < 7 && info.num_moves < 2 then
+maybe_finish_card : Int -> PlayType -> Turn
+maybe_finish_card distance_moved play_type =
+    if play_type == UsingCard "7" && distance_moved < 7 then
         TurnNeedStartLoc
-            { active_card = info.active_card
-            , num_moves = info.num_moves
-            , distance_moved = info.distance_moved
+            { play_type = FinishingSplit (7 - distance_moved)
             }
 
     else
-        maybe_finish_turn info.active_card
+        maybe_finish_turn play_type
 
 
 maybe_replenish_hand : Color -> Model -> Model
@@ -167,24 +180,31 @@ finish_move zone_colors active_color start_loc end_loc player =
     case player.turn of
         TurnNeedEndLoc info ->
             let
+                active_card =
+                    get_card_for_play_type info.play_type
+
                 distance_moved =
-                    if info.active_card == "4" then
-                        -4
+                    case active_card of
+                        "7" ->
+                            -- The only time we really care about distance is when
+                            -- we're splitting sevens.
+                            distance zone_colors active_color start_loc end_loc
 
-                    else if info.active_card == "J" then
-                        -- when using J to swap pieces, the distance
-                        -- concept will become irrelevant
-                        0
+                        "J" ->
+                            -- when using J to swap pieces, the distance
+                            -- concept is expensive, so really avoid this here
+                            0
 
-                    else
-                        distance zone_colors active_color start_loc end_loc
+                        "4" ->
+                            -4
+
+                        _ ->
+                            -- We don't compute distance for most moves, actually.
+                            -- Instead, we depend on LegalMove to enforce valid moves.
+                            0
 
                 turn =
-                    maybe_finish_card
-                        { info
-                            | num_moves = info.num_moves + 1
-                            , distance_moved = distance_moved
-                        }
+                    maybe_finish_card distance_moved info.play_type
             in
             { player | turn = turn }
 
@@ -199,10 +219,8 @@ set_start_location loc player =
             let
                 turn =
                     TurnNeedEndLoc
-                        { active_card = info.active_card
+                        { play_type = info.play_type
                         , start_location = loc
-                        , num_moves = info.num_moves
-                        , distance_moved = info.distance_moved
                         }
             in
             { player | turn = turn }
@@ -272,9 +290,7 @@ activate_card idx player =
 
                 turn =
                     TurnNeedStartLoc
-                        { active_card = active_card
-                        , num_moves = 0
-                        , distance_moved = 0
+                        { play_type = UsingCard active_card
                         }
             in
             { player
@@ -367,10 +383,10 @@ finish_card active_color model =
                         turn =
                             case player.turn of
                                 TurnNeedStartLoc info ->
-                                    maybe_finish_turn info.active_card
+                                    maybe_finish_turn info.play_type
 
                                 TurnNeedEndLoc info ->
-                                    maybe_finish_turn info.active_card
+                                    maybe_finish_turn info.play_type
 
                                 other ->
                                     other
@@ -390,22 +406,15 @@ start_locs_for_player : Player -> PieceDict -> List Color -> Set.Set CardStartEn
 start_locs_for_player active_player piece_map zone_colors moves active_color =
     case active_player.turn of
         TurnNeedStartLoc info ->
-            let
-                active_card =
-                    info.active_card
-            in
-            if info.num_moves == 0 then
-                moves
-                    |> Set.filter (\( card, _, _ ) -> card == active_card)
-                    |> Set.map (\( _, start, _ ) -> start)
+            case info.play_type of
+                UsingCard active_card ->
+                    moves
+                        |> Set.filter (\( card, _, _ ) -> card == active_card)
+                        |> Set.map (\( _, start, _ ) -> start)
 
-            else
-                let
-                    move_count =
-                        7 - info.distance_moved
-                in
-                get_locs_for_move_type (ForceCount move_count) piece_map zone_colors active_color
-                    |> Set.map (\( start, _ ) -> start)
+                FinishingSplit move_count ->
+                    get_locs_for_move_type (ForceCount move_count) piece_map zone_colors active_color
+                        |> Set.map (\( start, _ ) -> start)
 
         _ ->
             Set.empty
@@ -418,22 +427,16 @@ end_locs_for_player active_player piece_map zone_colors moves =
             let
                 start_loc =
                     info.start_location
-
-                active_card =
-                    info.active_card
             in
-            if info.num_moves == 0 then
-                moves
-                    |> Set.filter (\( card, _, _ ) -> card == active_card)
-                    |> Set.filter (\( _, start, _ ) -> start == start_loc)
-                    |> Set.map (\( _, _, end ) -> end)
+            case info.play_type of
+                UsingCard active_card ->
+                    moves
+                        |> Set.filter (\( card, _, _ ) -> card == active_card)
+                        |> Set.filter (\( _, start, _ ) -> start == start_loc)
+                        |> Set.map (\( _, _, end ) -> end)
 
-            else
-                let
-                    move_count =
-                        7 - info.distance_moved
-                in
-                get_reachable_locs (ForceCount move_count) piece_map zone_colors start_loc
+                FinishingSplit move_count ->
+                    get_reachable_locs (ForceCount move_count) piece_map zone_colors start_loc
 
         _ ->
             Set.empty

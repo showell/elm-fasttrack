@@ -11,6 +11,7 @@ module Type exposing
     , Msg(..)
     , PieceDict
     , PieceLocation
+    , PlayType(..)
     , Player
     , PlayerDict
     , Turn(..)
@@ -59,18 +60,19 @@ type MoveType
     | ForceCount Int
 
 
+type PlayType
+    = UsingCard Card
+    | FinishingSplit Int
+
+
 type alias TurnNeedStartLocInfo =
-    { active_card : Card
-    , num_moves : Int
-    , distance_moved : Int
+    { play_type : PlayType
     }
 
 
 type alias TurnNeedEndLocInfo =
-    { active_card : Card
+    { play_type : PlayType
     , start_location : PieceLocation
-    , num_moves : Int
-    , distance_moved : Int
     }
 
 

@@ -8,8 +8,6 @@ HOW TO BUILD:
 TODO:
     rename playable_locs -> start_locs
 
-    improve messaging for second seven
-
     jack swap/kill
 
     get-out pile:

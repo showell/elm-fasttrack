@@ -38,9 +38,10 @@ import Piece
 import Player
     exposing
         ( end_locs_for_player
-        , get_start_location
+        , get_card_for_play_type
         , get_player
         , get_player_cards
+        , get_start_location
         , start_locs_for_player
         )
 import Set
@@ -76,6 +77,7 @@ import Type
         , Msg(..)
         , PieceDict
         , PieceLocation
+        , PlayType(..)
         , Player
         , PlayerDict
         , Turn(..)
@@ -490,10 +492,10 @@ player_view players color playable_cards =
                     div [] [ Html.text "click a card above" ]
 
                 TurnNeedStartLoc turn_info ->
-                    player_need_start turn_info.active_card color
+                    player_need_start turn_info.play_type color
 
                 TurnNeedEndLoc turn_info ->
-                    player_need_end turn_info.active_card color
+                    player_need_end turn_info.play_type color
 
                 TurnDone ->
                     div
@@ -537,9 +539,12 @@ active_card_view active_card color instructions =
     span [] [ card, Html.text instructions ]
 
 
-player_need_start : Card -> Color -> Html Msg
-player_need_start active_card color =
+player_need_start : PlayType -> Color -> Html Msg
+player_need_start play_type color =
     let
+        active_card =
+            get_card_for_play_type play_type
+
         -- We will get rid of this once we have a new state for discards.
         finish_button =
             button
@@ -552,8 +557,12 @@ player_need_start active_card color =
         ]
 
 
-player_need_end : Card -> Color -> Html Msg
-player_need_end active_card color =
+player_need_end : PlayType -> Color -> Html Msg
+player_need_end play_type color =
+    let
+        active_card =
+            get_card_for_play_type play_type
+    in
     div []
         [ active_card_view active_card color "now click piece's new location"
         ]
