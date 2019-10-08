@@ -1,7 +1,7 @@
 module LegalMove exposing
     ( distance
     , get_can_go_n_spaces
-    , get_locs_for_move_type
+    , get_moves_for_move_type
     , get_moves_for_player
     , get_reachable_locs
     , has_piece_on_fast_track
@@ -277,7 +277,7 @@ get_moves_for_player cards piece_map zone_colors active_color =
                             make_move_type card
 
                         moves =
-                            get_locs_for_move_type move_type piece_map zone_colors active_color
+                            get_moves_for_move_type move_type piece_map zone_colors active_color
 
                         make_tup ( start_loc, end_loc ) =
                             ( card, start_loc, end_loc )
@@ -302,8 +302,8 @@ get_moves_for_player cards piece_map zone_colors active_color =
         f ForceReverse
 
 
-get_locs_for_move_type : MoveType -> PieceDict -> List Color -> Color -> Set.Set ( PieceLocation, PieceLocation )
-get_locs_for_move_type move_type piece_map zone_colors active_color =
+get_moves_for_move_type : MoveType -> PieceDict -> List Color -> Color -> Set.Set ( PieceLocation, PieceLocation )
+get_moves_for_move_type move_type piece_map zone_colors active_color =
     let
         start_locs : Set.Set PieceLocation
         start_locs =
@@ -392,10 +392,10 @@ get_reachable_locs move_type piece_map zone_colors loc =
                 }
         in
         if move_type == WithCard "7" then
-            get_locs_for_seven params
+            get_moves_for_seven params
 
         else if move_type == WithCard "J" then
-            get_locs_for_jack params
+            get_moves_for_jack params
 
         else
             reachable_locs params
@@ -425,8 +425,8 @@ can_finish_split zone_colors other_locs piece_map count start_loc end_loc =
     List.length other_movable_locs > 0
 
 
-get_locs_for_jack : FindLocParams -> Set.Set PieceLocation
-get_locs_for_jack params =
+get_moves_for_jack : FindLocParams -> Set.Set PieceLocation
+get_moves_for_jack params =
     let
         piece_map =
             params.piece_map
@@ -447,8 +447,8 @@ get_locs_for_jack params =
     Set.union (reachable_locs params) trade_locs
 
 
-get_locs_for_seven : FindLocParams -> Set.Set PieceLocation
-get_locs_for_seven params =
+get_moves_for_seven : FindLocParams -> Set.Set PieceLocation
+get_moves_for_seven params =
     let
         piece_map =
             params.piece_map

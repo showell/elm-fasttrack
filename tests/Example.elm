@@ -6,7 +6,7 @@ import LegalMove
     exposing
         ( distance
         , get_can_go_n_spaces
-        , get_locs_for_move_type
+        , get_moves_for_move_type
         , get_moves_for_player
         , get_reachable_locs
         , has_piece_on_fast_track
@@ -181,8 +181,8 @@ test_get_moves_for_player =
         ]
 
 
-test_get_locs_for_move_type : Test
-test_get_locs_for_move_type =
+test_get_moves_for_move_type : Test
+test_get_moves_for_move_type =
     Test.concat
         [ test "get locs 2 away" <|
             \_ ->
@@ -201,7 +201,7 @@ test_get_locs_for_move_type =
                         WithCard "2"
 
                     locs =
-                        get_locs_for_move_type move_type piece_map zone_colors active_color
+                        get_moves_for_move_type move_type piece_map zone_colors active_color
 
                     expected =
                         Set.fromList

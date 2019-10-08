@@ -25,7 +25,7 @@ import Dict
 import LegalMove
     exposing
         ( distance
-        , get_locs_for_move_type
+        , get_moves_for_move_type
         , get_reachable_locs
         )
 import List.Extra
@@ -398,7 +398,7 @@ start_locs_for_player active_player piece_map zone_colors moves active_color =
                         |> Set.map (\( _, start, _ ) -> start)
 
                 FinishingSplit move_count ->
-                    get_locs_for_move_type (ForceCount move_count) piece_map zone_colors active_color
+                    get_moves_for_move_type (ForceCount move_count) piece_map zone_colors active_color
                         |> Set.map (\( start, _ ) -> start)
 
         _ ->
