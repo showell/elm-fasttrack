@@ -17,6 +17,7 @@ import Piece
 import Player
     exposing
         ( activate_card
+        , begin_turn
         , config_players
         , finish_card
         , get_player
@@ -71,13 +72,10 @@ init flags =
         zone_colors =
             get_zone_colors num_players
 
-        active_color =
-            get_active_color zone_colors
-
         model =
             { zone_colors = zone_colors
             , piece_map = config_pieces zone_colors
-            , players = config_players active_color zone_colors
+            , players = config_players zone_colors
             , seed = Random.initialSeed 42
             , state = Loading
             , get_active_color = get_active_color
@@ -98,6 +96,15 @@ replenish_active_hand model =
             get_active_color model.zone_colors
     in
     replenish_hand active_color model
+
+
+begin_active_turn : Model -> Model
+begin_active_turn model =
+    let
+        active_color =
+            get_active_color model.zone_colors
+    in
+    begin_turn active_color model
 
 
 seed_from_time : Time.Posix -> Random.Seed
@@ -133,7 +140,7 @@ update msg model =
                         | seed = seed
                         , state = Ready
                     }
-                        |> replenish_active_hand
+                        |> begin_active_turn
             in
             ( model_, Cmd.none )
 
@@ -176,7 +183,7 @@ update msg model =
         ActivateCard player_color idx ->
             let
                 model_ =
-                    update_active_player model (activate_card idx)
+                    update_active_player (activate_card idx) model
             in
             ( model_, randomize )
 
@@ -204,14 +211,14 @@ update msg model =
                 players =
                     model.players
                         |> set_turn old_player_color TurnIdle
-                        |> set_turn new_player_color TurnNeedCard
+                        |> set_turn new_player_color TurnBegin
 
                 model_ =
                     { model
                         | zone_colors = new_zone_colors
                         , players = players
                     }
-                        |> replenish_active_hand
+                        |> begin_active_turn
             in
             ( model_, Cmd.none )
 
@@ -235,7 +242,8 @@ handle_start_loc_click model location =
     in
     case active_player.turn of
         TurnNeedStartLoc _ ->
-            update_active_player model (set_start_location location)
+            model
+                |> update_active_player (set_start_location location)
                 |> maybe_auto_move location
 
         _ ->
@@ -251,9 +259,6 @@ handle_end_loc_click model location =
 
         players =
             model.players
-
-        update_player =
-            update_active_player model
 
         active_player =
             get_player players active_color

@@ -21,6 +21,7 @@ module Type exposing
 
 import Dict
 import Random
+import Set
 import Time
 
 
@@ -41,6 +42,10 @@ type alias Location =
 
 type alias PieceLocation =
     ( Color, String )
+
+
+type alias CardStartEnd =
+    ( Card, PieceLocation, PieceLocation )
 
 
 type alias PieceDict =
@@ -65,20 +70,29 @@ type PlayType
     | FinishingSplit Int
 
 
+type alias TurnNeedCardInfo =
+    { moves : Set.Set CardStartEnd
+    }
+
+
 type alias TurnNeedStartLocInfo =
     { play_type : PlayType
+    , moves : Set.Set ( PieceLocation, PieceLocation )
+    , start_locs : Set.Set PieceLocation
     }
 
 
 type alias TurnNeedEndLocInfo =
     { play_type : PlayType
     , start_location : PieceLocation
+    , end_locs : Set.Set PieceLocation
     }
 
 
 type Turn
     = TurnIdle
-    | TurnNeedCard
+    | TurnBegin
+    | TurnNeedCard TurnNeedCardInfo
     | TurnNeedStartLoc TurnNeedStartLocInfo
     | TurnNeedEndLoc TurnNeedEndLocInfo
     | TurnDone
@@ -90,10 +104,6 @@ type alias Player =
     , discard_pile : List Card
     , turn : Turn
     }
-
-
-type alias CardStartEnd =
-    ( Card, PieceLocation, PieceLocation )
 
 
 type alias PlayerDict =

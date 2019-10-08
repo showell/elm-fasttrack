@@ -70,7 +70,6 @@ import Type
     exposing
         ( AppState(..)
         , Card
-        , CardStartEnd
         , Color
         , Location
         , Model
@@ -135,7 +134,7 @@ normal_view model =
         board =
             div
                 []
-                [ board_view piece_map zone_colors players active_color moves ]
+                [ board_view piece_map zone_colors players active_color ]
 
         player_console =
             player_view players active_color playable_cards
@@ -151,8 +150,8 @@ normal_view model =
     }
 
 
-board_view : PieceDict -> List Color -> PlayerDict -> Color -> Set.Set CardStartEnd -> Html Msg
-board_view piece_map zone_colors players active_color moves =
+board_view : PieceDict -> List Color -> PlayerDict -> Color -> Html Msg
+board_view piece_map zone_colors players active_color =
     let
         active_player =
             get_player players active_color
@@ -161,10 +160,10 @@ board_view piece_map zone_colors players active_color moves =
             get_start_location active_player
 
         playable_locs =
-            start_locs_for_player active_player piece_map zone_colors moves active_color
+            start_locs_for_player active_player
 
         reachable_locs =
-            end_locs_for_player active_player piece_map zone_colors moves
+            end_locs_for_player active_player
 
         content =
             List.map (draw_zone piece_map playable_locs reachable_locs active_color start_location zone_colors) zone_colors
@@ -424,7 +423,13 @@ view_hand_card : Color -> Player -> Set.Set Card -> Int -> Card -> Html Msg
 view_hand_card color player playable_cards idx card =
     let
         enabled =
-            player.turn == TurnNeedCard && Set.member card playable_cards
+            case player.turn of
+                TurnNeedCard _ ->
+                    -- ideally, we should put playable_cards on TurnNeedCard
+                    Set.member card playable_cards
+
+                _ ->
+                    False
 
         border_color =
             if enabled then
@@ -438,7 +443,7 @@ view_hand_card color player playable_cards idx card =
 
         attrs =
             case player.turn of
-                TurnNeedCard ->
+                TurnNeedCard _ ->
                     [ onClick (ActivateCard color idx) ]
 
                 _ ->
@@ -488,7 +493,7 @@ player_view players color playable_cards =
 
         console =
             case player.turn of
-                TurnNeedCard ->
+                TurnNeedCard _ ->
                     div [] [ Html.text "click a card above" ]
 
                 TurnNeedStartLoc turn_info ->

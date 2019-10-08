@@ -3,10 +3,6 @@ module Move exposing
     , perform_move
     )
 
-import LegalMove
-    exposing
-        ( get_moves_for_cards
-        )
 import Piece
     exposing
         ( get_piece
@@ -17,7 +13,6 @@ import Player
         ( end_locs_for_player
         , finish_move
         , get_player
-        , get_player_cards
         , maybe_replenish_hand
         , player_played_jack
         , update_active_player
@@ -47,26 +42,26 @@ perform_move model move active_color =
 
         Just _ ->
             let
-                new_map =
-                    piece_map
-                        |> move_piece move
-
                 zone_colors =
                     model.zone_colors
 
+                new_piece_map =
+                    piece_map
+                        |> move_piece move
+
                 model_ =
-                    update_active_player model (finish_move zone_colors active_color move.start move.end)
-                        |> maybe_replenish_hand active_color
+                    { model
+                        | piece_map = new_piece_map
+                    }
             in
-            { model_ | piece_map = new_map }
+            model_
+                |> maybe_replenish_hand active_color
+                |> update_active_player (finish_move new_piece_map zone_colors active_color move.start move.end)
 
 
 maybe_auto_move : PieceLocation -> Model -> Model
 maybe_auto_move start_loc model =
     let
-        piece_map =
-            model.piece_map
-
         zone_colors =
             model.zone_colors
 
@@ -79,14 +74,8 @@ maybe_auto_move start_loc model =
         active_player =
             get_player players active_color
 
-        cards =
-            get_player_cards active_player
-
-        moves =
-            get_moves_for_cards cards piece_map zone_colors active_color
-
         end_locs =
-            end_locs_for_player active_player piece_map zone_colors moves
+            end_locs_for_player active_player
 
         unique_end_loc =
             if Set.size end_locs == 1 then
