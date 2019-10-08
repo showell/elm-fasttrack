@@ -1,8 +1,8 @@
 module LegalMove exposing
     ( distance
     , get_can_go_n_spaces
+    , get_moves_for_cards
     , get_moves_for_move_type
-    , get_moves_for_player
     , get_reachable_locs
     , has_piece_on_fast_track
     , my_pieces
@@ -265,8 +265,8 @@ can_go_n_spaces can_fast_track piece_color piece_map zone_colors n_spaces locati
     recurse n_spaces location
 
 
-get_moves_for_player : Set.Set Card -> PieceDict -> List Color -> Color -> Set.Set CardStartEnd
-get_moves_for_player cards piece_map zone_colors active_color =
+get_moves_for_cards : Set.Set Card -> PieceDict -> List Color -> Color -> Set.Set CardStartEnd
+get_moves_for_cards cards piece_map zone_colors active_color =
     let
         f make_move_type =
             let

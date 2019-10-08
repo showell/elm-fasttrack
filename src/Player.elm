@@ -187,7 +187,6 @@ finish_move zone_colors active_color start_loc end_loc player =
                             else
                                 maybe_finish_turn play_type
 
-
                         _ ->
                             maybe_finish_turn play_type
             in

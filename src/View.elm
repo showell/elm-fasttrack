@@ -29,7 +29,7 @@ import Html.Events
         )
 import LegalMove
     exposing
-        ( get_moves_for_player
+        ( get_moves_for_cards
         )
 import Piece
     exposing
@@ -126,7 +126,7 @@ normal_view model =
             get_player_cards active_player
 
         moves =
-            get_moves_for_player cards piece_map zone_colors active_color
+            get_moves_for_cards cards piece_map zone_colors active_color
 
         playable_cards =
             moves

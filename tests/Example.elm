@@ -6,8 +6,8 @@ import LegalMove
     exposing
         ( distance
         , get_can_go_n_spaces
+        , get_moves_for_cards
         , get_moves_for_move_type
-        , get_moves_for_player
         , get_reachable_locs
         , has_piece_on_fast_track
         , my_pieces
@@ -62,8 +62,8 @@ get_params moves_left piece_map loc =
     }
 
 
-test_get_moves_for_player : Test
-test_get_moves_for_player =
+test_get_moves_for_cards : Test
+test_get_moves_for_cards =
     Test.concat
         [ test "get moves 2/3 away" <|
             \_ ->
@@ -83,7 +83,7 @@ test_get_moves_for_player =
                         Set.fromList [ "2", "3" ]
 
                     locs =
-                        get_moves_for_player cards piece_map zone_colors active_color
+                        get_moves_for_cards cards piece_map zone_colors active_color
 
                     expected =
                         Set.fromList
@@ -113,7 +113,7 @@ test_get_moves_for_player =
                         Set.fromList [ "3", "8" ]
 
                     locs =
-                        get_moves_for_player cards piece_map zone_colors active_color
+                        get_moves_for_cards cards piece_map zone_colors active_color
 
                     expected =
                         Set.fromList
@@ -138,7 +138,7 @@ test_get_moves_for_player =
                         Set.fromList [ "7" ]
 
                     locs =
-                        get_moves_for_player cards piece_map zone_colors active_color
+                        get_moves_for_cards cards piece_map zone_colors active_color
 
                     expected =
                         Set.fromList
@@ -165,7 +165,7 @@ test_get_moves_for_player =
                         Set.fromList [ "7" ]
 
                     locs =
-                        get_moves_for_player cards piece_map zone_colors active_color
+                        get_moves_for_cards cards piece_map zone_colors active_color
 
                     expected =
                         Set.fromList

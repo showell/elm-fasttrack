@@ -5,7 +5,7 @@ module Move exposing
 
 import LegalMove
     exposing
-        ( get_moves_for_player
+        ( get_moves_for_cards
         )
 import Piece
     exposing
@@ -83,7 +83,7 @@ maybe_auto_move start_loc model =
             get_player_cards active_player
 
         moves =
-            get_moves_for_player cards piece_map zone_colors active_color
+            get_moves_for_cards cards piece_map zone_colors active_color
 
         end_locs =
             end_locs_for_player active_player piece_map zone_colors moves
