@@ -151,17 +151,6 @@ maybe_finish_turn play_type =
         TurnDone
 
 
-maybe_finish_card : Int -> PlayType -> Turn
-maybe_finish_card distance_moved play_type =
-    if play_type == UsingCard "7" && distance_moved < 7 then
-        TurnNeedStartLoc
-            { play_type = FinishingSplit (7 - distance_moved)
-            }
-
-    else
-        maybe_finish_turn play_type
-
-
 maybe_replenish_hand : Color -> Model -> Model
 maybe_replenish_hand active_color model =
     let
@@ -180,31 +169,27 @@ finish_move zone_colors active_color start_loc end_loc player =
     case player.turn of
         TurnNeedEndLoc info ->
             let
-                active_card =
-                    get_card_for_play_type info.play_type
-
-                distance_moved =
-                    case active_card of
-                        "7" ->
-                            -- The only time we really care about distance is when
-                            -- we're splitting sevens.
-                            distance zone_colors active_color start_loc end_loc
-
-                        "J" ->
-                            -- when using J to swap pieces, the distance
-                            -- concept is expensive, so really avoid this here
-                            0
-
-                        "4" ->
-                            -4
-
-                        _ ->
-                            -- We don't compute distance for most moves, actually.
-                            -- Instead, we depend on LegalMove to enforce valid moves.
-                            0
+                play_type =
+                    info.play_type
 
                 turn =
-                    maybe_finish_card distance_moved info.play_type
+                    case play_type of
+                        UsingCard "7" ->
+                            let
+                                distance_moved =
+                                    distance zone_colors active_color start_loc end_loc
+                            in
+                            if distance_moved < 7 then
+                                TurnNeedStartLoc
+                                    { play_type = FinishingSplit (7 - distance_moved)
+                                    }
+
+                            else
+                                maybe_finish_turn play_type
+
+
+                        _ ->
+                            maybe_finish_turn play_type
             in
             { player | turn = turn }
 
