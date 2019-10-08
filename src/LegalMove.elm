@@ -84,7 +84,7 @@ other_mobile_pieces piece_map active_color loc =
             not (is_holding_pen_id id)
     in
     my_pieces piece_map active_color
-        |> Set.filter (\loc_ -> loc_ /= loc)
+        |> Set.remove loc
         |> Set.filter is_mobile
 
 
@@ -307,7 +307,12 @@ get_moves_for_move_type move_type piece_map zone_colors active_color =
     let
         start_locs : Set.Set PieceLocation
         start_locs =
-            my_pieces piece_map active_color
+            case move_type of
+                FinishSplit _ exclude_loc ->
+                    other_mobile_pieces piece_map active_color exclude_loc
+
+                _ ->
+                    my_pieces piece_map active_color
 
         get_moves : PieceLocation -> List ( PieceLocation, PieceLocation )
         get_moves start_loc =
@@ -350,7 +355,7 @@ get_end_locs move_type piece_map zone_colors loc =
                 ForceReverse card ->
                     card
 
-                ForceCount _ ->
+                FinishSplit _ _ ->
                     "ignore"
 
         can_leave_pen =
@@ -372,7 +377,7 @@ get_end_locs move_type piece_map zone_colors loc =
                 ForceReverse _ ->
                     move_count_for_card active_card id
 
-                ForceCount count ->
+                FinishSplit count _ ->
                     count
 
         can_move =

@@ -211,6 +211,35 @@ test_get_moves_for_move_type =
                             ]
                 in
                 locs |> Expect.equal expected
+        , test "finish split" <|
+            \_ ->
+                let
+                    active_color =
+                        "blue"
+
+                    exclude_loc =
+                        ( "green", "R4" )
+
+                    piece_map =
+                        Dict.empty
+                            |> Dict.insert exclude_loc active_color
+                            |> Dict.insert ( "blue", "B1" ) active_color
+                            |> Dict.insert ( "green", "L2" ) active_color
+                            |> Dict.insert ( "red", "L2" ) "red"
+
+                    move_type =
+                        FinishSplit 3 exclude_loc
+
+                    locs =
+                        get_moves_for_move_type move_type piece_map zone_colors active_color
+
+                    expected =
+                        Set.fromList
+                            [ ( ( "blue", "B1" ), ( "blue", "B4" ) )
+                            , ( ( "green", "L2" ), ( "green", "FT" ) )
+                            ]
+                in
+                locs |> Expect.equal expected
         ]
 
 

@@ -62,7 +62,7 @@ type alias Move =
 type MoveType
     = WithCard Card
     | ForceReverse Card
-    | ForceCount Int
+    | FinishSplit Int PieceLocation
 
 
 type PlayType

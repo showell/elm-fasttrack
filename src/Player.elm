@@ -213,8 +213,13 @@ maybe_finish_seven piece_map zone_colors active_color start_loc end_loc =
             play_type =
                 FinishingSplit move_count
 
+            -- We exclude the piece we just moved from the subsequent split.  We
+            -- keep track of the piece by its location.
+            exclude_loc =
+                end_loc
+
             move_type =
-                ForceCount move_count
+                FinishSplit move_count exclude_loc
 
             moves =
                 get_moves_for_move_type move_type piece_map zone_colors active_color

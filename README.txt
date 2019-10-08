@@ -6,11 +6,6 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
-    rename playable_locs -> start_locs
-
-    avoid 7 splitting w/same piece:
-        loopholes exist for FT otherwise
-
     introduce counts into tuples (to kill Distance)
 
     jack swap/kill
