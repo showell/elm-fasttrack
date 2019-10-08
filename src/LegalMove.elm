@@ -1,15 +1,15 @@
 module LegalMove exposing
     ( distance
+    , end_locations
     , get_can_go_n_spaces
+    , get_end_locs
     , get_moves_for_cards
     , get_moves_for_move_type
-    , get_reachable_locs
     , has_piece_on_fast_track
     , my_pieces
     , next_zone_color
     , other_mobile_pieces
     , prev_zone_color
-    , reachable_locs
     , swappable_locs
     )
 
@@ -313,7 +313,7 @@ get_moves_for_move_type move_type piece_map zone_colors active_color =
         get_moves start_loc =
             let
                 end_locs =
-                    get_reachable_locs move_type piece_map zone_colors start_loc
+                    get_end_locs move_type piece_map zone_colors start_loc
 
                 make_move : PieceLocation -> ( PieceLocation, PieceLocation )
                 make_move end_loc =
@@ -330,8 +330,8 @@ get_moves_for_move_type move_type piece_map zone_colors active_color =
         |> Set.fromList
 
 
-get_reachable_locs : MoveType -> PieceDict -> List Color -> PieceLocation -> Set.Set PieceLocation
-get_reachable_locs move_type piece_map zone_colors loc =
+get_end_locs : MoveType -> PieceDict -> List Color -> PieceLocation -> Set.Set PieceLocation
+get_end_locs move_type piece_map zone_colors loc =
     let
         ( _, id ) =
             loc
@@ -392,13 +392,13 @@ get_reachable_locs move_type piece_map zone_colors loc =
                 }
         in
         if move_type == WithCard "7" then
-            get_moves_for_seven params
+            end_locations_for_seven params
 
         else if move_type == WithCard "J" then
-            get_moves_for_jack params
+            end_locations_for_jack params
 
         else
-            reachable_locs params
+            end_locations params
 
     else
         Set.empty
@@ -425,8 +425,8 @@ can_finish_split zone_colors other_locs piece_map count start_loc end_loc =
     List.length other_movable_locs > 0
 
 
-get_moves_for_jack : FindLocParams -> Set.Set PieceLocation
-get_moves_for_jack params =
+end_locations_for_jack : FindLocParams -> Set.Set PieceLocation
+end_locations_for_jack params =
     let
         piece_map =
             params.piece_map
@@ -444,11 +444,11 @@ get_moves_for_jack params =
             else
                 Set.empty
     in
-    Set.union (reachable_locs params) trade_locs
+    Set.union (end_locations params) trade_locs
 
 
-get_moves_for_seven : FindLocParams -> Set.Set PieceLocation
-get_moves_for_seven params =
+end_locations_for_seven : FindLocParams -> Set.Set PieceLocation
+end_locations_for_seven params =
     let
         piece_map =
             params.piece_map
@@ -463,7 +463,7 @@ get_moves_for_seven params =
             get_the_piece piece_map loc
 
         get_locs move_count =
-            reachable_locs
+            end_locations
                 { params
                     | moves_left = move_count
                 }
@@ -499,8 +499,8 @@ get_moves_for_seven params =
         partial_locs ++ full_locs |> Set.fromList
 
 
-reachable_locs : FindLocParams -> Set.Set PieceLocation
-reachable_locs params =
+end_locations : FindLocParams -> Set.Set PieceLocation
+end_locations params =
     let
         moves_left =
             params.moves_left
@@ -524,7 +524,7 @@ reachable_locs params =
         else
             let
                 recurse loc_ =
-                    reachable_locs
+                    end_locations
                         { params
                             | moves_left = moves_left - 1
                             , loc = loc_

@@ -5,16 +5,16 @@ import Expect exposing (Expectation)
 import LegalMove
     exposing
         ( distance
+        , end_locations
         , get_can_go_n_spaces
+        , get_end_locs
         , get_moves_for_cards
         , get_moves_for_move_type
-        , get_reachable_locs
         , has_piece_on_fast_track
         , my_pieces
         , next_zone_color
         , other_mobile_pieces
         , prev_zone_color
-        , reachable_locs
         , swappable_locs
         )
 import Set
@@ -379,8 +379,8 @@ test_distance =
         ]
 
 
-test_reachable_locs : Test
-test_reachable_locs =
+test_end_locs : Test
+test_end_locs =
     Test.concat
         [ test "can move 8" <|
             \_ ->
@@ -394,7 +394,7 @@ test_reachable_locs =
                     expected =
                         Set.fromList [ ( "blue", "R1" ) ]
                 in
-                reachable_locs params
+                end_locations params
                     |> Expect.equal expected
         , test "seven full" <|
             \_ ->
@@ -413,7 +413,7 @@ test_reachable_locs =
                         WithCard "7"
 
                     locs =
-                        get_reachable_locs move_type piece_map zone_colors loc
+                        get_end_locs move_type piece_map zone_colors loc
 
                     expected =
                         Set.fromList
@@ -439,7 +439,7 @@ test_reachable_locs =
                         WithCard "7"
 
                     locs =
-                        get_reachable_locs move_type piece_map zone_colors loc
+                        get_end_locs move_type piece_map zone_colors loc
 
                     expected =
                         Set.fromList
@@ -466,7 +466,7 @@ test_reachable_locs =
                         WithCard "8"
 
                     locs =
-                        get_reachable_locs move_type piece_map zone_colors loc
+                        get_end_locs move_type piece_map zone_colors loc
 
                     expected =
                         Set.empty
@@ -485,7 +485,7 @@ test_reachable_locs =
                     expected =
                         Set.empty
                 in
-                reachable_locs params
+                end_locations params
                     |> Expect.equal expected
         ]
 

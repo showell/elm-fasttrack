@@ -11,6 +11,8 @@ TODO:
     avoid 7 splitting w/same piece:
         loopholes exist for FT otherwise
 
+    introduce counts into tuples (to kill Distance)
+
     jack swap/kill
 
     get-out pile:

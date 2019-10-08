@@ -159,14 +159,14 @@ board_view piece_map zone_colors players active_color =
         start_location =
             get_start_location active_player
 
-        playable_locs =
+        start_locs =
             start_locs_for_player active_player
 
-        reachable_locs =
+        end_locs =
             end_locs_for_player active_player
 
         content =
-            List.map (draw_zone piece_map playable_locs reachable_locs active_color start_location zone_colors) zone_colors
+            List.map (draw_zone piece_map start_locs end_locs active_color start_location zone_colors) zone_colors
 
         board_size =
             String.fromFloat (2 * get_zone_height zone_colors + 3 * square_size)
@@ -212,7 +212,7 @@ get_zone_height zone_colors =
 
 
 draw_zone : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> List Color -> Color -> Html Msg
-draw_zone piece_map playable_locs reachable_locs active_color start_location zone_colors zone_color =
+draw_zone piece_map start_locs end_locs active_color start_location zone_colors zone_color =
     let
         locations =
             config_locations
@@ -242,23 +242,13 @@ draw_zone piece_map playable_locs reachable_locs active_color start_location zon
             translate ++ " " ++ rotate
 
         drawn_locations =
-            List.map (location_view zone_height piece_map color playable_locs reachable_locs active_color start_location) locations
+            List.map (location_view zone_height piece_map color start_locs end_locs active_color start_location) locations
     in
     g [ transform transform_ ] drawn_locations
 
 
-is_start_location : PieceLocation -> Maybe PieceLocation -> Bool
-is_start_location loc start_location =
-    case start_location of
-        Nothing ->
-            False
-
-        Just active ->
-            loc == active
-
-
 location_view : Float -> PieceDict -> String -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html Msg
-location_view zone_height piece_map zone_color playable_locs reachable_locs active_color start_location location_info =
+location_view zone_height piece_map zone_color start_locs end_locs active_color selected_location location_info =
     let
         id =
             location_info.id
@@ -293,20 +283,27 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
         is_me =
             my_piece == Just active_color
 
-        is_active =
-            is_start_location piece_location start_location
+        is_selected_piece =
+            case
+                selected_location
+            of
+                Just location ->
+                    piece_location == location
 
-        is_playable =
-            Set.member piece_location playable_locs
+                Nothing ->
+                    False
+
+        is_start_loc =
+            Set.member piece_location start_locs
 
         is_reachable =
-            Set.member piece_location reachable_locs
+            Set.member piece_location end_locs
 
         fill_color =
-            if is_active then
+            if is_selected_piece then
                 "lightblue"
 
-            else if is_playable then
+            else if is_start_loc then
                 "lightcyan"
 
             else if is_reachable then
@@ -319,7 +316,7 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
                 "white"
 
         stroke_color =
-            if is_playable then
+            if is_start_loc then
                 "black"
 
             else
@@ -329,7 +326,7 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
             is_holding_pen_id id || is_base_id id
 
         loc_handlers =
-            if is_playable then
+            if is_start_loc then
                 [ onClick (SetStartLocation piece_location)
                 ]
 
@@ -370,7 +367,7 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
         s_pieces =
             case my_piece of
                 Just piece_color ->
-                    [ piece_view piece_color is_active is_playable cx_ cy_ loc_handlers ]
+                    [ piece_view piece_color is_selected_piece is_start_loc cx_ cy_ loc_handlers ]
 
                 Nothing ->
                     []
@@ -382,13 +379,13 @@ location_view zone_height piece_map zone_color playable_locs reachable_locs acti
 
 
 piece_view : Color -> Bool -> Bool -> Float -> Float -> List (Svg.Attribute Msg) -> Html Msg
-piece_view color is_active is_playable cx_ cy_ handlers =
+piece_view color is_selected_piece is_start_loc cx_ cy_ handlers =
     let
         radius =
-            if is_active then
+            if is_selected_piece then
                 "7"
 
-            else if is_playable then
+            else if is_start_loc then
                 "6"
 
             else
