@@ -25,8 +25,8 @@ import Type
 
 
 {--
-This is for developers...if you turn on dev_hack, it
-sets up pieces in "interesting" configurations to
+This dev_hack thingy is for developers...if you turn it on,
+it sets up pieces in "interesting" configurations to
 facilitate manual testing of scenarios like splitting
 sevens, trading jacks, and being forced to go in
 reverse.
@@ -244,7 +244,7 @@ move_count_for_card active_card id =
 
 next_ids_in_zone : String -> Color -> Color -> List String
 next_ids_in_zone id piece_color zone_color =
-    -- Note, this does handle holding pen locations nor
+    -- Note, this handle neither holding pen locations nor
     -- fast track locations--the caller handles those
     -- special cases.
     if id == "HH" then
