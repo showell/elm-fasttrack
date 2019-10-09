@@ -268,6 +268,15 @@ can_go_n_spaces can_fast_track piece_color piece_map zone_colors n_spaces locati
 get_moves_for_cards : Set.Set Card -> PieceDict -> List Color -> Color -> Set.Set CardStartEnd
 get_moves_for_cards cards piece_map zone_colors active_color =
     let
+        normal_move_type : Card -> MoveType
+        normal_move_type card =
+            if card == "4" then
+                Reverse card
+
+            else
+                WithCard card
+
+        f : (Card -> MoveType) -> Set.Set CardStartEnd
         f make_move_type =
             let
                 get_moves : Card -> List CardStartEnd
@@ -293,13 +302,13 @@ get_moves_for_cards cards piece_map zone_colors active_color =
                 |> Set.fromList
 
         forward_moves =
-            f WithCard
+            f normal_move_type
     in
     if Set.size forward_moves > 0 then
         forward_moves
 
     else
-        f ForceReverse
+        f Reverse
 
 
 get_moves_for_move_type : MoveType -> PieceDict -> List Color -> Color -> Set.Set ( PieceLocation, PieceLocation )
@@ -352,7 +361,7 @@ get_end_locs move_type piece_map zone_colors loc =
                 WithCard card ->
                     card
 
-                ForceReverse card ->
+                Reverse card ->
                     card
 
                 FinishSplit _ _ ->
@@ -363,7 +372,7 @@ get_end_locs move_type piece_map zone_colors loc =
 
         reverse_mode =
             case move_type of
-                ForceReverse _ ->
+                Reverse _ ->
                     True
 
                 _ ->
@@ -374,7 +383,7 @@ get_end_locs move_type piece_map zone_colors loc =
                 WithCard _ ->
                     move_count_for_card active_card id
 
-                ForceReverse _ ->
+                Reverse _ ->
                     move_count_for_card active_card id
 
                 FinishSplit count _ ->

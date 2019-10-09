@@ -11,7 +11,6 @@ module Type exposing
     , Msg(..)
     , PieceDict
     , PieceLocation
-    , PlayType(..)
     , Player
     , PlayerDict
     , Turn(..)
@@ -61,13 +60,8 @@ type alias Move =
 
 type MoveType
     = WithCard Card
-    | ForceReverse Card
+    | Reverse Card
     | FinishSplit Int PieceLocation
-
-
-type PlayType
-    = UsingCard Card
-    | FinishingSplit Int
 
 
 type alias TurnNeedCardInfo =
@@ -76,14 +70,14 @@ type alias TurnNeedCardInfo =
 
 
 type alias TurnNeedStartLocInfo =
-    { play_type : PlayType
+    { move_type : MoveType
     , moves : Set.Set ( PieceLocation, PieceLocation )
     , start_locs : Set.Set PieceLocation
     }
 
 
 type alias TurnNeedEndLocInfo =
-    { play_type : PlayType
+    { move_type : MoveType
     , start_location : PieceLocation
     , end_locs : Set.Set PieceLocation
     }

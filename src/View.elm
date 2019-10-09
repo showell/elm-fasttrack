@@ -27,10 +27,6 @@ import Html.Events
     exposing
         ( onClick
         )
-import LegalMove
-    exposing
-        ( get_moves_for_cards
-        )
 import Piece
     exposing
         ( get_piece
@@ -38,9 +34,9 @@ import Piece
 import Player
     exposing
         ( end_locs_for_player
-        , get_card_for_play_type
+        , get_card_for_move_type
+        , get_playable_cards
         , get_player
-        , get_player_cards
         , get_start_location
         , start_locs_for_player
         )
@@ -73,12 +69,11 @@ import Type
         , Color
         , Location
         , Model
+        , MoveType(..)
         , Msg(..)
         , PieceDict
         , PieceLocation
-        , PlayType(..)
         , Player
-        , PlayerDict
         , Turn(..)
         )
 
@@ -121,23 +116,13 @@ normal_view model =
         active_player =
             get_player players active_color
 
-        cards =
-            get_player_cards active_player
-
-        moves =
-            get_moves_for_cards cards piece_map zone_colors active_color
-
-        playable_cards =
-            moves
-                |> Set.map (\( card, _, _ ) -> card)
-
         board =
             div
                 []
-                [ board_view piece_map zone_colors players active_color ]
+                [ board_view piece_map zone_colors active_player active_color ]
 
         player_console =
-            player_view players active_color playable_cards
+            player_view active_player active_color
 
         body =
             [ board
@@ -150,12 +135,9 @@ normal_view model =
     }
 
 
-board_view : PieceDict -> List Color -> PlayerDict -> Color -> Html Msg
-board_view piece_map zone_colors players active_color =
+board_view : PieceDict -> List Color -> Player -> Color -> Html Msg
+board_view piece_map zone_colors active_player active_color =
     let
-        active_player =
-            get_player players active_color
-
         start_location =
             get_start_location active_player
 
@@ -473,11 +455,11 @@ deck_view player color =
         span [] []
 
 
-player_view : PlayerDict -> Color -> Set.Set Card -> Html Msg
-player_view players color playable_cards =
+player_view : Player -> Color -> Html Msg
+player_view player color =
     let
-        player =
-            get_player players color
+        playable_cards =
+            get_playable_cards player
 
         deck =
             deck_view player color
@@ -494,10 +476,10 @@ player_view players color playable_cards =
                     div [] [ Html.text "click a card above" ]
 
                 TurnNeedStartLoc turn_info ->
-                    player_need_start turn_info.play_type color
+                    player_need_start turn_info.move_type color
 
                 TurnNeedEndLoc turn_info ->
-                    player_need_end turn_info.play_type color
+                    player_need_end turn_info.move_type color
 
                 TurnDone ->
                     div
@@ -541,19 +523,22 @@ active_card_view active_card color instructions =
     span [] [ card, Html.text instructions ]
 
 
-player_need_start : PlayType -> Color -> Html Msg
-player_need_start play_type color =
+player_need_start : MoveType -> Color -> Html Msg
+player_need_start move_type color =
     let
         instructions =
-            case play_type of
-                UsingCard _ ->
+            case move_type of
+                WithCard _ ->
                     "click a piece to start move"
 
-                FinishingSplit count ->
+                Reverse _ ->
+                    "click a piece to start move"
+
+                FinishSplit count _ ->
                     "click a piece to finish split (moving " ++ String.fromInt count ++ ")"
 
         active_card =
-            get_card_for_play_type play_type
+            get_card_for_move_type move_type
 
         -- We will get rid of this once we have a new state for discards.
         finish_button =
@@ -567,11 +552,11 @@ player_need_start play_type color =
         ]
 
 
-player_need_end : PlayType -> Color -> Html Msg
-player_need_end play_type color =
+player_need_end : MoveType -> Color -> Html Msg
+player_need_end move_type color =
     let
         active_card =
-            get_card_for_play_type play_type
+            get_card_for_move_type move_type
 
         instructions =
             "now click piece's end location"

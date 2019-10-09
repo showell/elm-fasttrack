@@ -5,9 +5,9 @@ module Player exposing
     , end_locs_for_player
     , finish_card
     , finish_move
-    , get_card_for_play_type
+    , get_card_for_move_type
+    , get_playable_cards
     , get_player
-    , get_player_cards
     , get_start_location
     , maybe_replenish_hand
     , player_played_jack
@@ -41,20 +41,22 @@ import Type
         , MoveType(..)
         , PieceDict
         , PieceLocation
-        , PlayType(..)
         , Player
         , PlayerDict
         , Turn(..)
         )
 
 
-get_card_for_play_type : PlayType -> Card
-get_card_for_play_type play_type =
-    case play_type of
-        UsingCard card ->
+get_card_for_move_type : MoveType -> Card
+get_card_for_move_type move_type =
+    case move_type of
+        WithCard card ->
             card
 
-        FinishingSplit _ ->
+        Reverse card ->
+            card
+
+        FinishSplit _ _ ->
             "7"
 
 
@@ -62,27 +64,24 @@ get_active_card : Player -> Maybe Card
 get_active_card player =
     case player.turn of
         TurnNeedStartLoc info ->
-            Just (get_card_for_play_type info.play_type)
+            Just (get_card_for_move_type info.move_type)
 
         TurnNeedEndLoc info ->
-            Just (get_card_for_play_type info.play_type)
+            Just (get_card_for_move_type info.move_type)
 
         _ ->
             Nothing
 
 
-get_player_cards : Player -> Set.Set Card
-get_player_cards player =
-    let
-        cards =
-            case get_active_card player of
-                Just card ->
-                    card :: player.hand
+get_playable_cards : Player -> Set.Set Card
+get_playable_cards player =
+    case player.turn of
+        TurnNeedCard info ->
+            info.moves
+                |> Set.map (\( card, _, _ ) -> card)
 
-                Nothing ->
-                    player.hand
-    in
-    cards |> Set.fromList
+        _ ->
+            Set.empty
 
 
 player_played_jack : Player -> Bool
@@ -136,7 +135,7 @@ get_moves_for_player : Player -> PieceDict -> List Color -> Color -> Set.Set Car
 get_moves_for_player player piece_map zone_colors active_color =
     let
         cards =
-            get_player_cards player
+            Set.fromList player.hand
     in
     get_moves_for_cards cards piece_map zone_colors active_color
 
@@ -152,11 +151,11 @@ turn_need_card player piece_map zone_colors active_color =
         }
 
 
-maybe_finish_turn : PlayType -> Player -> PieceDict -> List Color -> Color -> Turn
-maybe_finish_turn play_type player piece_map zone_colors active_color =
+maybe_finish_turn : MoveType -> Player -> PieceDict -> List Color -> Color -> Turn
+maybe_finish_turn move_type player piece_map zone_colors active_color =
     let
         card =
-            get_card_for_play_type play_type
+            get_card_for_move_type move_type
     in
     if is_move_again_card card then
         turn_need_card player piece_map zone_colors active_color
@@ -210,9 +209,6 @@ maybe_finish_seven piece_map zone_colors active_color start_loc end_loc =
             move_count =
                 7 - distance_moved
 
-            play_type =
-                FinishingSplit move_count
-
             -- We exclude the piece we just moved from the subsequent split.  We
             -- keep track of the piece by its location.
             exclude_loc =
@@ -229,7 +225,7 @@ maybe_finish_seven piece_map zone_colors active_color start_loc end_loc =
                     |> Set.map (\( start, _ ) -> start)
         in
         TurnNeedStartLoc
-            { play_type = play_type
+            { move_type = move_type
             , moves = moves
             , start_locs = start_locs
             }
@@ -243,16 +239,16 @@ finish_move piece_map zone_colors active_color start_loc end_loc player =
     case player.turn of
         TurnNeedEndLoc info ->
             let
-                play_type =
-                    info.play_type
+                move_type =
+                    info.move_type
 
                 turn =
-                    case play_type of
-                        UsingCard "7" ->
+                    case move_type of
+                        WithCard "7" ->
                             maybe_finish_seven piece_map zone_colors active_color start_loc end_loc
 
                         _ ->
-                            maybe_finish_turn play_type player piece_map zone_colors active_color
+                            maybe_finish_turn move_type player piece_map zone_colors active_color
             in
             { player | turn = turn }
 
@@ -272,7 +268,7 @@ set_start_location start_loc player =
 
                 turn =
                     TurnNeedEndLoc
-                        { play_type = info.play_type
+                        { move_type = info.move_type
                         , start_location = start_loc
                         , end_locs = end_locs
                         }
@@ -355,7 +351,7 @@ activate_card idx player =
 
                         turn =
                             TurnNeedStartLoc
-                                { play_type = UsingCard active_card
+                                { move_type = WithCard active_card
                                 , moves = moves
                                 , start_locs = start_locs
                                 }
@@ -459,8 +455,8 @@ finish_card active_color model =
                 active_color
                 (\player ->
                     let
-                        possibly_finish_turn play_type =
-                            maybe_finish_turn play_type player model.piece_map model.zone_colors active_color
+                        possibly_finish_turn move_type =
+                            maybe_finish_turn move_type player model.piece_map model.zone_colors active_color
 
                         turn =
                             case player.turn of
@@ -469,10 +465,10 @@ finish_card active_color model =
                                     -- for when we're discarding.  Right now players can play a card
                                     -- without actually finishing the move (even when a valid move
                                     -- does exist).
-                                    possibly_finish_turn info.play_type
+                                    possibly_finish_turn info.move_type
 
                                 TurnNeedEndLoc info ->
-                                    possibly_finish_turn info.play_type
+                                    possibly_finish_turn info.move_type
 
                                 other ->
                                     other
