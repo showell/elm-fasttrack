@@ -1,7 +1,6 @@
 module Type exposing
     ( AppState(..)
     , Card
-    , CardStartEnd
     , Color
     , FindLocParams
     , Location
@@ -43,10 +42,6 @@ type alias PieceLocation =
     ( Color, String )
 
 
-type alias CardStartEnd =
-    ( Card, PieceLocation, PieceLocation )
-
-
 type alias PieceDict =
     Dict.Dict PieceLocation Color
 
@@ -68,13 +63,13 @@ type alias Move =
 
 
 type alias TurnNeedCardInfo =
-    { moves : Set.Set CardStartEnd
+    { moves : List Move
     }
 
 
 type alias TurnNeedStartLocInfo =
     { move_type : MoveType
-    , moves : Set.Set ( PieceLocation, PieceLocation )
+    , moves : List Move
     , start_locs : Set.Set PieceLocation
     }
 

@@ -61,6 +61,30 @@ get_params moves_left piece_map loc =
     , zone_colors = zone_colors
     }
 
+-- These fixers are partly a symptom of Elm not allowing union types in
+-- sets, but they also remove a bit of noise from comparisons.
+
+fix_move_type move_type =
+    case move_type of
+        WithCard card ->
+            card
+
+        Reverse card ->
+            "R" ++ card
+
+        FinishSplit count _ ->
+            "FS" ++ String.fromInt count
+
+        _ ->
+            "other"
+
+fix_move (move_type, start, end) =
+    (fix_move_type move_type, start, end)
+
+fix_moves moves =
+    moves
+        |> List.map fix_move
+        |> Set.fromList
 
 test_get_moves_for_cards : Test
 test_get_moves_for_cards =
@@ -82,8 +106,9 @@ test_get_moves_for_cards =
                     cards =
                         Set.fromList [ "2", "3" ]
 
-                    locs =
+                    moves =
                         get_moves_for_cards cards piece_map zone_colors active_color
+                            |> fix_moves
 
                     expected =
                         Set.fromList
@@ -92,11 +117,11 @@ test_get_moves_for_cards =
                             , ( "2", ( "blue", "L3" ), ( "blue", "FT" ) )
                             , ( "2", ( "blue", "L0" ), ( "blue", "L2" ) )
                             , ( "3", ( "red", "L0" ), ( "red", "L3" ) )
-                            , ( "3", ( "green", "R3" ), ( "green", "R0" ) )
                             , ( "3", ( "blue", "L3" ), ( "green", "R4" ) )
+                            , ( "3", ( "green", "R3" ), ( "green", "R0" ) )
                             ]
                 in
-                locs |> Expect.equal expected
+                moves |> Expect.equal expected
         , test "get forced reverse" <|
             \_ ->
                 let
@@ -112,16 +137,17 @@ test_get_moves_for_cards =
                     cards =
                         Set.fromList [ "3", "8" ]
 
-                    locs =
+                    moves =
                         get_moves_for_cards cards piece_map zone_colors active_color
+                            |> fix_moves
 
                     expected =
                         Set.fromList
-                            [ ( "3", ( "blue", "R0" ), ( "blue", "R3" ) )
-                            , ( "8", ( "blue", "R0" ), ( "red", "L2" ) )
+                            [ ( "R3", ( "blue", "R0" ), ( "blue", "R3" ) )
+                            , ( "R8", ( "blue", "R0" ), ( "red", "L2" ) )
                             ]
                 in
-                locs |> Expect.equal expected
+                moves |> Expect.equal expected
         , test "reverse with seven" <|
             \_ ->
                 let
@@ -137,15 +163,16 @@ test_get_moves_for_cards =
                     cards =
                         Set.fromList [ "7" ]
 
-                    locs =
+                    moves =
                         get_moves_for_cards cards piece_map zone_colors active_color
+                            |> fix_moves
 
                     expected =
                         Set.fromList
-                            [ ( "7", ( "blue", "R0" ), ( "red", "L3" ) )
+                            [ ( "R7", ( "blue", "R0" ), ( "red", "L3" ) )
                             ]
                 in
-                locs |> Expect.equal expected
+                moves |> Expect.equal expected
         , test "seven with FT edge case" <|
             \_ ->
                 -- when splitting sevens, don't land your first piece on the fast
@@ -164,20 +191,21 @@ test_get_moves_for_cards =
                     cards =
                         Set.fromList [ "7" ]
 
-                    locs =
+                    moves =
                         get_moves_for_cards cards piece_map zone_colors active_color
+                            |> fix_moves
 
                     expected =
                         Set.fromList
-                            [ ( "7", ( "blue", "L0" ), ( "blue", "L4" ) )
-                            , ( "7", ( "blue", "L0" ), ( "green", "R3" ) )
-                            , ( "7", ( "blue", "L0" ), ( "green", "R4" ) )
-                            , ( "7", ( "blue", "B1" ), ( "blue", "B2" ) )
+                            [ ( "7", ( "blue", "B1" ), ( "blue", "B2" ) )
                             , ( "7", ( "blue", "B1" ), ( "blue", "B3" ) )
                             , ( "7", ( "blue", "B1" ), ( "blue", "B4" ) )
+                            , ( "7", ( "blue", "L0" ), ( "blue", "L4" ) )
+                            , ( "7", ( "blue", "L0" ), ( "green", "R3" ) )
+                            , ( "7", ( "blue", "L0" ), ( "green", "R4" ) )
                             ]
                 in
-                locs |> Expect.equal expected
+                moves |> Expect.equal expected
         ]
 
 
@@ -200,17 +228,18 @@ test_get_moves_for_move_type =
                     move_type =
                         WithCard "2"
 
-                    locs =
+                    moves =
                         get_moves_for_move_type move_type piece_map zone_colors active_color
+                            |> fix_moves
 
                     expected =
                         Set.fromList
-                            [ ( ( "red", "L0" ), ( "red", "L2" ) )
-                            , ( ( "green", "R4" ), ( "green", "R2" ) )
-                            , ( ( "blue", "L3" ), ( "blue", "FT" ) )
+                            [ ( "2", ( "red", "L0" ), ( "red", "L2" ) )
+                            , ( "2", ( "green", "R4" ), ( "green", "R2" ) )
+                            , ( "2", ( "blue", "L3" ), ( "blue", "FT" ) )
                             ]
                 in
-                locs |> Expect.equal expected
+                moves |> Expect.equal expected
         , test "finish split" <|
             \_ ->
                 let
@@ -230,16 +259,17 @@ test_get_moves_for_move_type =
                     move_type =
                         FinishSplit 3 exclude_loc
 
-                    locs =
+                    moves =
                         get_moves_for_move_type move_type piece_map zone_colors active_color
+                            |> fix_moves
 
                     expected =
                         Set.fromList
-                            [ ( ( "blue", "B1" ), ( "blue", "B4" ) )
-                            , ( ( "green", "L2" ), ( "green", "FT" ) )
+                            [ ( "FS3", ( "blue", "B1" ), ( "blue", "B4" ) )
+                            , ( "FS3", ( "green", "L2" ), ( "green", "FT" ) )
                             ]
                 in
-                locs |> Expect.equal expected
+                moves |> Expect.equal expected
         ]
 
 

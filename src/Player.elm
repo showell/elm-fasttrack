@@ -36,7 +36,6 @@ import Set
 import Type
     exposing
         ( Card
-        , CardStartEnd
         , Color
         , Model
         , Move
@@ -67,7 +66,9 @@ get_playable_cards player =
     case player.turn of
         TurnNeedCard info ->
             info.moves
-                |> Set.map (\( card, _, _ ) -> card)
+                |> List.map (\( move_type, _, _ ) -> move_type)
+                |> List.map get_card_for_move_type
+                |> Set.fromList
 
         _ ->
             Set.empty
@@ -135,7 +136,7 @@ is_move_again_card card =
     List.member card [ "A", "K", "Q", "J", "joker", "6" ]
 
 
-get_moves_for_player : Player -> PieceDict -> List Color -> Color -> Set.Set CardStartEnd
+get_moves_for_player : Player -> PieceDict -> List Color -> Color -> List Move
 get_moves_for_player player piece_map zone_colors active_color =
     let
         cards =
@@ -226,7 +227,8 @@ maybe_finish_seven piece_map zone_colors active_color start_loc end_loc =
 
             start_locs =
                 moves
-                    |> Set.map (\( start, _ ) -> start)
+                    |> List.map (\( _, start, _ ) -> start)
+                    |> Set.fromList
         in
         TurnNeedStartLoc
             { move_type = move_type
@@ -271,8 +273,9 @@ set_start_location start_loc player =
             let
                 end_locs =
                     info.moves
-                        |> Set.filter (\( start, _ ) -> start == start_loc)
-                        |> Set.map (\( _, end ) -> end)
+                        |> List.filter (\( _, start, _ ) -> start == start_loc)
+                        |> List.map (\( _, _, end ) -> end)
+                        |> Set.fromList
 
                 turn =
                     TurnNeedEndLoc
@@ -348,14 +351,20 @@ activate_card idx player =
                         new_hand =
                             List.Extra.removeAt idx player.hand
 
+                        good_move move =
+                            let
+                                ( move_type, _, _ ) = move
+                            in
+                            get_card_for_move_type move_type == active_card
+
                         moves =
                             info.moves
-                                |> Set.filter (\( card, _, _ ) -> card == active_card)
-                                |> Set.map (\( _, start, end ) -> ( start, end ))
+                                |> List.filter good_move
 
                         start_locs =
                             moves
-                                |> Set.map (\( start, _ ) -> start)
+                                |> List.map (\( _, start, _ ) -> start)
+                                |> Set.fromList
 
                         turn =
                             TurnNeedStartLoc

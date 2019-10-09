@@ -34,14 +34,14 @@ import Set
 import Type
     exposing
         ( Card
-        , CardStartEnd
         , Color
         , FindLocParams
+        , Move
         , MoveType(..)
         , PieceDict
         , PieceLocation
+        , Turn(..)
         )
-
 
 is_color : PieceDict -> Color -> PieceLocation -> Bool
 is_color piece_map color loc =
@@ -266,7 +266,7 @@ can_go_n_spaces can_fast_track piece_color piece_map zone_colors n_spaces locati
     recurse n_spaces location
 
 
-get_moves_for_cards : Set.Set Card -> PieceDict -> List Color -> Color -> Set.Set CardStartEnd
+get_moves_for_cards : Set.Set Card -> PieceDict -> List Color -> Color -> List Move
 get_moves_for_cards cards piece_map zone_colors active_color =
     let
         normal_move_type : Card -> MoveType
@@ -277,10 +277,10 @@ get_moves_for_cards cards piece_map zone_colors active_color =
             else
                 WithCard card
 
-        f : (Card -> MoveType) -> Set.Set CardStartEnd
+        f : (Card -> MoveType) -> List Move
         f make_move_type =
             let
-                get_moves : Card -> List CardStartEnd
+                get_moves : Card -> List Move
                 get_moves card =
                     let
                         move_type =
@@ -288,31 +288,25 @@ get_moves_for_cards cards piece_map zone_colors active_color =
 
                         moves =
                             get_moves_for_move_type move_type piece_map zone_colors active_color
-
-                        make_tup ( start_loc, end_loc ) =
-                            ( card, start_loc, end_loc )
                     in
                     moves
-                        |> Set.toList
-                        |> List.map make_tup
             in
             cards
                 |> Set.toList
                 |> List.map get_moves
                 |> List.concat
-                |> Set.fromList
 
         forward_moves =
             f normal_move_type
     in
-    if Set.size forward_moves > 0 then
+    if List.length forward_moves > 0 then
         forward_moves
 
     else
         f Reverse
 
 
-get_moves_for_move_type : MoveType -> PieceDict -> List Color -> Color -> Set.Set ( PieceLocation, PieceLocation )
+get_moves_for_move_type : MoveType -> PieceDict -> List Color -> Color -> List Move
 get_moves_for_move_type move_type piece_map zone_colors active_color =
     let
         start_locs : Set.Set PieceLocation
@@ -324,15 +318,15 @@ get_moves_for_move_type move_type piece_map zone_colors active_color =
                 _ ->
                     my_pieces piece_map active_color
 
-        get_moves : PieceLocation -> List ( PieceLocation, PieceLocation )
+        get_moves : PieceLocation -> List Move
         get_moves start_loc =
             let
                 end_locs =
                     get_end_locs move_type piece_map zone_colors start_loc
 
-                make_move : PieceLocation -> ( PieceLocation, PieceLocation )
+                make_move : PieceLocation -> Move
                 make_move end_loc =
-                    ( start_loc, end_loc )
+                    ( move_type, start_loc, end_loc )
             in
             end_locs
                 |> Set.toList
@@ -342,7 +336,6 @@ get_moves_for_move_type move_type piece_map zone_colors active_color =
         |> Set.toList
         |> List.map get_moves
         |> List.concat
-        |> Set.fromList
 
 
 get_end_locs : MoveType -> PieceDict -> List Color -> PieceLocation -> Set.Set PieceLocation
