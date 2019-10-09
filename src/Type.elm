@@ -157,4 +157,3 @@ type Msg
     | SetEndLocation PieceLocation
     | SetStartLocation PieceLocation
     | LoadGame Time.Posix
-    | NewSeed Time.Posix

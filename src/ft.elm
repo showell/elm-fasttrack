@@ -84,11 +84,6 @@ init flags =
     ( model, Task.perform LoadGame Time.now )
 
 
-randomize : Cmd Msg
-randomize =
-    Task.perform NewSeed Time.now
-
-
 replenish_active_hand : Model -> Model
 replenish_active_hand model =
     let
@@ -144,21 +139,6 @@ update msg model =
             in
             ( model_, Cmd.none )
 
-        NewSeed time ->
-            -- this command is invoked to add extra randomness
-            -- (and theoretically prevent a tech savvy player with
-            -- a computer from anticipating a whole sequence of draws)
-            let
-                seed =
-                    seed_from_time time
-
-                model_ =
-                    { model
-                        | seed = seed
-                    }
-            in
-            ( model_, Cmd.none )
-
         SetStartLocation clicked_loc ->
             let
                 model_ =
@@ -185,7 +165,7 @@ update msg model =
                 model_ =
                     update_active_player (activate_card idx) model
             in
-            ( model_, randomize )
+            ( model_, Cmd.none )
 
         FinishCard player_color ->
             let
