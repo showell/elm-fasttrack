@@ -51,17 +51,20 @@ type alias PieceDict =
     Dict.Dict PieceLocation Color
 
 
-type alias Move =
-    { start : PieceLocation
-    , end : PieceLocation
-    , want_trade : Bool
-    }
+
+-- TODO: eliminate Force once we pass around move types rigorously
 
 
 type MoveType
     = WithCard Card
     | Reverse Card
     | FinishSplit Int PieceLocation
+    | JackTrade
+    | Force
+
+
+type alias Move =
+    ( MoveType, PieceLocation, PieceLocation )
 
 
 type alias TurnNeedCardInfo =

@@ -13,8 +13,8 @@ import Player
         ( end_locs_for_player
         , finish_move
         , get_player
+        , get_player_move_type
         , maybe_replenish_hand
-        , player_played_jack
         , update_active_player
         )
 import Set
@@ -23,6 +23,7 @@ import Type
         ( Color
         , Model
         , Move
+        , MoveType(..)
         , PieceLocation
         )
 
@@ -30,11 +31,14 @@ import Type
 perform_move : Model -> Move -> Color -> Model
 perform_move model move active_color =
     let
+        ( _, start_loc, _ ) =
+            move
+
         piece_map =
             model.piece_map
 
         piece_color =
-            get_piece piece_map move.start
+            get_piece piece_map start_loc
     in
     case piece_color of
         Nothing ->
@@ -56,7 +60,7 @@ perform_move model move active_color =
             in
             model_
                 |> maybe_replenish_hand active_color
-                |> update_active_player (finish_move new_piece_map zone_colors active_color move.start move.end)
+                |> update_active_player (finish_move new_piece_map zone_colors active_color move)
 
 
 maybe_auto_move : PieceLocation -> Model -> Model
@@ -94,13 +98,10 @@ maybe_auto_move start_loc model =
 
         Just end_loc ->
             let
-                want_trade =
-                    player_played_jack active_player
+                move_type =
+                    get_player_move_type active_player
 
                 move =
-                    { start = start_loc
-                    , end = end_loc
-                    , want_trade = want_trade
-                    }
+                    ( move_type, start_loc, end_loc )
             in
             perform_move model move active_color

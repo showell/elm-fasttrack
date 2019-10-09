@@ -21,7 +21,7 @@ import Player
         , config_players
         , finish_card
         , get_player
-        , player_played_jack
+        , get_player_move_type
         , replenish_hand
         , set_start_location
         , set_turn
@@ -252,7 +252,7 @@ handle_start_loc_click model location =
 
 
 handle_end_loc_click : Model -> PieceLocation -> Model
-handle_end_loc_click model location =
+handle_end_loc_click model end_loc =
     let
         active_color =
             get_active_color model.zone_colors
@@ -266,14 +266,14 @@ handle_end_loc_click model location =
     case active_player.turn of
         TurnNeedEndLoc info ->
             let
-                want_trade =
-                    player_played_jack active_player
+                move_type =
+                    get_player_move_type active_player
+
+                start_loc =
+                    info.start_location
 
                 move =
-                    { start = info.start_location
-                    , end = location
-                    , want_trade = want_trade
-                    }
+                    ( move_type, start_loc, end_loc )
             in
             perform_move model move active_color
 

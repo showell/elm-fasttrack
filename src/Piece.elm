@@ -16,6 +16,7 @@ import Type
     exposing
         ( Color
         , Move
+        , MoveType(..)
         , PieceDict
         , PieceLocation
         )
@@ -88,14 +89,11 @@ config_pieces zone_colors =
 move_piece : Move -> PieceDict -> PieceDict
 move_piece move piece_map =
     let
+        ( move_type, start_loc, end_loc ) =
+            move
+
         want_trade =
-            move.want_trade
-
-        start_loc =
-            move.start
-
-        end_loc =
-            move.end
+            move_type == JackTrade
 
         start_color =
             get_the_piece piece_map start_loc

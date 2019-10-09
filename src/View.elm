@@ -27,6 +27,10 @@ import Html.Events
     exposing
         ( onClick
         )
+import LegalMove
+    exposing
+        ( get_card_for_move_type
+        )
 import Piece
     exposing
         ( get_piece
@@ -34,7 +38,6 @@ import Piece
 import Player
     exposing
         ( end_locs_for_player
-        , get_card_for_move_type
         , get_playable_cards
         , get_player
         , get_start_location
@@ -534,8 +537,14 @@ player_need_start move_type color =
                 Reverse _ ->
                     "click a piece to start move"
 
+                JackTrade ->
+                    "click a piece to start move"
+
                 FinishSplit count _ ->
                     "click a piece to finish split (moving " ++ String.fromInt count ++ ")"
+
+                Force ->
+                    "unexpected"
 
         active_card =
             get_card_for_move_type move_type

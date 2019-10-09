@@ -5,9 +5,9 @@ module Player exposing
     , end_locs_for_player
     , finish_card
     , finish_move
-    , get_card_for_move_type
     , get_playable_cards
     , get_player
+    , get_player_move_type
     , get_start_location
     , maybe_replenish_hand
     , player_played_jack
@@ -26,6 +26,7 @@ import Dict
 import LegalMove
     exposing
         ( distance
+        , get_card_for_move_type
         , get_moves_for_cards
         , get_moves_for_move_type
         )
@@ -38,6 +39,7 @@ import Type
         , CardStartEnd
         , Color
         , Model
+        , Move
         , MoveType(..)
         , PieceDict
         , PieceLocation
@@ -45,19 +47,6 @@ import Type
         , PlayerDict
         , Turn(..)
         )
-
-
-get_card_for_move_type : MoveType -> Card
-get_card_for_move_type move_type =
-    case move_type of
-        WithCard card ->
-            card
-
-        Reverse card ->
-            card
-
-        FinishSplit _ _ ->
-            "7"
 
 
 get_active_card : Player -> Maybe Card
@@ -92,6 +81,21 @@ player_played_jack player =
 
         Nothing ->
             False
+
+
+get_player_move_type : Player -> MoveType
+get_player_move_type player =
+    -- TODO: clean this up and get it from turn
+    --       and make it a Maybe
+    let
+        want_trade =
+            player_played_jack player
+    in
+    if want_trade then
+        JackTrade
+
+    else
+        Force
 
 
 config_player : Player
@@ -234,8 +238,12 @@ maybe_finish_seven piece_map zone_colors active_color start_loc end_loc =
         TurnDone
 
 
-finish_move : PieceDict -> List Color -> Color -> PieceLocation -> PieceLocation -> Player -> Player
-finish_move piece_map zone_colors active_color start_loc end_loc player =
+finish_move : PieceDict -> List Color -> Color -> Move -> Player -> Player
+finish_move piece_map zone_colors active_color move player =
+    let
+        ( _, start_loc, end_loc ) =
+            move
+    in
     case player.turn of
         TurnNeedEndLoc info ->
             let

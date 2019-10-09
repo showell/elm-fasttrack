@@ -2,6 +2,7 @@ module LegalMove exposing
     ( distance
     , end_locations
     , get_can_go_n_spaces
+    , get_card_for_move_type
     , get_end_locs
     , get_moves_for_cards
     , get_moves_for_move_type
@@ -357,15 +358,7 @@ get_end_locs move_type piece_map zone_colors loc =
             get_the_piece piece_map loc
 
         active_card =
-            case move_type of
-                WithCard card ->
-                    card
-
-                Reverse card ->
-                    card
-
-                FinishSplit _ _ ->
-                    "ignore"
+            get_card_for_move_type move_type
 
         can_leave_pen =
             List.member active_card [ "A", "joker", "6" ]
@@ -379,6 +372,7 @@ get_end_locs move_type piece_map zone_colors loc =
                     active_card == "4"
 
         moves_left =
+            -- TODO: extract this to function
             case move_type of
                 WithCard _ ->
                     move_count_for_card active_card id
@@ -388,6 +382,13 @@ get_end_locs move_type piece_map zone_colors loc =
 
                 FinishSplit count _ ->
                     count
+
+                JackTrade ->
+                    -- we handle J trades elsewhere
+                    0
+
+                Force ->
+                    0
 
         can_move =
             can_fast_track || not (has_piece_on_fast_track piece_map piece_color)
@@ -421,11 +422,14 @@ get_end_locs move_type piece_map zone_colors loc =
 can_finish_split : List Color -> Set.Set PieceLocation -> PieceDict -> Int -> PieceLocation -> PieceLocation -> Bool
 can_finish_split zone_colors other_locs piece_map count start_loc end_loc =
     let
+        -- TODO: pass in move_type when we have StartSplit
+        --       (it's essentially ignored now, but that
+        --       may change)
+        move_type =
+            WithCard "7"
+
         move =
-            { start = start_loc
-            , end = end_loc
-            , want_trade = False
-            }
+            ( move_type, start_loc, end_loc )
 
         modified_piece_map =
             move_piece move piece_map
@@ -652,6 +656,25 @@ get_prev_locs params =
         in
         [ ( zone_color, prev_id ) ]
             |> filter
+
+
+get_card_for_move_type : MoveType -> Card
+get_card_for_move_type move_type =
+    case move_type of
+        WithCard card ->
+            card
+
+        Reverse card ->
+            card
+
+        FinishSplit _ _ ->
+            "7"
+
+        JackTrade ->
+            "J"
+
+        Force ->
+            "unknown"
 
 
 is_loc_free : PieceDict -> Color -> PieceLocation -> Bool
