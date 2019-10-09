@@ -7,9 +7,9 @@ import LegalMove
         ( distance
         , end_locations
         , get_can_go_n_spaces
-        , get_end_locs
         , get_moves_for_cards
         , get_moves_for_move_type
+        , get_moves_from_location
         , has_piece_on_fast_track
         , my_pieces
         , next_zone_color
@@ -446,6 +446,12 @@ test_distance =
 
 test_end_locs : Test
 test_end_locs =
+    let
+        to_end_locs moves =
+            moves
+                |> List.map (\( _, _, end ) -> end)
+                |> Set.fromList
+    in
     Test.concat
         [ test "can move 8" <|
             \_ ->
@@ -478,7 +484,8 @@ test_end_locs =
                         WithCard "7"
 
                     locs =
-                        get_end_locs move_type piece_map zone_colors loc
+                        get_moves_from_location move_type piece_map zone_colors loc
+                            |> to_end_locs
 
                     expected =
                         Set.fromList
@@ -504,7 +511,8 @@ test_end_locs =
                         WithCard "7"
 
                     locs =
-                        get_end_locs move_type piece_map zone_colors loc
+                        get_moves_from_location move_type piece_map zone_colors loc
+                            |> to_end_locs
 
                     expected =
                         Set.fromList
@@ -531,7 +539,8 @@ test_end_locs =
                         WithCard "8"
 
                     locs =
-                        get_end_locs move_type piece_map zone_colors loc
+                        get_moves_from_location move_type piece_map zone_colors loc
+                            |> to_end_locs
 
                     expected =
                         Set.empty

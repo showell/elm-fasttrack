@@ -4,9 +4,9 @@ module LegalMove exposing
     , get_can_go_n_spaces
     , get_card_for_move_type
     , get_card_for_play_type
-    , get_end_locs
     , get_moves_for_cards
     , get_moves_for_move_type
+    , get_moves_from_location
     , has_piece_on_fast_track
     , my_pieces
     , next_zone_color
@@ -323,17 +323,7 @@ get_moves_for_move_type move_type piece_map zone_colors active_color =
 
         get_moves : PieceLocation -> List Move
         get_moves start_loc =
-            let
-                end_locs =
-                    get_end_locs move_type piece_map zone_colors start_loc
-
-                make_move : PieceLocation -> Move
-                make_move end_loc =
-                    ( move_type, start_loc, end_loc )
-            in
-            end_locs
-                |> Set.toList
-                |> List.map make_move
+            get_moves_from_location move_type piece_map zone_colors start_loc
     in
     start_locs
         |> Set.toList
@@ -341,8 +331,8 @@ get_moves_for_move_type move_type piece_map zone_colors active_color =
         |> List.concat
 
 
-get_end_locs : MoveType -> PieceDict -> List Color -> PieceLocation -> Set.Set PieceLocation
-get_end_locs move_type piece_map zone_colors start_loc =
+get_moves_from_location : MoveType -> PieceDict -> List Color -> PieceLocation -> List Move
+get_moves_from_location move_type piece_map zone_colors start_loc =
     let
         ( _, id ) =
             start_loc
@@ -401,18 +391,28 @@ get_end_locs move_type piece_map zone_colors start_loc =
                 , piece_map = piece_map
                 , zone_colors = zone_colors
                 }
+
+            make_move : PieceLocation -> Move
+            make_move end_loc =
+                ( move_type, start_loc, end_loc )
         in
         if move_type == WithCard "7" then
             end_locations_for_seven params
+                |> Set.toList
+                |> List.map make_move
 
         else if move_type == WithCard "J" then
             end_locations_for_jack params
+                |> Set.toList
+                |> List.map make_move
 
         else
             end_locations params
+                |> Set.toList
+                |> List.map make_move
 
     else
-        Set.empty
+        []
 
 
 can_finish_split : List Color -> Set.Set PieceLocation -> PieceDict -> Int -> PieceLocation -> PieceLocation -> Bool
