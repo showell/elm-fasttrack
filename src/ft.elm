@@ -8,7 +8,7 @@ import Config
 import Move
     exposing
         ( maybe_auto_move
-        , perform_move
+        , move_to_end_loc
         )
 import Piece
     exposing
@@ -246,16 +246,11 @@ handle_end_loc_click model end_loc =
     case active_player.turn of
         TurnNeedEndLoc info ->
             let
-                move_type =
-                    get_player_move_type active_player
-
                 start_loc =
                     info.start_location
-
-                move =
-                    ( move_type, start_loc, end_loc )
             in
-            perform_move model move active_color
+            model
+                |> move_to_end_loc active_player active_color start_loc end_loc
 
         _ ->
             -- something is wrong with our click handlers

@@ -1,6 +1,6 @@
 module Move exposing
     ( maybe_auto_move
-    , perform_move
+    , move_to_end_loc
     )
 
 import Piece
@@ -25,6 +25,7 @@ import Type
         , Move
         , MoveType(..)
         , PieceLocation
+        , Player
         )
 
 
@@ -93,15 +94,28 @@ maybe_auto_move start_loc model =
     case unique_end_loc of
         Nothing ->
             -- If we don't have exactly one location, don't update the
-            -- model (and we'll have UI to let the user pick the location).
+            -- model (and we have UI to let the user pick the location).
             model
 
         Just end_loc ->
-            let
-                move_type =
-                    get_player_move_type active_player
+            model
+                |> move_to_end_loc active_player active_color start_loc end_loc
 
+
+move_to_end_loc : Player -> Color -> PieceLocation -> PieceLocation -> Model -> Model
+move_to_end_loc active_player active_color start_loc end_loc model =
+    let
+        move_type_ =
+            get_player_move_type active_player end_loc
+    in
+    case move_type_ of
+        Just move_type ->
+            let
                 move =
                     ( move_type, start_loc, end_loc )
             in
             perform_move model move active_color
+
+        Nothing ->
+            -- this is actually a programming error
+            model

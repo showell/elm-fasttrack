@@ -6,6 +6,7 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
+
     introduce move_type into tuples (to kill Distance):
         include StartSplit move type
 

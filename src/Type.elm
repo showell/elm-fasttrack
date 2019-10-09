@@ -97,6 +97,7 @@ type alias TurnNeedStartLocInfo =
 type alias TurnNeedEndLocInfo =
     { play_type : PlayType
     , start_location : PieceLocation
+    , moves : List Move
     , end_locs : Set.Set PieceLocation
     }
 

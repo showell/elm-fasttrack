@@ -10,7 +10,6 @@ module Player exposing
     , get_player_move_type
     , get_start_location
     , maybe_replenish_hand
-    , player_played_jack
     , replenish_hand
     , set_start_location
     , set_turn
@@ -51,19 +50,6 @@ import Type
         )
 
 
-get_active_card : Player -> Maybe Card
-get_active_card player =
-    case player.turn of
-        TurnNeedStartLoc info ->
-            Just (get_card_for_play_type info.play_type)
-
-        TurnNeedEndLoc info ->
-            Just (get_card_for_play_type info.play_type)
-
-        _ ->
-            Nothing
-
-
 get_playable_cards : Player -> Set.Set Card
 get_playable_cards player =
     case player.turn of
@@ -77,29 +63,46 @@ get_playable_cards player =
             Set.empty
 
 
-player_played_jack : Player -> Bool
-player_played_jack player =
-    case get_active_card player of
-        Just card ->
-            card == "J"
+get_player_move_type : Player -> PieceLocation -> Maybe MoveType
+get_player_move_type player end_loc =
+    case player.turn of
+        TurnNeedEndLoc info ->
+            let
+                moves =
+                    info.moves
+                        |> List.filter (\( _, _, end ) -> end == end_loc)
 
-        Nothing ->
-            False
+                move_types =
+                    moves
+                        |> List.map (\( move_type, _, _ ) -> move_type)
 
+                the_move_type =
+                    case List.length move_types of
+                        1 ->
+                            List.head move_types
 
-get_player_move_type : Player -> MoveType
-get_player_move_type player =
-    -- TODO: clean this up and get it from turn
-    --       and make it a Maybe
-    let
-        want_trade =
-            player_played_jack player
-    in
-    if want_trade then
-        JackTrade
+                        2 ->
+                            -- The only way we'd have two possible ways
+                            -- to move the same piece between the same two
+                            -- locations is via a jack (we're either moving
+                            -- forward one or trading).  For now we just
+                            -- arbitrarily pick the first option, which is
+                            -- gonna be to move forward (and trade, not kill,
+                            -- if there happens to be a piece there).
+                            --
+                            -- TODO: make this way more rigourous (and let user
+                            --       choose)
+                            List.head move_types
 
-    else
-        Force
+                        _ ->
+                            -- programming error
+                            Nothing
+            in
+            the_move_type
+
+        _ ->
+            -- programming error
+            Nothing
 
 
 config_player : Player
@@ -278,15 +281,22 @@ set_start_location start_loc player =
     case player.turn of
         TurnNeedStartLoc info ->
             let
-                end_locs =
+                play_type =
+                    info.play_type
+
+                moves =
                     info.moves
                         |> List.filter (\( _, start, _ ) -> start == start_loc)
+
+                end_locs =
+                    moves
                         |> List.map (\( _, _, end ) -> end)
                         |> Set.fromList
 
                 turn =
                     TurnNeedEndLoc
-                        { play_type = info.play_type
+                        { play_type = play_type
+                        , moves = moves
                         , start_location = start_loc
                         , end_locs = end_locs
                         }

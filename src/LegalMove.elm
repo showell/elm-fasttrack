@@ -402,9 +402,7 @@ get_moves_from_location move_type piece_map zone_colors start_loc =
                 |> List.map make_move
 
         else if move_type == WithCard "J" then
-            end_locations_for_jack params
-                |> Set.toList
-                |> List.map make_move
+            get_moves_for_jack params
 
         else
             end_locations params
@@ -439,8 +437,8 @@ can_finish_split zone_colors other_locs piece_map count start_loc end_loc =
     List.length other_movable_locs > 0
 
 
-end_locations_for_jack : FindLocParams -> Set.Set PieceLocation
-end_locations_for_jack params =
+get_moves_for_jack : FindLocParams -> List Move
+get_moves_for_jack params =
     let
         piece_map =
             params.piece_map
@@ -451,14 +449,21 @@ end_locations_for_jack params =
         piece_color =
             get_the_piece piece_map start_loc
 
-        trade_locs =
+        forward_moves =
+            end_locations params
+                |> Set.toList
+                |> List.map (\end_loc -> ( WithCard "J", start_loc, end_loc ))
+
+        trade_moves =
             if is_normal_loc start_loc then
                 swappable_locs piece_map piece_color
+                    |> Set.toList
+                    |> List.map (\end_loc -> ( JackTrade, start_loc, end_loc ))
 
             else
-                Set.empty
+                []
     in
-    Set.union (end_locations params) trade_locs
+    List.concat [ forward_moves, trade_moves ]
 
 
 end_locations_for_seven : FindLocParams -> Set.Set PieceLocation
