@@ -208,9 +208,12 @@ set_turn_to_need_card active_color model =
         model
 
 
-maybe_finish_seven : PieceDict -> List Color -> Color -> PieceLocation -> PieceLocation -> Turn
-maybe_finish_seven piece_map zone_colors active_color start_loc end_loc =
+maybe_finish_seven : PieceDict -> List Color -> Color -> Move -> Turn
+maybe_finish_seven piece_map zone_colors active_color move =
     let
+        ( _, start_loc, end_loc ) =
+            move
+
         distance_moved =
             distance zone_colors active_color start_loc end_loc
     in
@@ -250,10 +253,6 @@ maybe_finish_seven piece_map zone_colors active_color start_loc end_loc =
 
 finish_move : PieceDict -> List Color -> Color -> Move -> Player -> Player
 finish_move piece_map zone_colors active_color move player =
-    let
-        ( _, start_loc, end_loc ) =
-            move
-    in
     case player.turn of
         TurnNeedEndLoc info ->
             let
@@ -263,7 +262,7 @@ finish_move piece_map zone_colors active_color move player =
                 turn =
                     case play_type of
                         PlayCard "7" ->
-                            maybe_finish_seven piece_map zone_colors active_color start_loc end_loc
+                            maybe_finish_seven piece_map zone_colors active_color move
 
                         _ ->
                             maybe_finish_turn play_type player piece_map zone_colors active_color
