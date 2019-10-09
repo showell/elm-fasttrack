@@ -342,16 +342,16 @@ get_moves_for_move_type move_type piece_map zone_colors active_color =
 
 
 get_end_locs : MoveType -> PieceDict -> List Color -> PieceLocation -> Set.Set PieceLocation
-get_end_locs move_type piece_map zone_colors loc =
+get_end_locs move_type piece_map zone_colors start_loc =
     let
         ( _, id ) =
-            loc
+            start_loc
 
         can_fast_track =
             id == "FT"
 
         piece_color =
-            get_the_piece piece_map loc
+            get_the_piece piece_map start_loc
 
         active_card =
             get_card_for_move_type move_type
@@ -396,7 +396,7 @@ get_end_locs move_type piece_map zone_colors loc =
                 , can_fast_track = can_fast_track
                 , can_leave_pen = can_leave_pen
                 , moves_left = moves_left
-                , loc = loc
+                , loc = start_loc
                 , piece_color = piece_color
                 , piece_map = piece_map
                 , zone_colors = zone_colors
