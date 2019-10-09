@@ -3,6 +3,7 @@ module LegalMove exposing
     , end_locations
     , get_can_go_n_spaces
     , get_card_for_move_type
+    , get_card_for_play_type
     , get_end_locs
     , get_moves_for_cards
     , get_moves_for_move_type
@@ -40,8 +41,10 @@ import Type
         , MoveType(..)
         , PieceDict
         , PieceLocation
+        , PlayType(..)
         , Turn(..)
         )
+
 
 is_color : PieceDict -> Color -> PieceLocation -> Bool
 is_color piece_map color loc =
@@ -649,6 +652,16 @@ get_prev_locs params =
         in
         [ ( zone_color, prev_id ) ]
             |> filter
+
+
+get_card_for_play_type : PlayType -> Card
+get_card_for_play_type play_type =
+    case play_type of
+        PlayCard card ->
+            card
+
+        FinishSeven _ ->
+            "7"
 
 
 get_card_for_move_type : MoveType -> Card

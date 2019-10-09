@@ -27,6 +27,7 @@ import LegalMove
     exposing
         ( distance
         , get_card_for_move_type
+        , get_card_for_play_type
         , get_moves_for_cards
         , get_moves_for_move_type
         )
@@ -42,6 +43,7 @@ import Type
         , MoveType(..)
         , PieceDict
         , PieceLocation
+        , PlayType(..)
         , Player
         , PlayerDict
         , Turn(..)
@@ -52,10 +54,10 @@ get_active_card : Player -> Maybe Card
 get_active_card player =
     case player.turn of
         TurnNeedStartLoc info ->
-            Just (get_card_for_move_type info.move_type)
+            Just (get_card_for_play_type info.play_type)
 
         TurnNeedEndLoc info ->
-            Just (get_card_for_move_type info.move_type)
+            Just (get_card_for_play_type info.play_type)
 
         _ ->
             Nothing
@@ -156,11 +158,11 @@ turn_need_card player piece_map zone_colors active_color =
         }
 
 
-maybe_finish_turn : MoveType -> Player -> PieceDict -> List Color -> Color -> Turn
-maybe_finish_turn move_type player piece_map zone_colors active_color =
+maybe_finish_turn : PlayType -> Player -> PieceDict -> List Color -> Color -> Turn
+maybe_finish_turn play_type player piece_map zone_colors active_color =
     let
         card =
-            get_card_for_move_type move_type
+            get_card_for_play_type play_type
     in
     if is_move_again_card card then
         turn_need_card player piece_map zone_colors active_color
@@ -219,6 +221,9 @@ maybe_finish_seven piece_map zone_colors active_color start_loc end_loc =
             exclude_loc =
                 end_loc
 
+            play_type =
+                FinishSeven move_count
+
             move_type =
                 FinishSplit move_count exclude_loc
 
@@ -231,7 +236,7 @@ maybe_finish_seven piece_map zone_colors active_color start_loc end_loc =
                     |> Set.fromList
         in
         TurnNeedStartLoc
-            { move_type = move_type
+            { play_type = play_type
             , moves = moves
             , start_locs = start_locs
             }
@@ -249,16 +254,16 @@ finish_move piece_map zone_colors active_color move player =
     case player.turn of
         TurnNeedEndLoc info ->
             let
-                move_type =
-                    info.move_type
+                play_type =
+                    info.play_type
 
                 turn =
-                    case move_type of
-                        WithCard "7" ->
+                    case play_type of
+                        PlayCard "7" ->
                             maybe_finish_seven piece_map zone_colors active_color start_loc end_loc
 
                         _ ->
-                            maybe_finish_turn move_type player piece_map zone_colors active_color
+                            maybe_finish_turn play_type player piece_map zone_colors active_color
             in
             { player | turn = turn }
 
@@ -279,7 +284,7 @@ set_start_location start_loc player =
 
                 turn =
                     TurnNeedEndLoc
-                        { move_type = info.move_type
+                        { play_type = info.play_type
                         , start_location = start_loc
                         , end_locs = end_locs
                         }
@@ -353,7 +358,8 @@ activate_card idx player =
 
                         good_move move =
                             let
-                                ( move_type, _, _ ) = move
+                                ( move_type, _, _ ) =
+                                    move
                             in
                             get_card_for_move_type move_type == active_card
 
@@ -368,7 +374,7 @@ activate_card idx player =
 
                         turn =
                             TurnNeedStartLoc
-                                { move_type = WithCard active_card
+                                { play_type = PlayCard active_card
                                 , moves = moves
                                 , start_locs = start_locs
                                 }
@@ -472,8 +478,8 @@ finish_card active_color model =
                 active_color
                 (\player ->
                     let
-                        possibly_finish_turn move_type =
-                            maybe_finish_turn move_type player model.piece_map model.zone_colors active_color
+                        possibly_finish_turn play_type =
+                            maybe_finish_turn play_type player model.piece_map model.zone_colors active_color
 
                         turn =
                             case player.turn of
@@ -482,10 +488,10 @@ finish_card active_color model =
                                     -- for when we're discarding.  Right now players can play a card
                                     -- without actually finishing the move (even when a valid move
                                     -- does exist).
-                                    possibly_finish_turn info.move_type
+                                    possibly_finish_turn info.play_type
 
                                 TurnNeedEndLoc info ->
-                                    possibly_finish_turn info.move_type
+                                    possibly_finish_turn info.play_type
 
                                 other ->
                                     other

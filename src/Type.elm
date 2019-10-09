@@ -10,6 +10,7 @@ module Type exposing
     , Msg(..)
     , PieceDict
     , PieceLocation
+    , PlayType(..)
     , Player
     , PlayerDict
     , Turn(..)
@@ -48,6 +49,25 @@ type alias PieceDict =
 
 
 -- TODO: eliminate Force once we pass around move types rigorously
+{--
+    Why do we have PlayType and MoveType, instead of just a single
+    type?
+
+    Let's say you play a J or a 7, and then you click the starting
+    location for the move.  There not only may be multiple moves
+    available, but there may be multiple **types** of moves
+    available.
+
+    FWIW it's not impossible to unify these types--I had a version
+    basically working with a single MoveType--but I think having
+    two separate concepts ultimately is cleaner.
+
+--}
+
+
+type PlayType
+    = PlayCard Card
+    | FinishSeven Int
 
 
 type MoveType
@@ -68,14 +88,14 @@ type alias TurnNeedCardInfo =
 
 
 type alias TurnNeedStartLocInfo =
-    { move_type : MoveType
+    { play_type : PlayType
     , moves : List Move
     , start_locs : Set.Set PieceLocation
     }
 
 
 type alias TurnNeedEndLocInfo =
-    { move_type : MoveType
+    { play_type : PlayType
     , start_location : PieceLocation
     , end_locs : Set.Set PieceLocation
     }

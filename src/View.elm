@@ -29,7 +29,7 @@ import Html.Events
         )
 import LegalMove
     exposing
-        ( get_card_for_move_type
+        ( get_card_for_play_type
         )
 import Piece
     exposing
@@ -76,6 +76,7 @@ import Type
         , Msg(..)
         , PieceDict
         , PieceLocation
+        , PlayType(..)
         , Player
         , Turn(..)
         )
@@ -479,10 +480,10 @@ player_view player color =
                     div [] [ Html.text "click a card above" ]
 
                 TurnNeedStartLoc turn_info ->
-                    player_need_start turn_info.move_type color
+                    player_need_start turn_info.play_type color
 
                 TurnNeedEndLoc turn_info ->
-                    player_need_end turn_info.move_type color
+                    player_need_end turn_info.play_type color
 
                 TurnDone ->
                     div
@@ -526,28 +527,19 @@ active_card_view active_card color instructions =
     span [] [ card, Html.text instructions ]
 
 
-player_need_start : MoveType -> Color -> Html Msg
-player_need_start move_type color =
+player_need_start : PlayType -> Color -> Html Msg
+player_need_start play_type color =
     let
         instructions =
-            case move_type of
-                WithCard _ ->
+            case play_type of
+                PlayCard _ ->
                     "click a piece to start move"
 
-                Reverse _ ->
-                    "click a piece to start move"
-
-                JackTrade ->
-                    "click a piece to start move"
-
-                FinishSplit count _ ->
+                FinishSeven count ->
                     "click a piece to finish split (moving " ++ String.fromInt count ++ ")"
 
-                Force ->
-                    "unexpected"
-
         active_card =
-            get_card_for_move_type move_type
+            get_card_for_play_type play_type
 
         -- We will get rid of this once we have a new state for discards.
         finish_button =
@@ -561,11 +553,11 @@ player_need_start move_type color =
         ]
 
 
-player_need_end : MoveType -> Color -> Html Msg
-player_need_end move_type color =
+player_need_end : PlayType -> Color -> Html Msg
+player_need_end play_type color =
     let
         active_card =
-            get_card_for_move_type move_type
+            get_card_for_play_type play_type
 
         instructions =
             "now click piece's end location"

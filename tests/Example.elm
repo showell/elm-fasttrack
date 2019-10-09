@@ -61,8 +61,11 @@ get_params moves_left piece_map loc =
     , zone_colors = zone_colors
     }
 
+
+
 -- These fixers are partly a symptom of Elm not allowing union types in
 -- sets, but they also remove a bit of noise from comparisons.
+
 
 fix_move_type move_type =
     case move_type of
@@ -78,13 +81,16 @@ fix_move_type move_type =
         _ ->
             "other"
 
-fix_move (move_type, start, end) =
-    (fix_move_type move_type, start, end)
+
+fix_move ( move_type, start, end ) =
+    ( fix_move_type move_type, start, end )
+
 
 fix_moves moves =
     moves
         |> List.map fix_move
         |> Set.fromList
+
 
 test_get_moves_for_cards : Test
 test_get_moves_for_cards =
