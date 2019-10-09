@@ -21,6 +21,7 @@ module Player exposing
 import Config
     exposing
         ( full_deck
+        , starting_hand
         )
 import Dict
 import LegalMove
@@ -104,9 +105,11 @@ get_player_move_type player =
 config_player : Player
 config_player =
     let
+        -- starting_hand is usually empty, unless
+        -- we turn on dev_hack
         original_setup =
             { deck = full_deck
-            , hand = []
+            , hand = starting_hand
             , discard_pile = []
             , turn = TurnBegin
             }
@@ -409,7 +412,10 @@ replenish_hand active_color model =
         active_player =
             get_player model.players active_color
     in
-    if List.length active_player.hand == 5 then
+    if List.length active_player.hand >= 5 then
+        -- The length of the hand should never actually
+        -- exceed 5, but we want to prevent infinite loops
+        -- for dev_hack kind of stuff.
         model
 
     else

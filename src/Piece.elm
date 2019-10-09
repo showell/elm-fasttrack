@@ -9,6 +9,7 @@ module Piece exposing
 import Config
     exposing
         ( holding_pen_locations
+        , starting_locations
         )
 import Dict
 import List.Extra
@@ -74,7 +75,7 @@ config_zone_pieces color piece_map =
         assign id =
             Dict.insert ( color, id ) color
     in
-    List.foldl assign piece_map holding_pen_locations
+    List.foldl assign piece_map starting_locations
 
 
 config_pieces : List Color -> PieceDict
