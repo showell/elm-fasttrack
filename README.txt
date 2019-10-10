@@ -7,8 +7,7 @@ HOW TO BUILD:
 
 TODO:
 
-    introduce move_type into tuples (to kill Distance):
-        include StartSplit move type
+    kill Distance
 
     jack swap/kill
 

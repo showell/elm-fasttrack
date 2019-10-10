@@ -164,12 +164,8 @@ turn_need_card player piece_map zone_colors active_color =
         }
 
 
-maybe_finish_turn : PlayType -> Player -> PieceDict -> List Color -> Color -> Turn
-maybe_finish_turn play_type player piece_map zone_colors active_color =
-    let
-        card =
-            get_card_for_play_type play_type
-    in
+maybe_finish_turn : Card -> Player -> PieceDict -> List Color -> Color -> Turn
+maybe_finish_turn card player piece_map zone_colors active_color =
     if is_move_again_card card then
         turn_need_card player piece_map zone_colors active_color
 
@@ -211,69 +207,56 @@ set_turn_to_need_card active_color model =
         model
 
 
-maybe_finish_seven : PieceDict -> List Color -> Color -> Move -> Turn
-maybe_finish_seven piece_map zone_colors active_color move =
+finish_seven_split : PieceDict -> List Color -> Color -> Int -> PieceLocation -> Turn
+finish_seven_split piece_map zone_colors active_color distance end_loc =
     let
-        ( _, start_loc, end_loc ) =
-            move
+        move_count =
+            7 - distance
 
-        distance_moved =
-            distance zone_colors active_color start_loc end_loc
+        -- We exclude the piece we just moved from the subsequent split.  We
+        -- keep track of the piece by its location.
+        exclude_loc =
+            end_loc
+
+        play_type =
+            FinishSeven move_count
+
+        move_type =
+            FinishSplit move_count exclude_loc
+
+        moves =
+            get_moves_for_move_type move_type piece_map zone_colors active_color
+
+        start_locs =
+            moves
+                |> List.map (\( _, start, _ ) -> start)
+                |> Set.fromList
     in
-    if distance_moved < 7 then
-        let
-            move_count =
-                7 - distance_moved
-
-            -- We exclude the piece we just moved from the subsequent split.  We
-            -- keep track of the piece by its location.
-            exclude_loc =
-                end_loc
-
-            play_type =
-                FinishSeven move_count
-
-            move_type =
-                FinishSplit move_count exclude_loc
-
-            moves =
-                get_moves_for_move_type move_type piece_map zone_colors active_color
-
-            start_locs =
-                moves
-                    |> List.map (\( _, start, _ ) -> start)
-                    |> Set.fromList
-        in
-        TurnNeedStartLoc
-            { play_type = play_type
-            , moves = moves
-            , start_locs = start_locs
-            }
-
-    else
-        TurnDone
+    TurnNeedStartLoc
+        { play_type = play_type
+        , moves = moves
+        , start_locs = start_locs
+        }
 
 
 finish_move : PieceDict -> List Color -> Color -> Move -> Player -> Player
 finish_move piece_map zone_colors active_color move player =
-    case player.turn of
-        TurnNeedEndLoc info ->
-            let
-                play_type =
-                    info.play_type
+    let
+        ( move_type, _, end_loc ) =
+            move
 
-                turn =
-                    case play_type of
-                        PlayCard "7" ->
-                            maybe_finish_seven piece_map zone_colors active_color move
+        card =
+            get_card_for_move_type move_type
 
-                        _ ->
-                            maybe_finish_turn play_type player piece_map zone_colors active_color
-            in
-            { player | turn = turn }
+        turn =
+            case move_type of
+                StartSplit distance ->
+                    finish_seven_split piece_map zone_colors active_color distance end_loc
 
-        _ ->
-            player
+                _ ->
+                    maybe_finish_turn card player piece_map zone_colors active_color
+    in
+    { player | turn = turn }
 
 
 set_start_location : PieceLocation -> Player -> Player
@@ -494,7 +477,11 @@ finish_card active_color model =
                 (\player ->
                     let
                         possibly_finish_turn play_type =
-                            maybe_finish_turn play_type player model.piece_map model.zone_colors active_color
+                            let
+                                card =
+                                    get_card_for_play_type play_type
+                            in
+                            maybe_finish_turn card player model.piece_map model.zone_colors active_color
 
                         turn =
                             case player.turn of
