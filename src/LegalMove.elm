@@ -366,6 +366,9 @@ get_moves_from_location move_type piece_map zone_colors start_loc =
                 Reverse _ ->
                     move_count_for_card active_card id
 
+                StartSplit count ->
+                    count
+
                 FinishSplit count _ ->
                     count
 
@@ -502,10 +505,13 @@ get_moves_for_seven params =
                 let
                     other_count =
                         7 - move_count
+
+                    move_type =
+                        StartSplit move_count
                 in
                 get_locs move_count
                     |> List.filter (can_finish_split zone_colors other_locs piece_map other_count prev_loc)
-                    |> List.map (\end_loc -> ( WithCard "7", loc, end_loc ))
+                    |> List.map (\end_loc -> ( move_type, loc, end_loc ))
 
             partial_moves =
                 List.range 1 6
@@ -674,6 +680,9 @@ get_card_for_move_type move_type =
 
         Reverse card ->
             card
+
+        StartSplit _ ->
+            "7"
 
         FinishSplit _ _ ->
             "7"

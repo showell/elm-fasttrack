@@ -72,6 +72,7 @@ type PlayType
 type MoveType
     = WithCard Card
     | Reverse Card
+    | StartSplit Int
     | FinishSplit Int PieceLocation
     | JackTrade
 

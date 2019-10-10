@@ -75,6 +75,9 @@ fix_move_type move_type =
         Reverse card ->
             "R" ++ card
 
+        StartSplit count ->
+            "SS" ++ String.fromInt count
+
         FinishSplit count _ ->
             "FS" ++ String.fromInt count
 
@@ -203,12 +206,12 @@ test_get_moves_for_cards =
 
                     expected =
                         Set.fromList
-                            [ ( "7", ( "blue", "B1" ), ( "blue", "B2" ) )
-                            , ( "7", ( "blue", "B1" ), ( "blue", "B3" ) )
-                            , ( "7", ( "blue", "B1" ), ( "blue", "B4" ) )
-                            , ( "7", ( "blue", "L0" ), ( "blue", "L4" ) )
+                            [ ( "SS1", ( "blue", "B1" ), ( "blue", "B2" ) )
+                            , ( "SS2", ( "blue", "B1" ), ( "blue", "B3" ) )
+                            , ( "SS3", ( "blue", "B1" ), ( "blue", "B4" ) )
+                            , ( "SS4", ( "blue", "L0" ), ( "blue", "L4" ) )
+                            , ( "SS6", ( "blue", "L0" ), ( "green", "R4" ) )
                             , ( "7", ( "blue", "L0" ), ( "green", "R3" ) )
-                            , ( "7", ( "blue", "L0" ), ( "green", "R4" ) )
                             ]
                 in
                 moves |> Expect.equal expected
