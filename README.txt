@@ -28,8 +28,6 @@ TODO:
 
     --
 
-    consider simplifying can_go_n_spaces
-
     consider opaque type for piece
 
     maybe rename HH/DS/BR

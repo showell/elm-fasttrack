@@ -227,6 +227,16 @@ get_can_go_n_spaces piece_map loc zone_colors n =
 
 can_go_n_spaces : Bool -> Color -> PieceDict -> List Color -> Int -> PieceLocation -> Bool
 can_go_n_spaces can_fast_track piece_color piece_map zone_colors n_spaces location =
+    {--
+        This implementation may be slight overkill, as it would be easy enough
+        to just call get_next_locs with the full move count and check its length.
+
+        We get minor optimizations here insofar as we short-circuit the
+        depth-first search as soon as we find a possible path for the piece to
+        go N spaces.  Of course, most of the time there's only valid path for
+        a piece to move, so you don't save much.  Multiple paths come into
+        play when a piece starts on the fast track.
+    --}
     let
         recurse n loc =
             if n <= 0 then
@@ -260,11 +270,8 @@ can_go_n_spaces can_fast_track piece_color piece_map zone_colors n_spaces locati
                     let
                         can_go next_loc =
                             recurse (n - 1) next_loc
-
-                        all_paths =
-                            List.filter can_go locs
                     in
-                    List.length all_paths >= 1
+                    List.any can_go locs
     in
     recurse n_spaces location
 
