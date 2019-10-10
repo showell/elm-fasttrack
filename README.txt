@@ -19,6 +19,8 @@ TODO:
     fix before-turn-card experience:
         show pieces that can be moved
 
+    log moves
+
     basic undo
 
     UI to pick number of players:
@@ -26,9 +28,9 @@ TODO:
 
     --
 
-    consider opaque type for piece
+    consider simplifying can_go_n_spaces
 
-    log moves
+    consider opaque type for piece
 
     maybe rename HH/DS/BR
 
