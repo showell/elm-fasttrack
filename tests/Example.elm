@@ -48,13 +48,11 @@ test_zone_colors =
         ]
 
 
-get_params : Int -> PieceDict -> PieceLocation -> FindLocParams
-get_params moves_left piece_map loc =
+get_params : PieceDict -> FindLocParams
+get_params piece_map =
     { reverse_mode = False
     , can_fast_track = False
     , can_leave_pen = False
-    , moves_left = moves_left
-    , loc = loc
     , piece_color = "blue"
     , piece_map = piece_map
     , zone_colors = zone_colors
@@ -368,12 +366,15 @@ test_end_locs =
                         Dict.empty
 
                     params =
-                        get_params 8 piece_map ( "red", "L1" )
+                        get_params piece_map
+
+                    loc =
+                        ( "red", "L1" )
 
                     expected =
                         Set.fromList [ ( "blue", "R1" ) ]
                 in
-                end_locations params
+                end_locations params loc 8
                     |> Set.fromList
                     |> Expect.equal expected
         , test "seven full" <|
@@ -463,12 +464,15 @@ test_end_locs =
                             |> Dict.insert ( "blue", "R3" ) "blue"
 
                     params =
-                        get_params 8 piece_map ( "red", "L1" )
+                        get_params piece_map
+
+                    loc =
+                        ( "red", "L1" )
 
                     expected =
                         Set.empty
                 in
-                end_locations params
+                end_locations params loc 8
                     |> Set.fromList
                     |> Expect.equal expected
         ]

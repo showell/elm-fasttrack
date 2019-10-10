@@ -185,15 +185,13 @@ can_go_n_spaces can_fast_track piece_color piece_map zone_colors n_spaces locati
                         { reverse_mode = False
                         , can_fast_track = can_fast_track
                         , can_leave_pen = False
-                        , moves_left = 1
-                        , loc = loc
                         , piece_color = piece_color
                         , piece_map = piece_map
                         , zone_colors = zone_colors
                         }
 
                     locs =
-                        get_next_locs params
+                        get_next_locs params loc
                 in
                 if n == 1 then
                     if List.length locs >= 1 then
@@ -312,8 +310,6 @@ get_moves_from_location move_type piece_map zone_colors start_loc =
                 { reverse_mode = reverse_mode
                 , can_fast_track = can_fast_track
                 , can_leave_pen = can_leave_pen
-                , moves_left = moves_left
-                , loc = start_loc
                 , piece_color = piece_color
                 , piece_map = piece_map
                 , zone_colors = zone_colors
@@ -324,13 +320,13 @@ get_moves_from_location move_type piece_map zone_colors start_loc =
                 ( move_type, start_loc, end_loc )
         in
         if move_type == WithCard "7" then
-            get_moves_for_seven params
+            get_moves_for_seven params start_loc
 
         else if move_type == WithCard "J" then
-            get_moves_for_jack params
+            get_moves_for_jack params start_loc
 
         else
-            end_locations params
+            end_locations params start_loc moves_left
                 |> List.map make_move
 
     else
@@ -351,20 +347,20 @@ can_finish_split zone_colors other_locs piece_map count move =
         |> List.any can_go
 
 
-get_moves_for_jack : FindLocParams -> List Move
-get_moves_for_jack params =
+get_moves_for_jack : FindLocParams -> PieceLocation -> List Move
+get_moves_for_jack params start_loc =
     let
         piece_map =
             params.piece_map
 
-        start_loc =
-            params.loc
-
         piece_color =
             get_the_piece piece_map start_loc
 
+        moves_left =
+            1
+
         forward_moves =
-            end_locations params
+            end_locations params start_loc moves_left
                 |> List.map (\end_loc -> ( WithCard "J", start_loc, end_loc ))
 
         trade_moves =
@@ -379,14 +375,11 @@ get_moves_for_jack params =
     List.concat [ forward_moves, trade_moves ]
 
 
-get_moves_for_seven : FindLocParams -> List Move
-get_moves_for_seven params =
+get_moves_for_seven : FindLocParams -> PieceLocation -> List Move
+get_moves_for_seven params start_loc =
     let
         piece_map =
             params.piece_map
-
-        start_loc =
-            params.loc
 
         zone_colors =
             params.zone_colors
@@ -396,10 +389,7 @@ get_moves_for_seven params =
 
         get_locs : Int -> List PieceLocation
         get_locs move_count =
-            end_locations
-                { params
-                    | moves_left = move_count
-                }
+            end_locations params start_loc move_count
 
         full_moves =
             get_locs 7
@@ -436,12 +426,8 @@ get_moves_for_seven params =
         partial_moves ++ full_moves
 
 
-end_locations : FindLocParams -> List PieceLocation
-end_locations params =
-    let
-        moves_left =
-            params.moves_left
-    in
+end_locations : FindLocParams -> PieceLocation -> Int -> List PieceLocation
+end_locations params start_loc moves_left =
     if moves_left < 1 then
         -- impossible
         []
@@ -450,10 +436,10 @@ end_locations params =
         let
             locs =
                 if params.reverse_mode then
-                    get_prev_locs params
+                    get_prev_locs params start_loc
 
                 else
-                    get_next_locs params
+                    get_next_locs params start_loc
         in
         if moves_left == 1 then
             locs
@@ -461,22 +447,15 @@ end_locations params =
         else
             let
                 recurse loc_ =
-                    end_locations
-                        { params
-                            | moves_left = moves_left - 1
-                            , loc = loc_
-                        }
+                    end_locations params loc_ (moves_left - 1)
             in
             List.map recurse locs
                 |> List.concat
 
 
-get_next_locs : FindLocParams -> List PieceLocation
-get_next_locs params =
+get_next_locs : FindLocParams -> PieceLocation -> List PieceLocation
+get_next_locs params loc =
     let
-        loc =
-            params.loc
-
         ( zone_color, id ) =
             loc
 
@@ -533,12 +512,9 @@ get_next_locs params =
             |> filter
 
 
-get_prev_locs : FindLocParams -> List PieceLocation
-get_prev_locs params =
+get_prev_locs : FindLocParams -> PieceLocation -> List PieceLocation
+get_prev_locs params loc =
     let
-        loc =
-            params.loc
-
         ( zone_color, id ) =
             loc
 

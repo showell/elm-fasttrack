@@ -131,8 +131,6 @@ type alias FindLocParams =
     { can_fast_track : Bool
     , can_leave_pen : Bool
     , reverse_mode : Bool
-    , moves_left : Int
-    , loc : PieceLocation
     , piece_color : Color
     , piece_map : PieceDict
     , zone_colors : List Color
