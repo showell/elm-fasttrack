@@ -107,10 +107,6 @@ seed_from_time time =
     Random.initialSeed (Time.posixToMillis time)
 
 
-
--- TODO: just put this on model
-
-
 get_active_color : List Color -> Color
 get_active_color zone_colors =
     -- appease compiler with Maybe
