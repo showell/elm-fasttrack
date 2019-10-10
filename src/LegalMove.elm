@@ -96,12 +96,10 @@ has_piece_on_fast_track piece_map active_color =
     let
         is_ft ( _, id ) =
             id == "FT"
-
-        locs =
-            my_pieces piece_map active_color
-                |> Set.filter is_ft
     in
-    Set.size locs >= 1
+    my_pieces piece_map active_color
+        |> Set.toList
+        |> List.any is_ft
 
 
 next_zone_color : Color -> List Color -> Color
@@ -195,7 +193,7 @@ can_go_n_spaces can_fast_track piece_color piece_map zone_colors n_spaces locati
                         }
 
                     locs =
-                        get_next_locs params |> Set.toList
+                        get_next_locs params
                 in
                 if n == 1 then
                     if List.length locs >= 1 then
@@ -333,7 +331,6 @@ get_moves_from_location move_type piece_map zone_colors start_loc =
 
         else
             end_locations params
-                |> Set.toList
                 |> List.map make_move
 
     else
@@ -368,7 +365,6 @@ get_moves_for_jack params =
 
         forward_moves =
             end_locations params
-                |> Set.toList
                 |> List.map (\end_loc -> ( WithCard "J", start_loc, end_loc ))
 
         trade_moves =
@@ -404,7 +400,6 @@ get_moves_for_seven params =
                 { params
                     | moves_left = move_count
                 }
-                |> Set.toList
 
         full_moves =
             get_locs 7
@@ -441,7 +436,7 @@ get_moves_for_seven params =
         partial_moves ++ full_moves
 
 
-end_locations : FindLocParams -> Set.Set PieceLocation
+end_locations : FindLocParams -> List PieceLocation
 end_locations params =
     let
         moves_left =
@@ -449,7 +444,7 @@ end_locations params =
     in
     if moves_left < 1 then
         -- impossible
-        Set.empty
+        []
 
     else
         let
@@ -471,12 +466,12 @@ end_locations params =
                             | moves_left = moves_left - 1
                             , loc = loc_
                         }
-                        |> Set.toList
             in
-            List.map recurse (Set.toList locs) |> List.concat |> Set.fromList
+            List.map recurse locs
+                |> List.concat
 
 
-get_next_locs : FindLocParams -> Set.Set PieceLocation
+get_next_locs : FindLocParams -> List PieceLocation
 get_next_locs params =
     let
         loc =
@@ -507,14 +502,15 @@ get_next_locs params =
             is_loc_free piece_map piece_color loc_
 
         filter lst =
-            lst |> List.filter is_free |> Set.fromList
+            lst
+                |> List.filter is_free
     in
     if is_holding_pen_id id then
         if can_leave_pen then
             filter [ ( zone_color, "L0" ) ]
 
         else
-            Set.empty
+            []
 
     else if id == "FT" then
         if can_fast_track && (next_color /= piece_color) then
@@ -537,7 +533,7 @@ get_next_locs params =
             |> filter
 
 
-get_prev_locs : FindLocParams -> Set.Set PieceLocation
+get_prev_locs : FindLocParams -> List PieceLocation
 get_prev_locs params =
     let
         loc =
@@ -562,13 +558,14 @@ get_prev_locs params =
             is_loc_free piece_map piece_color loc_
 
         filter lst =
-            lst |> List.filter is_free |> Set.fromList
+            lst
+                |> List.filter is_free
     in
     if is_holding_pen_id id then
-        Set.empty
+        []
 
     else if is_base_id id then
-        Set.empty
+        []
 
     else if id == "R4" then
         filter [ ( prev_color, "FT" ) ]

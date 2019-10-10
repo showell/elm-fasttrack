@@ -374,6 +374,7 @@ test_end_locs =
                         Set.fromList [ ( "blue", "R1" ) ]
                 in
                 end_locations params
+                    |> Set.fromList
                     |> Expect.equal expected
         , test "seven full" <|
             \_ ->
@@ -468,6 +469,7 @@ test_end_locs =
                         Set.empty
                 in
                 end_locations params
+                    |> Set.fromList
                     |> Expect.equal expected
         ]
 
