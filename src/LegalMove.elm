@@ -303,23 +303,7 @@ get_moves_from_location move_type piece_map zone_colors start_loc =
                     active_card == "4"
 
         moves_left =
-            -- TODO: extract this to function
-            case move_type of
-                WithCard _ ->
-                    move_count_for_card active_card id
-
-                Reverse _ ->
-                    move_count_for_card active_card id
-
-                StartSplit count ->
-                    count
-
-                FinishSplit count _ ->
-                    count
-
-                JackTrade ->
-                    -- we handle J trades elsewhere
-                    0
+            move_count_for_move_type move_type id
 
         can_move =
             can_fast_track || not (has_piece_on_fast_track piece_map piece_color)
@@ -634,6 +618,26 @@ get_card_for_move_type move_type =
 
         JackTrade ->
             "J"
+
+
+move_count_for_move_type : MoveType -> String -> Int
+move_count_for_move_type move_type id =
+    case move_type of
+        WithCard card ->
+            move_count_for_card card id
+
+        Reverse card ->
+            move_count_for_card card id
+
+        StartSplit count ->
+            count
+
+        FinishSplit count _ ->
+            count
+
+        JackTrade ->
+            -- we never call this for J trades
+            0
 
 
 is_loc_free : PieceDict -> Color -> PieceLocation -> Bool
