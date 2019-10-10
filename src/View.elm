@@ -152,7 +152,7 @@ board_view piece_map zone_colors active_player active_color =
             end_locs_for_player active_player
 
         content =
-            List.map (draw_zone piece_map start_locs end_locs active_color start_location zone_colors) zone_colors
+            List.indexedMap (draw_zone piece_map start_locs end_locs active_color start_location zone_colors) zone_colors
 
         board_size =
             String.fromFloat (2 * get_zone_height zone_colors + 3 * square_size)
@@ -160,21 +160,6 @@ board_view piece_map zone_colors active_player active_color =
     svg
         [ width board_size, height board_size ]
         content
-
-
-zone_index : Color -> List Color -> Int
-zone_index x lst =
-    case lst of
-        [] ->
-            -- should never happen, just appease compiler
-            -1
-
-        first :: rest ->
-            if first == x then
-                0
-
-            else
-                1 + zone_index x rest
 
 
 get_angle : List Color -> Float
@@ -197,14 +182,11 @@ get_zone_height zone_colors =
     num_squares * square_size
 
 
-draw_zone : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> List Color -> Color -> Html Msg
-draw_zone piece_map start_locs end_locs active_color start_location zone_colors zone_color =
+draw_zone : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> List Color -> Int -> Color -> Html Msg
+draw_zone piece_map start_locs end_locs active_color start_location zone_colors idx zone_color =
     let
         locations =
             config_locations
-
-        idx =
-            zone_index zone_color zone_colors
 
         angle =
             toFloat idx * get_angle zone_colors
