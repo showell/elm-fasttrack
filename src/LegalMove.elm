@@ -23,6 +23,11 @@ import Config
         , prev_id_in_zone
         )
 import Dict
+import Graph
+    exposing
+        ( can_travel_n_edges
+        , get_nodes_n_edges_away
+        )
 import List.Extra
 import Piece
     exposing
@@ -155,59 +160,23 @@ get_can_go_n_spaces piece_map loc zone_colors n =
             can_fast_track || not (has_piece_on_fast_track piece_map piece_color)
     in
     if can_move then
-        can_go_n_spaces can_fast_track piece_color piece_map zone_colors n loc
+        let
+            params =
+                { reverse_mode = False
+                , can_fast_track = can_fast_track
+                , can_leave_pen = False
+                , piece_color = piece_color
+                , piece_map = piece_map
+                , zone_colors = zone_colors
+                }
+
+            get_neighbors =
+                get_next_locs params
+        in
+        Graph.can_travel_n_edges get_neighbors n loc
 
     else
         False
-
-
-can_go_n_spaces : Bool -> Color -> PieceDict -> List Color -> Int -> PieceLocation -> Bool
-can_go_n_spaces can_fast_track piece_color piece_map zone_colors n_spaces location =
-    {--
-        This implementation may be slight overkill, as it would be easy enough
-        to just call get_next_locs with the full move count and check its length.
-
-        We get minor optimizations here insofar as we short-circuit the
-        depth-first search as soon as we find a possible path for the piece to
-        go N spaces.  Of course, most of the time there's only valid path for
-        a piece to move, so you don't save much.  Multiple paths come into
-        play when a piece starts on the fast track.
-    --}
-    let
-        recurse n loc =
-            if n <= 0 then
-                -- impossible
-                False
-
-            else
-                let
-                    params =
-                        { reverse_mode = False
-                        , can_fast_track = can_fast_track
-                        , can_leave_pen = False
-                        , piece_color = piece_color
-                        , piece_map = piece_map
-                        , zone_colors = zone_colors
-                        }
-
-                    locs =
-                        get_next_locs params loc
-                in
-                if n == 1 then
-                    if List.length locs >= 1 then
-                        True
-
-                    else
-                        False
-
-                else
-                    let
-                        can_go next_loc =
-                            recurse (n - 1) next_loc
-                    in
-                    List.any can_go locs
-    in
-    recurse n_spaces location
 
 
 get_moves_for_cards : Set.Set Card -> PieceDict -> List Color -> Color -> List Move
@@ -428,29 +397,15 @@ get_moves_for_seven params start_loc =
 
 end_locations : FindLocParams -> PieceLocation -> Int -> List PieceLocation
 end_locations params start_loc moves_left =
-    if moves_left < 1 then
-        -- impossible
-        []
+    let
+        get_neighbors =
+            if params.reverse_mode then
+                get_prev_locs params
 
-    else
-        let
-            locs =
-                if params.reverse_mode then
-                    get_prev_locs params start_loc
-
-                else
-                    get_next_locs params start_loc
-        in
-        if moves_left == 1 then
-            locs
-
-        else
-            let
-                recurse loc_ =
-                    end_locations params loc_ (moves_left - 1)
-            in
-            List.map recurse locs
-                |> List.concat
+            else
+                get_next_locs params
+    in
+    Graph.get_nodes_n_edges_away get_neighbors moves_left start_loc
 
 
 get_next_locs : FindLocParams -> PieceLocation -> List PieceLocation
