@@ -340,28 +340,18 @@ get_moves_from_location move_type piece_map zone_colors start_loc =
         []
 
 
-can_finish_split : List Color -> Set.Set PieceLocation -> PieceDict -> Int -> PieceLocation -> PieceLocation -> Bool
-can_finish_split zone_colors other_locs piece_map count start_loc end_loc =
+can_finish_split : List Color -> Set.Set PieceLocation -> PieceDict -> Int -> Move -> Bool
+can_finish_split zone_colors other_locs piece_map count move =
     let
-        -- TODO: pass in move_type when we have StartSplit
-        --       (it's essentially ignored now, but that
-        --       may change)
-        move_type =
-            WithCard "7"
-
-        move =
-            ( move_type, start_loc, end_loc )
-
         modified_piece_map =
             move_piece move piece_map
 
         can_go other_loc =
             get_can_go_n_spaces modified_piece_map other_loc zone_colors count
-
-        other_movable_locs =
-            other_locs |> Set.toList |> List.filter can_go
     in
-    List.length other_movable_locs > 0
+    other_locs
+        |> Set.toList
+        |> List.any can_go
 
 
 get_moves_for_jack : FindLocParams -> List Move
@@ -399,15 +389,16 @@ get_moves_for_seven params =
         piece_map =
             params.piece_map
 
-        loc =
+        start_loc =
             params.loc
 
         zone_colors =
             params.zone_colors
 
         piece_color =
-            get_the_piece piece_map loc
+            get_the_piece piece_map start_loc
 
+        get_locs : Int -> List PieceLocation
         get_locs move_count =
             end_locations
                 { params
@@ -417,19 +408,16 @@ get_moves_for_seven params =
 
         full_moves =
             get_locs 7
-                |> List.map (\end_loc -> ( WithCard "7", loc, end_loc ))
+                |> List.map (\end_loc -> ( WithCard "7", start_loc, end_loc ))
 
         other_locs =
-            other_mobile_pieces piece_map piece_color loc
+            other_mobile_pieces piece_map piece_color start_loc
     in
     if Set.size other_locs == 0 then
         full_moves
 
     else
         let
-            prev_loc =
-                loc
-
             get_partial_moves move_count =
                 let
                     other_count =
@@ -437,10 +425,13 @@ get_moves_for_seven params =
 
                     move_type =
                         StartSplit move_count
+
+                    candidate_moves =
+                        get_locs move_count
+                            |> List.map (\end_loc -> ( move_type, start_loc, end_loc ))
                 in
-                get_locs move_count
-                    |> List.filter (can_finish_split zone_colors other_locs piece_map other_count prev_loc)
-                    |> List.map (\end_loc -> ( move_type, loc, end_loc ))
+                candidate_moves
+                    |> List.filter (can_finish_split zone_colors other_locs piece_map other_count)
 
             partial_moves =
                 List.range 1 6

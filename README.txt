@@ -7,6 +7,8 @@ HOW TO BUILD:
 
 TODO:
 
+    take move_count out of params
+
     jack swap/kill
 
     get-out pile (and cover)
