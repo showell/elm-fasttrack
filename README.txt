@@ -7,11 +7,9 @@ HOW TO BUILD:
 
 TODO:
 
-    kill Distance
-
     jack swap/kill
 
-    get-out pile:
+    get-out pile (and cover)
         build credits
         also make clicks more rigorous
 
@@ -26,6 +24,8 @@ TODO:
         clean up Msg/Model to have game vs. setup
 
     --
+
+    consider extracting generic graph traversal
 
     consider opaque type for piece
 

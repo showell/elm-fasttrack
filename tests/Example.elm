@@ -4,8 +4,7 @@ import Dict
 import Expect exposing (Expectation)
 import LegalMove
     exposing
-        ( distance
-        , end_locations
+        ( end_locations
         , get_can_go_n_spaces
         , get_moves_for_cards
         , get_moves_for_move_type
@@ -350,100 +349,6 @@ test_other_mobile_pieces =
                             ]
                 in
                 locs |> Expect.equal expected
-        ]
-
-
-test_distance : Test
-test_distance =
-    Test.concat
-        [ test "basic distance" <|
-            \_ ->
-                let
-                    start_loc =
-                        ( "blue", "L1" )
-
-                    end_loc =
-                        ( "blue", "L4" )
-                in
-                distance zone_colors "blue" start_loc end_loc
-                    |> Expect.equal 3
-        , test "backward" <|
-            \_ ->
-                let
-                    start_loc =
-                        ( "blue", "R0" )
-
-                    end_loc =
-                        ( "blue", "R4" )
-                in
-                distance zone_colors "blue" start_loc end_loc
-                    |> Expect.equal 99
-        , test "backward around corner" <|
-            \_ ->
-                let
-                    start_loc =
-                        ( "blue", "R3" )
-
-                    end_loc =
-                        ( "red", "DS" )
-                in
-                distance zone_colors "blue" start_loc end_loc
-                    |> Expect.equal 99
-        , test "start fasttrack" <|
-            \_ ->
-                let
-                    start_loc =
-                        ( "blue", "FT" )
-
-                    end_loc =
-                        ( "blue", "R3" )
-                in
-                distance zone_colors "blue" start_loc end_loc
-                    |> Expect.equal 4
-        , test "start holding pen" <|
-            \_ ->
-                let
-                    start_loc =
-                        ( "red", "HP3" )
-
-                    end_loc =
-                        ( "red", "L0" )
-                in
-                distance zone_colors "blue" start_loc end_loc
-                    |> Expect.equal 1
-        , test "rounding corner" <|
-            \_ ->
-                let
-                    start_loc =
-                        ( "red", "L4" )
-
-                    end_loc =
-                        ( "blue", "R0" )
-                in
-                distance zone_colors "blue" start_loc end_loc
-                    |> Expect.equal 6
-        , test "approaching base" <|
-            \_ ->
-                let
-                    start_loc =
-                        ( "blue", "BR" )
-
-                    end_loc =
-                        ( "blue", "DS" )
-                in
-                distance zone_colors "blue" start_loc end_loc
-                    |> Expect.equal 1
-        , test "entering base" <|
-            \_ ->
-                let
-                    start_loc =
-                        ( "red", "L4" )
-
-                    end_loc =
-                        ( "blue", "B2" )
-                in
-                distance zone_colors "blue" start_loc end_loc
-                    |> Expect.equal 10
         ]
 
 

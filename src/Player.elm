@@ -25,8 +25,7 @@ import Config
 import Dict
 import LegalMove
     exposing
-        ( distance
-        , get_card_for_move_type
+        ( get_card_for_move_type
         , get_card_for_play_type
         , get_moves_for_cards
         , get_moves_for_move_type
