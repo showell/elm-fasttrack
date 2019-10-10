@@ -394,9 +394,7 @@ get_moves_from_location move_type piece_map zone_colors start_loc =
                 ( move_type, start_loc, end_loc )
         in
         if move_type == WithCard "7" then
-            end_locations_for_seven params
-                |> Set.toList
-                |> List.map make_move
+            get_moves_for_seven params
 
         else if move_type == WithCard "J" then
             get_moves_for_jack params
@@ -463,8 +461,8 @@ get_moves_for_jack params =
     List.concat [ forward_moves, trade_moves ]
 
 
-end_locations_for_seven : FindLocParams -> Set.Set PieceLocation
-end_locations_for_seven params =
+get_moves_for_seven : FindLocParams -> List Move
+get_moves_for_seven params =
     let
         piece_map =
             params.piece_map
@@ -485,34 +483,36 @@ end_locations_for_seven params =
                 }
                 |> Set.toList
 
-        full_locs =
+        full_moves =
             get_locs 7
+                |> List.map (\end_loc -> ( WithCard "7", loc, end_loc ))
 
         other_locs =
             other_mobile_pieces piece_map piece_color loc
     in
     if Set.size other_locs == 0 then
-        full_locs |> Set.fromList
+        full_moves
 
     else
         let
             prev_loc =
                 loc
 
-            get_partial_locs move_count =
+            get_partial_moves move_count =
                 let
                     other_count =
                         7 - move_count
                 in
                 get_locs move_count
                     |> List.filter (can_finish_split zone_colors other_locs piece_map other_count prev_loc)
+                    |> List.map (\end_loc -> ( WithCard "7", loc, end_loc ))
 
-            partial_locs =
+            partial_moves =
                 List.range 1 6
-                    |> List.map get_partial_locs
+                    |> List.map get_partial_moves
                     |> List.concat
         in
-        partial_locs ++ full_locs |> Set.fromList
+        partial_moves ++ full_moves
 
 
 end_locations : FindLocParams -> Set.Set PieceLocation
