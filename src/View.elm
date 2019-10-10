@@ -152,26 +152,34 @@ board_view piece_map zone_colors active_player active_color =
             end_locs_for_player active_player
 
         content =
-            List.indexedMap (draw_zone piece_map start_locs end_locs active_color start_location zone_colors) zone_colors
+            List.map (draw_zone piece_map start_locs end_locs active_color start_location zone_colors) zone_colors
+                |> make_polygon
+                |> nudge
+
+        side_count =
+            List.length zone_colors
+
+        zone_height =
+            get_zone_height side_count
 
         board_size =
-            String.fromFloat (2 * get_zone_height zone_colors + 3 * square_size)
+            String.fromFloat (2 * zone_height + 3 * square_size)
     in
     svg
         [ width board_size, height board_size ]
-        content
+        [ content ]
 
 
-get_angle : List Color -> Float
-get_angle zone_colors =
-    360.0 / toFloat (List.length zone_colors)
+get_angle : Int -> Float
+get_angle side_count =
+    360.0 / toFloat side_count
 
 
-get_zone_height : List Color -> Float
-get_zone_height zone_colors =
+get_zone_height : Int -> Float
+get_zone_height side_count =
     let
         angle =
-            get_angle zone_colors
+            get_angle side_count
 
         half_angle =
             angle / 2 |> degrees
@@ -182,37 +190,69 @@ get_zone_height zone_colors =
     num_squares * square_size
 
 
-draw_zone : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> List Color -> Int -> Color -> Html Msg
-draw_zone piece_map start_locs end_locs active_color start_location zone_colors idx zone_color =
+draw_zone : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> List Color -> Color -> Html Msg
+draw_zone piece_map start_locs end_locs active_color start_location zone_colors zone_color =
     let
         locations =
             config_locations
 
-        angle =
-            toFloat idx * get_angle zone_colors
+        side_count =
+            List.length zone_colors
 
         zone_height =
-            get_zone_height zone_colors
-
-        color =
-            zone_color
-
-        center =
-            String.fromFloat (zone_height + square_size)
-
-        translate =
-            "translate(" ++ center ++ " " ++ center ++ ")"
-
-        rotate =
-            "rotate(" ++ String.fromFloat angle ++ ")"
-
-        transform_ =
-            translate ++ " " ++ rotate
+            get_zone_height side_count
 
         drawn_locations =
-            List.map (location_view zone_height piece_map color start_locs end_locs active_color start_location) locations
+            List.map (location_view zone_height piece_map zone_color start_locs end_locs active_color start_location) locations
     in
-    g [ transform transform_ ] drawn_locations
+    g [] drawn_locations
+
+
+make_polygon : List (Svg.Svg Msg) -> Svg.Svg Msg
+make_polygon panels =
+    let
+        side_count =
+            List.length panels
+
+        arrange_one_panel idx panel =
+            let
+                angle =
+                    toFloat idx * get_angle side_count
+
+                zone_height =
+                    get_zone_height side_count
+
+                center =
+                    String.fromFloat zone_height
+
+                translate =
+                    "translate(" ++ center ++ " " ++ center ++ ")"
+
+                rotate =
+                    "rotate(" ++ String.fromFloat angle ++ ")"
+
+                transform_ =
+                    translate ++ " " ++ rotate
+            in
+            g [ transform transform_ ] [ panel ]
+
+        new_panels =
+            panels
+                |> List.indexedMap arrange_one_panel
+    in
+    g [] new_panels
+
+
+nudge : Svg.Svg Msg -> Svg.Svg Msg
+nudge board =
+    let
+        offset =
+            String.fromFloat square_size
+
+        translate =
+            "translate(" ++ offset ++ " " ++ offset ++ ")"
+    in
+    g [ transform translate ] [ board ]
 
 
 location_view : Float -> PieceDict -> String -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html Msg
