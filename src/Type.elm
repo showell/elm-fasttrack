@@ -48,7 +48,6 @@ type alias PieceDict =
 
 
 
--- TODO: eliminate Force once we pass around move types rigorously
 {--
     Why do we have PlayType and MoveType, instead of just a single
     type?
@@ -75,7 +74,6 @@ type MoveType
     | Reverse Card
     | FinishSplit Int PieceLocation
     | JackTrade
-    | Force
 
 
 type alias Move =

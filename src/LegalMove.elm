@@ -373,9 +373,6 @@ get_moves_from_location move_type piece_map zone_colors start_loc =
                     -- we handle J trades elsewhere
                     0
 
-                Force ->
-                    0
-
         can_move =
             can_fast_track || not (has_piece_on_fast_track piece_map piece_color)
     in
@@ -683,9 +680,6 @@ get_card_for_move_type move_type =
 
         JackTrade ->
             "J"
-
-        Force ->
-            "unknown"
 
 
 is_loc_free : PieceDict -> Color -> PieceLocation -> Bool
