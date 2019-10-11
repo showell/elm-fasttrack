@@ -1,5 +1,5 @@
 module Polygon exposing
-    ( get_full_height
+    ( get_center_offset
     , make_polygon
     )
 
@@ -11,21 +11,6 @@ import Svg.Attributes
     exposing
         ( transform
         )
-
-
-
-{--
-
-TODO:
-
-I am not completely happy with the API here yet.  I don't want the callers
-to be concerned with get_full_height.  Instead, I want to let them always
-work in the same coordinate space, and I'll translate the SVG pieces as
-necessary away from the origin, rather than having my app views do their
-own arithmetic.  I also want to explain better what I'm doing here in
-general, haha.
-
---}
 
 
 get_angle : Int -> Float
@@ -47,27 +32,50 @@ incircle_radius side_count panel_width =
     half_side / tan angle
 
 
-get_full_height : Int -> Float -> Float -> Float
-get_full_height side_count panel_width panel_height =
+get_center_offset : Int -> Float -> Float -> Float
+get_center_offset side_count panel_width panel_height =
     panel_height + incircle_radius side_count panel_width
 
 
 make_polygon : Float -> Float -> List (Svg.Svg msg) -> Svg.Svg msg
 make_polygon panel_width panel_height panels =
+    {--
+        This function takes N svg elements (which I call panels) and
+        arrange them in a sort of circular fashion so that the edges
+        of the panels form a polygon of N sides around some center
+        point.  Based on the width of the panels, we align the
+        corners automatically.
+
+        The nice thing is that you can draw the original panels
+        without thinking about the eventual rotation.
+
+        We expect the (0, 0) coordinate to be on the middle of
+        the side of the eventual polygon.
+    --}
     let
         side_count =
             List.length panels
+
+        pad_one_panel idx panel =
+            let
+                offset =
+                    incircle_radius side_count panel_width
+
+                translate =
+                    "translate(0 " ++ String.fromFloat offset ++ ")"
+            in
+            g [ transform translate ] [ panel ]
 
         arrange_one_panel idx panel =
             let
                 angle =
                     toFloat idx * get_angle side_count
 
-                full_height =
-                    get_full_height side_count panel_width panel_height
+                center_offset =
+                    get_center_offset side_count panel_width panel_height
 
                 center =
-                    String.fromFloat full_height
+                    String.fromFloat center_offset
 
                 translate =
                     "translate(" ++ center ++ " " ++ center ++ ")"
@@ -82,6 +90,7 @@ make_polygon panel_width panel_height panels =
 
         new_panels =
             panels
+                |> List.indexedMap pad_one_panel
                 |> List.indexedMap arrange_one_panel
     in
     g [] new_panels

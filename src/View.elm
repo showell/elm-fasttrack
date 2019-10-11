@@ -45,7 +45,7 @@ import Player
         )
 import Polygon
     exposing
-        ( get_full_height
+        ( get_center_offset
         , make_polygon
         )
 import Set
@@ -164,11 +164,11 @@ board_view piece_map zone_colors active_player active_color =
         side_count =
             List.length zone_colors
 
-        full_height =
-            get_full_height side_count panel_width panel_height
+        center_offset =
+            get_center_offset side_count panel_width panel_height
 
         board_size =
-            String.fromFloat (2 * full_height + 3 * square_size)
+            String.fromFloat (2 * center_offset + 3 * square_size)
     in
     svg
         [ width board_size, height board_size ]
@@ -206,17 +206,14 @@ zone_view piece_map start_locs end_locs active_color start_location zone_colors 
         side_count =
             List.length zone_colors
 
-        full_height =
-            get_full_height side_count panel_width panel_height
-
         drawn_locations =
-            List.map (location_view full_height piece_map zone_color start_locs end_locs active_color start_location) locations
+            List.map (location_view piece_map zone_color start_locs end_locs active_color start_location) locations
     in
     g [] drawn_locations
 
 
-location_view : Float -> PieceDict -> String -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html Msg
-location_view full_height piece_map zone_color start_locs end_locs active_color selected_location location_info =
+location_view : PieceDict -> String -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html Msg
+location_view piece_map zone_color start_locs end_locs active_color selected_location location_info =
     let
         id =
             location_info.id
@@ -237,7 +234,7 @@ location_view full_height piece_map zone_color start_locs end_locs active_color 
             location_info.x * square_size
 
         cy_ =
-            full_height - (location_info.y * square_size)
+            panel_height - (location_info.y * square_size)
 
         xpos =
             cx_ - w / 2
