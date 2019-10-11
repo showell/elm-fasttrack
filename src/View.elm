@@ -159,35 +159,25 @@ board_view piece_map zone_colors active_player active_color =
         side_count =
             List.length zone_colors
 
-        zone_height =
-            get_zone_height side_count
+        full_height =
+            get_full_height side_count panel_width panel_height
 
         board_size =
-            String.fromFloat (2 * zone_height + 3 * square_size)
+            String.fromFloat (2 * full_height + 3 * square_size)
     in
     svg
         [ width board_size, height board_size ]
         [ content ]
 
 
-get_angle : Int -> Float
-get_angle side_count =
-    360.0 / toFloat side_count
+panel_width : Float
+panel_width =
+    4 * square_size
 
 
-get_zone_height : Int -> Float
-get_zone_height side_count =
-    let
-        angle =
-            get_angle side_count
-
-        half_angle =
-            angle / 2 |> degrees
-
-        num_squares =
-            5 + (2.0 / tan half_angle)
-    in
-    num_squares * square_size
+panel_height : Float
+panel_height =
+    5 * square_size
 
 
 draw_zone : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> List Color -> Color -> Html Msg
@@ -199,13 +189,37 @@ draw_zone piece_map start_locs end_locs active_color start_location zone_colors 
         side_count =
             List.length zone_colors
 
-        zone_height =
-            get_zone_height side_count
+        full_height =
+            get_full_height side_count panel_width panel_height
 
         drawn_locations =
-            List.map (location_view zone_height piece_map zone_color start_locs end_locs active_color start_location) locations
+            List.map (location_view full_height piece_map zone_color start_locs end_locs active_color start_location) locations
     in
     g [] drawn_locations
+
+
+get_angle : Int -> Float
+get_angle side_count =
+    360.0 / toFloat side_count
+
+
+incircle_radius : Int -> Float -> Float
+incircle_radius side_count side_width =
+    let
+        angle =
+            180.0
+                / toFloat side_count
+                |> degrees
+
+        half_side =
+            side_width / 2
+    in
+    half_side / tan angle
+
+
+get_full_height : Int -> Float -> Float -> Float
+get_full_height side_count side_width zone_height =
+    zone_height + incircle_radius side_count side_width
 
 
 make_polygon : List (Svg.Svg Msg) -> Svg.Svg Msg
@@ -219,11 +233,11 @@ make_polygon panels =
                 angle =
                     toFloat idx * get_angle side_count
 
-                zone_height =
-                    get_zone_height side_count
+                full_height =
+                    get_full_height side_count panel_width panel_height
 
                 center =
-                    String.fromFloat zone_height
+                    String.fromFloat full_height
 
                 translate =
                     "translate(" ++ center ++ " " ++ center ++ ")"
@@ -256,7 +270,7 @@ nudge board =
 
 
 location_view : Float -> PieceDict -> String -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html Msg
-location_view zone_height piece_map zone_color start_locs end_locs active_color selected_location location_info =
+location_view full_height piece_map zone_color start_locs end_locs active_color selected_location location_info =
     let
         id =
             location_info.id
@@ -277,7 +291,7 @@ location_view zone_height piece_map zone_color start_locs end_locs active_color 
             location_info.x * square_size
 
         cy_ =
-            zone_height - (location_info.y * square_size)
+            full_height - (location_info.y * square_size)
 
         xpos =
             cx_ - w / 2
