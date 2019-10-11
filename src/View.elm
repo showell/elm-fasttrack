@@ -157,7 +157,7 @@ board_view piece_map zone_colors active_player active_color =
             end_locs_for_player active_player
 
         content =
-            List.map (draw_zone piece_map start_locs end_locs active_color start_location zone_colors) zone_colors
+            List.map (zone_view piece_map start_locs end_locs active_color start_location zone_colors) zone_colors
                 |> make_polygon panel_width panel_height
                 |> nudge
 
@@ -185,8 +185,20 @@ panel_height =
     5 * square_size
 
 
-draw_zone : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> List Color -> Color -> Html Msg
-draw_zone piece_map start_locs end_locs active_color start_location zone_colors zone_color =
+nudge : Svg.Svg Msg -> Svg.Svg Msg
+nudge board =
+    let
+        offset =
+            String.fromFloat square_size
+
+        translate =
+            "translate(" ++ offset ++ " " ++ offset ++ ")"
+    in
+    g [ transform translate ] [ board ]
+
+
+zone_view : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> List Color -> Color -> Html Msg
+zone_view piece_map start_locs end_locs active_color start_location zone_colors zone_color =
     let
         locations =
             config_locations
@@ -201,18 +213,6 @@ draw_zone piece_map start_locs end_locs active_color start_location zone_colors 
             List.map (location_view full_height piece_map zone_color start_locs end_locs active_color start_location) locations
     in
     g [] drawn_locations
-
-
-nudge : Svg.Svg Msg -> Svg.Svg Msg
-nudge board =
-    let
-        offset =
-            String.fromFloat square_size
-
-        translate =
-            "translate(" ++ offset ++ " " ++ offset ++ ")"
-    in
-    g [ transform translate ] [ board ]
 
 
 location_view : Float -> PieceDict -> String -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html Msg
@@ -372,20 +372,53 @@ piece_view color is_selected_piece is_start_loc cx_ cy_ handlers =
         []
 
 
-card_css : Color -> List (Html.Attribute Msg)
-card_css color =
-    [ style "border-color" color
-    , style "background" "white"
-    , style "color" color
-    , style "padding" "4px"
-    , style "margin" "3px"
-    , style "font-size" "110%"
-    , style "min-width" "30px"
-    ]
+player_view : Player -> Color -> Html Msg
+player_view player color =
+    let
+        playable_cards =
+            get_playable_cards player
+
+        hand_cards =
+            List.indexedMap (hand_card_view color player playable_cards) player.hand
+
+        hand =
+            span [] hand_cards
+
+        deck =
+            deck_view player color
+
+        console =
+            case player.turn of
+                TurnNeedDiscard ->
+                    div [] [ Html.text "click a card to discard" ]
+
+                TurnNeedCard _ ->
+                    div [] [ Html.text "click a card above" ]
+
+                TurnNeedStartLoc turn_info ->
+                    player_need_start turn_info.play_type color
+
+                TurnNeedEndLoc turn_info ->
+                    player_need_end turn_info.play_type color
+
+                TurnDone ->
+                    div
+                        []
+                        [ Html.text "ok, now finish your turn"
+                        , rotate_button
+                        ]
+
+                _ ->
+                    div [] []
+    in
+    div []
+        [ span [] [ hand, deck ]
+        , console
+        ]
 
 
-view_hand_card : Color -> Player -> Set.Set Card -> Int -> Card -> Html Msg
-view_hand_card color player playable_cards idx card =
+hand_card_view : Color -> Player -> Set.Set Card -> Int -> Card -> Html Msg
+hand_card_view color player playable_cards idx card =
     let
         enabled =
             case player.turn of
@@ -426,99 +459,6 @@ view_hand_card color player playable_cards idx card =
         [ Html.text card ]
 
 
-deck_view : Player -> Color -> Html Msg
-deck_view player color =
-    let
-        handCount =
-            List.length player.hand
-    in
-    if (player.turn == TurnDone) && (handCount < 5) then
-        let
-            css =
-                card_css color
-
-            attrs =
-                [ onClick ReplenishHand ]
-        in
-        button
-            (attrs ++ css)
-            [ Html.text "Deck" ]
-
-    else
-        span [] []
-
-
-player_view : Player -> Color -> Html Msg
-player_view player color =
-    let
-        playable_cards =
-            get_playable_cards player
-
-        deck =
-            deck_view player color
-
-        hand_cards =
-            List.indexedMap (view_hand_card color player playable_cards) player.hand
-
-        hand =
-            span [] hand_cards
-
-        console =
-            case player.turn of
-                TurnNeedDiscard ->
-                    div [] [ Html.text "click a card to discard" ]
-
-                TurnNeedCard _ ->
-                    div [] [ Html.text "click a card above" ]
-
-                TurnNeedStartLoc turn_info ->
-                    player_need_start turn_info.play_type color
-
-                TurnNeedEndLoc turn_info ->
-                    player_need_end turn_info.play_type color
-
-                TurnDone ->
-                    div
-                        []
-                        [ Html.text "ok, now finish your turn"
-                        , rotate_button
-                        ]
-
-                _ ->
-                    div [] []
-    in
-    div []
-        [ span [] [ hand, deck ]
-        , console
-        ]
-
-
-rotate_button : Html Msg
-rotate_button =
-    div
-        []
-        [ button
-            [ onClick RotateBoard ]
-            [ Html.text "Finish Turn" ]
-        ]
-
-
-active_card_view : Card -> Color -> String -> Html Msg
-active_card_view active_card color instructions =
-    let
-        css =
-            [ style "color" color
-            , style "padding" "4px"
-            , style "margin" "5px"
-            , style "font-size" "110%"
-            ]
-
-        card =
-            b css [ Html.text active_card ]
-    in
-    span [] [ card, Html.text instructions ]
-
-
 player_need_start : PlayType -> Color -> Html Msg
 player_need_start play_type color =
     let
@@ -549,4 +489,64 @@ player_need_end play_type color =
     in
     div []
         [ active_card_view active_card color instructions
+        ]
+
+
+active_card_view : Card -> Color -> String -> Html Msg
+active_card_view active_card color instructions =
+    let
+        css =
+            [ style "color" color
+            , style "padding" "4px"
+            , style "margin" "5px"
+            , style "font-size" "110%"
+            ]
+
+        card =
+            b css [ Html.text active_card ]
+    in
+    span [] [ card, Html.text instructions ]
+
+
+deck_view : Player -> Color -> Html Msg
+deck_view player color =
+    let
+        handCount =
+            List.length player.hand
+    in
+    if (player.turn == TurnDone) && (handCount < 5) then
+        let
+            css =
+                card_css color
+
+            attrs =
+                [ onClick ReplenishHand ]
+        in
+        button
+            (attrs ++ css)
+            [ Html.text "Deck" ]
+
+    else
+        span [] []
+
+
+card_css : Color -> List (Html.Attribute Msg)
+card_css color =
+    [ style "border-color" color
+    , style "background" "white"
+    , style "color" color
+    , style "padding" "4px"
+    , style "margin" "3px"
+    , style "font-size" "110%"
+    , style "min-width" "30px"
+    ]
+
+
+rotate_button : Html Msg
+rotate_button =
+    div
+        []
+        [ button
+            [ onClick RotateBoard ]
+            [ Html.text "Finish Turn" ]
         ]
