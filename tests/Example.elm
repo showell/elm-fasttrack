@@ -34,20 +34,6 @@ zone_colors =
     [ "red", "blue", "green" ]
 
 
-test_zone_colors : Test
-test_zone_colors =
-    Test.concat
-        [ test "can find prev colors" <|
-            \_ ->
-                prev_zone_color "green" zone_colors
-                    |> Expect.equal "blue"
-        , test "can find next colors" <|
-            \_ ->
-                next_zone_color "green" zone_colors
-                    |> Expect.equal "red"
-        ]
-
-
 get_params : PieceDict -> FindLocParams
 get_params piece_map =
     { reverse_mode = False
@@ -90,6 +76,20 @@ fix_moves moves =
     moves
         |> List.map fix_move
         |> Set.fromList
+
+
+test_zone_colors : Test
+test_zone_colors =
+    Test.concat
+        [ test "can find prev colors" <|
+            \_ ->
+                prev_zone_color "green" zone_colors
+                    |> Expect.equal "blue"
+        , test "can find next colors" <|
+            \_ ->
+                next_zone_color "green" zone_colors
+                    |> Expect.equal "red"
+        ]
 
 
 test_get_moves_for_cards : Test
