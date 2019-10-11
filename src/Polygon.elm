@@ -34,7 +34,7 @@ get_angle side_count =
 
 
 incircle_radius : Int -> Float -> Float
-incircle_radius side_count side_width =
+incircle_radius side_count panel_width =
     let
         angle =
             180.0
@@ -42,14 +42,14 @@ incircle_radius side_count side_width =
                 |> degrees
 
         half_side =
-            side_width / 2
+            panel_width / 2
     in
     half_side / tan angle
 
 
 get_full_height : Int -> Float -> Float -> Float
-get_full_height side_count side_width zone_height =
-    zone_height + incircle_radius side_count side_width
+get_full_height side_count panel_width panel_height =
+    panel_height + incircle_radius side_count panel_width
 
 
 make_polygon : Float -> Float -> List (Svg.Svg msg) -> Svg.Svg msg
