@@ -43,6 +43,11 @@ import Player
         , get_start_location
         , start_locs_for_player
         )
+import Polygon
+    exposing
+        ( get_full_height
+        , make_polygon
+        )
 import Set
 import Svg
     exposing
@@ -153,7 +158,7 @@ board_view piece_map zone_colors active_player active_color =
 
         content =
             List.map (draw_zone piece_map start_locs end_locs active_color start_location zone_colors) zone_colors
-                |> make_polygon
+                |> make_polygon panel_width panel_height
                 |> nudge
 
         side_count =
@@ -196,65 +201,6 @@ draw_zone piece_map start_locs end_locs active_color start_location zone_colors 
             List.map (location_view full_height piece_map zone_color start_locs end_locs active_color start_location) locations
     in
     g [] drawn_locations
-
-
-get_angle : Int -> Float
-get_angle side_count =
-    360.0 / toFloat side_count
-
-
-incircle_radius : Int -> Float -> Float
-incircle_radius side_count side_width =
-    let
-        angle =
-            180.0
-                / toFloat side_count
-                |> degrees
-
-        half_side =
-            side_width / 2
-    in
-    half_side / tan angle
-
-
-get_full_height : Int -> Float -> Float -> Float
-get_full_height side_count side_width zone_height =
-    zone_height + incircle_radius side_count side_width
-
-
-make_polygon : List (Svg.Svg Msg) -> Svg.Svg Msg
-make_polygon panels =
-    let
-        side_count =
-            List.length panels
-
-        arrange_one_panel idx panel =
-            let
-                angle =
-                    toFloat idx * get_angle side_count
-
-                full_height =
-                    get_full_height side_count panel_width panel_height
-
-                center =
-                    String.fromFloat full_height
-
-                translate =
-                    "translate(" ++ center ++ " " ++ center ++ ")"
-
-                rotate =
-                    "rotate(" ++ String.fromFloat angle ++ ")"
-
-                transform_ =
-                    translate ++ " " ++ rotate
-            in
-            g [ transform transform_ ] [ panel ]
-
-        new_panels =
-            panels
-                |> List.indexedMap arrange_one_panel
-    in
-    g [] new_panels
 
 
 nudge : Svg.Svg Msg -> Svg.Svg Msg
