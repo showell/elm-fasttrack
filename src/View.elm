@@ -417,41 +417,51 @@ player_view player color =
         ]
 
 
+type CardAction
+    = CanActivate
+    | CanDiscard
+    | Ignore
+
+
 hand_card_view : Color -> Player -> Set.Set Card -> Int -> Card -> Html Msg
 hand_card_view color player playable_cards idx card =
     let
-        enabled =
+        action =
             case player.turn of
                 TurnNeedCard _ ->
                     -- ideally, we should put playable_cards on TurnNeedCard
-                    Set.member card playable_cards
-
-                _ ->
-                    False
-
-        border_color =
-            if enabled then
-                color
-
-            else
-                "gray"
-
-        css =
-            card_css border_color
-
-        attrs =
-            case player.turn of
-                TurnNeedDiscard ->
-                    [ onClick (DiscardCard color idx) ]
-
-                TurnNeedCard _ ->
-                    if enabled then
-                        [ onClick (ActivateCard color idx) ]
+                    if Set.member card playable_cards then
+                        CanActivate
 
                     else
-                        [ disabled True ]
+                        Ignore
+
+                TurnNeedDiscard ->
+                    CanDiscard
 
                 _ ->
+                    Ignore
+
+        css =
+            case action of
+                CanActivate ->
+                    card_css color color
+
+                CanDiscard ->
+                    card_css "gray" color
+
+                Ignore ->
+                    card_css "gray" "gray"
+
+        attrs =
+            case action of
+                CanActivate ->
+                    [ onClick (ActivateCard color idx) ]
+
+                CanDiscard ->
+                    [ onClick (DiscardCard color idx) ]
+
+                Ignore ->
                     [ disabled True ]
     in
     button
@@ -517,7 +527,7 @@ deck_view player color =
     if (player.turn == TurnDone) && (handCount < 5) then
         let
             css =
-                card_css color
+                card_css color color
 
             attrs =
                 [ onClick ReplenishHand ]
@@ -530,11 +540,11 @@ deck_view player color =
         span [] []
 
 
-card_css : Color -> List (Html.Attribute Msg)
-card_css color =
-    [ style "border-color" color
-    , style "background" "white"
+card_css : Color -> Color -> List (Html.Attribute Msg)
+card_css border_color color =
+    [ style "border-color" border_color
     , style "color" color
+    , style "background" "white"
     , style "padding" "4px"
     , style "margin" "3px"
     , style "font-size" "110%"

@@ -6,8 +6,6 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
-    refine styling a bit for discard buttons
-
     get-out pile (and cover)
         build credits
         also make clicks more rigorous
