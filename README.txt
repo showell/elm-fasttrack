@@ -8,12 +8,9 @@ HOW TO BUILD:
 TODO:
     get-out pile (and cover)
         build credits
-        also make clicks more rigorous
 
     jack swap/kill:
         at least fix comment
-
-    clean up get_full_height in Polygon
 
     fix before-turn-card experience:
         show pieces that can be moved
