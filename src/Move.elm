@@ -1,16 +1,23 @@
 module Move exposing
     ( maybe_auto_move
+    , maybe_get_out_via_discard
     , move_to_end_loc
     )
 
+import Config
+    exposing
+        ( num_credits_to_get_out
+        )
 import Piece
     exposing
-        ( get_piece
+        ( bring_player_out
+        , get_piece
         , move_piece
         )
 import Player
     exposing
-        ( end_locs_for_player
+        ( clear_credits
+        , end_locs_for_player
         , finish_move
         , get_player
         , get_player_move_type
@@ -100,6 +107,27 @@ maybe_auto_move start_loc model =
         Just end_loc ->
             model
                 |> move_to_end_loc active_player active_color start_loc end_loc
+
+
+maybe_get_out_via_discard : Color -> Model -> Model
+maybe_get_out_via_discard active_color model =
+    let
+        player =
+            get_player model.players active_color
+    in
+    if player.get_out_credits < num_credits_to_get_out then
+        model
+
+    else
+        let
+            new_piece_map =
+                model.piece_map
+                    |> bring_player_out active_color
+        in
+        { model
+            | piece_map = new_piece_map
+        }
+            |> update_active_player clear_credits
 
 
 move_to_end_loc : Player -> Color -> PieceLocation -> PieceLocation -> Model -> Model

@@ -1,7 +1,9 @@
 module Player exposing
     ( activate_card
     , begin_turn
+    , clear_credits
     , config_players
+    , cover_card
     , discard_card
     , end_locs_for_player
     , finish_move
@@ -114,7 +116,7 @@ config_player color =
         original_setup =
             { deck = full_deck
             , hand = starting_hand color
-            , discard_pile = []
+            , get_out_credits = 0
             , turn = TurnBegin
             }
     in
@@ -154,28 +156,46 @@ get_moves_for_player player piece_map zone_colors active_color =
     get_moves_for_cards cards piece_map zone_colors active_color
 
 
-turn_need_card : Player -> PieceDict -> List Color -> Color -> Turn
-turn_need_card player piece_map zone_colors active_color =
+turn_need_card : PieceDict -> List Color -> Color -> Player -> Player
+turn_need_card piece_map zone_colors active_color player =
     let
         moves =
             get_moves_for_player player piece_map zone_colors active_color
     in
     if List.length moves == 0 then
-        TurnNeedDiscard
+        let
+            turn_ =
+                case player.turn of
+                    TurnBegin ->
+                        TurnNeedDiscard
+
+                    _ ->
+                        TurnNeedCover
+        in
+        { player
+            | turn = turn_
+        }
 
     else
-        TurnNeedCard
-            { moves = moves
-            }
+        { player
+            | turn =
+                TurnNeedCard
+                    { moves = moves
+                    }
+            , get_out_credits = 0
+        }
 
 
-maybe_finish_turn : Card -> Player -> PieceDict -> List Color -> Color -> Turn
-maybe_finish_turn card player piece_map zone_colors active_color =
+maybe_finish_turn : Card -> PieceDict -> List Color -> Color -> Player -> Player
+maybe_finish_turn card piece_map zone_colors active_color player =
     if is_move_again_card card then
-        turn_need_card player piece_map zone_colors active_color
+        player
+            |> turn_need_card piece_map zone_colors active_color
 
     else
-        TurnDone
+        { player
+            | turn = TurnDone
+        }
 
 
 maybe_replenish_hand : Color -> Model -> Model
@@ -201,13 +221,9 @@ set_turn_to_need_card active_color model =
 
                 zone_colors =
                     model.zone_colors
-
-                new_turn =
-                    turn_need_card player piece_map zone_colors active_color
             in
-            { player
-                | turn = new_turn
-            }
+            player
+                |> turn_need_card piece_map zone_colors active_color
         )
         model
 
@@ -244,6 +260,23 @@ finish_seven_split piece_map zone_colors active_color distance end_loc =
         }
 
 
+clear_credits : Player -> Player
+clear_credits player =
+    let
+        new_turn =
+            case player.turn of
+                TurnNeedDiscard ->
+                    TurnNeedCover
+
+                other ->
+                    other
+    in
+    { player
+        | get_out_credits = 0
+        , turn = new_turn
+    }
+
+
 finish_move : PieceDict -> List Color -> Color -> Move -> Player -> Player
 finish_move piece_map zone_colors active_color move player =
     let
@@ -252,16 +285,18 @@ finish_move piece_map zone_colors active_color move player =
 
         card =
             get_card_for_move_type move_type
-
-        turn =
-            case move_type of
-                StartSplit distance ->
-                    finish_seven_split piece_map zone_colors active_color distance end_loc
-
-                _ ->
-                    maybe_finish_turn card player piece_map zone_colors active_color
     in
-    { player | turn = turn }
+    case move_type of
+        StartSplit distance ->
+            let
+                turn =
+                    finish_seven_split piece_map zone_colors active_color distance end_loc
+            in
+            { player | turn = turn }
+
+        _ ->
+            player
+                |> maybe_finish_turn card piece_map zone_colors active_color
 
 
 set_start_location : PieceLocation -> Player -> Player
@@ -358,7 +393,46 @@ discard_card idx player =
 
                         turn =
                             if is_move_again_card card then
+                                -- we can rely on the caller to move us to
+                                -- TurnNeedCover if we have enough credits to get
+                                -- out of the pen
                                 TurnNeedDiscard
+
+                            else
+                                TurnDone
+
+                        credits =
+                            player.get_out_credits + 1
+                    in
+                    { player
+                        | hand = new_hand
+                        , turn = turn
+                        , get_out_credits = credits
+                    }
+
+                _ ->
+                    -- programming error
+                    player
+
+
+cover_card : Int -> Player -> Player
+cover_card idx player =
+    case List.Extra.getAt idx player.hand of
+        Nothing ->
+            -- some kind of programming error or race
+            -- condition must have happened
+            player
+
+        Just card ->
+            case player.turn of
+                TurnNeedCover ->
+                    let
+                        new_hand =
+                            List.Extra.removeAt idx player.hand
+
+                        turn =
+                            if is_move_again_card card then
+                                TurnNeedCover
 
                             else
                                 TurnDone

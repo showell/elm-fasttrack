@@ -384,7 +384,14 @@ player_view player color =
         console =
             case player.turn of
                 TurnNeedDiscard ->
-                    div [] [ Html.text "click a card to discard" ]
+                    div []
+                        [ Html.text "click a card to discard"
+                        ]
+
+                TurnNeedCover ->
+                    div []
+                        [ Html.text "click a card to cover"
+                        ]
 
                 TurnNeedCard _ ->
                     div [] [ Html.text "click a card above" ]
@@ -407,6 +414,7 @@ player_view player color =
     in
     div []
         [ span [] [ hand, deck ]
+        , credits_view player
         , console
         ]
 
@@ -414,6 +422,7 @@ player_view player color =
 type CardAction
     = CanActivate
     | CanDiscard
+    | CanCover
     | Ignore
 
 
@@ -433,6 +442,9 @@ hand_card_view color player playable_cards idx card =
                 TurnNeedDiscard ->
                     CanDiscard
 
+                TurnNeedCover ->
+                    CanCover
+
                 _ ->
                     Ignore
 
@@ -442,6 +454,9 @@ hand_card_view color player playable_cards idx card =
                     card_css color color
 
                 CanDiscard ->
+                    card_css "gray" color
+
+                CanCover ->
                     card_css "gray" color
 
                 Ignore ->
@@ -454,6 +469,9 @@ hand_card_view color player playable_cards idx card =
 
                 CanDiscard ->
                     [ onClick (DiscardCard color idx) ]
+
+                CanCover ->
+                    [ onClick (CoverCard color idx) ]
 
                 Ignore ->
                     [ disabled True ]
@@ -544,6 +562,23 @@ card_css border_color color =
     , style "font-size" "110%"
     , style "min-width" "30px"
     ]
+
+
+credits_view : Player -> Html Msg
+credits_view player =
+    if player.get_out_credits > 0 then
+        let
+            credits =
+                String.fromInt player.get_out_credits
+        in
+        div []
+            [ Html.text "You have "
+            , b [] [ Html.text credits ]
+            , Html.text " credits (you need 5 to get out)"
+            ]
+
+    else
+        span [] []
 
 
 rotate_button : Html Msg

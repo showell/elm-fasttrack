@@ -538,6 +538,10 @@ get_card_for_move_type move_type =
         JackTrade ->
             "J"
 
+        ComeOutWithCredits ->
+            -- should never be called
+            "via discards"
+
 
 move_count_for_move_type : MoveType -> String -> Int
 move_count_for_move_type move_type id =
@@ -557,6 +561,10 @@ move_count_for_move_type move_type id =
         JackTrade ->
             -- we never call this for J trades
             0
+
+        ComeOutWithCredits ->
+            -- should never be called
+            1
 
 
 is_loc_free : PieceDict -> Color -> PieceLocation -> Bool

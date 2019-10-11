@@ -8,6 +8,7 @@ module Config exposing
     , is_holding_pen_id
     , move_count_for_card
     , next_ids_in_zone
+    , num_credits_to_get_out
     , prev_id_in_zone
     , square_size
     )
@@ -19,6 +20,11 @@ import Type
         , Color
         , Location
         )
+
+
+num_credits_to_get_out : Int
+num_credits_to_get_out =
+    5
 
 
 gutter_size : Float

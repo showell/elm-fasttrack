@@ -75,6 +75,7 @@ type MoveType
     | StartSplit Int
     | FinishSplit Int PieceLocation
     | JackTrade
+    | ComeOutWithCredits
 
 
 type alias Move =
@@ -108,13 +109,14 @@ type Turn
     | TurnNeedStartLoc TurnNeedStartLocInfo
     | TurnNeedEndLoc TurnNeedEndLocInfo
     | TurnNeedDiscard
+    | TurnNeedCover
     | TurnDone
 
 
 type alias Player =
     { deck : List Card
     , hand : List Card
-    , discard_pile : List Card
+    , get_out_credits : Int
     , turn : Turn
     }
 
@@ -152,6 +154,7 @@ type Msg
     = ReplenishHand
     | ActivateCard Color Int
     | DiscardCard Color Int
+    | CoverCard Color Int
     | RotateBoard
     | SetEndLocation PieceLocation
     | SetStartLocation PieceLocation

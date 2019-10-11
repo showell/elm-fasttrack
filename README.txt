@@ -6,8 +6,9 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
-    get-out pile (and cover)
-        build credits
+    update README to indicate it mostly works
+
+    snake_case -> elmCase
 
     jack swap/kill:
         at least fix comment
@@ -15,7 +16,7 @@ TODO:
     fix before-turn-card experience:
         show pieces that can be moved
 
-    set number of players
+    set number of players 2/3/4/5/6
 
     log moves
 

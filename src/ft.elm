@@ -8,6 +8,7 @@ import Config
 import Move
     exposing
         ( maybe_auto_move
+        , maybe_get_out_via_discard
         , move_to_end_loc
         )
 import Piece
@@ -19,6 +20,7 @@ import Player
         ( activate_card
         , begin_turn
         , config_players
+        , cover_card
         , discard_card
         , get_player
         , get_player_move_type
@@ -167,6 +169,15 @@ update msg model =
             let
                 model_ =
                     update_active_player (discard_card idx) model
+                        |> maybe_get_out_via_discard player_color
+            in
+            ( model_, Cmd.none )
+
+        CoverCard player_color idx ->
+            let
+                model_ =
+                    update_active_player (cover_card idx) model
+                        |> maybe_get_out_via_discard player_color
             in
             ( model_, Cmd.none )
 

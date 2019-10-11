@@ -31,6 +31,8 @@ of tutorial/demo thingy.
 type InitSetup
     = Normal
     | ForcedToReverse
+    | Discard
+    | Cover
 
 
 init_setup : InitSetup
@@ -50,6 +52,10 @@ starting_locations color =
             [ "HP1", "B1", "B3", "R0" ]
                 |> in_my_zone
 
+        Cover ->
+            [ "HP1", "HP2", "HP3", "B2" ]
+                |> in_my_zone
+
         _ ->
             holding_pen_locations
                 |> in_my_zone
@@ -60,6 +66,12 @@ starting_hand color =
     case init_setup of
         ForcedToReverse ->
             [ "7", "8", "10", "9", "9" ]
+
+        Cover ->
+            [ "K", "Q", "Q", "Q", "2" ]
+
+        Discard ->
+            [ "K", "Q", "Q", "Q", "8" ]
 
         _ ->
             []

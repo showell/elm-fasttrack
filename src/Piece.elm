@@ -1,5 +1,6 @@
 module Piece exposing
-    ( config_pieces
+    ( bring_player_out
+    , config_pieces
     , fake_location
     , get_piece
     , get_the_piece
@@ -59,6 +60,17 @@ is_open_location piece_map piece_loc =
             False
 
 
+occupied_holding_pen_location : PieceDict -> Color -> Maybe PieceLocation
+occupied_holding_pen_location piece_map color =
+    let
+        is_occupied id =
+            get_piece piece_map ( color, id ) /= Nothing
+    in
+    holding_pen_locations
+        |> List.Extra.find is_occupied
+        |> Maybe.map (\id -> ( color, id ))
+
+
 open_holding_pen_location : PieceDict -> Color -> PieceLocation
 open_holding_pen_location piece_map color =
     -- We expect to only be called when we know we're sending a
@@ -88,6 +100,32 @@ config_pieces zone_colors =
             Dict.empty
     in
     List.foldl config_zone_pieces dct zone_colors
+
+
+bring_player_out : Color -> PieceDict -> PieceDict
+bring_player_out color piece_map =
+    let
+        pen_loc =
+            occupied_holding_pen_location piece_map color
+    in
+    case pen_loc of
+        Nothing ->
+            -- probably a bug
+            piece_map
+
+        Just start_loc ->
+            let
+                end_loc =
+                    ( color, "L0" )
+
+                move_type =
+                    ComeOutWithCredits
+
+                move =
+                    ( move_type, start_loc, end_loc )
+            in
+            piece_map
+                |> move_piece move
 
 
 move_piece : Move -> PieceDict -> PieceDict
