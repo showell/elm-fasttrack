@@ -20,7 +20,6 @@ module Player exposing
 import Config
     exposing
         ( full_deck
-        , starting_hand
         )
 import Dict
 import LegalMove
@@ -32,6 +31,10 @@ import LegalMove
 import List.Extra
 import Random
 import Set
+import Setup
+    exposing
+        ( starting_hand
+        )
 import Type
     exposing
         ( Card
@@ -103,14 +106,14 @@ get_player_move_type player end_loc =
             Nothing
 
 
-config_player : Player
-config_player =
+config_player : Color -> Player
+config_player color =
     let
         -- starting_hand is usually empty, unless
         -- we turn on dev_hack
         original_setup =
             { deck = full_deck
-            , hand = starting_hand
+            , hand = starting_hand color
             , discard_pile = []
             , turn = TurnBegin
             }
@@ -122,7 +125,7 @@ config_players : List Color -> PlayerDict
 config_players zone_colors =
     let
         config_one color =
-            Dict.insert color config_player
+            Dict.insert color (config_player color)
 
         dct =
             Dict.empty
@@ -134,7 +137,7 @@ get_player : PlayerDict -> Color -> Player
 get_player players color =
     -- The "Maybe" is just to satisfy the compiler
     Dict.get color players
-        |> Maybe.withDefault config_player
+        |> Maybe.withDefault (config_player color)
 
 
 is_move_again_card : Card -> Bool

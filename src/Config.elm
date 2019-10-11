@@ -10,8 +10,6 @@ module Config exposing
     , next_ids_in_zone
     , prev_id_in_zone
     , square_size
-    , starting_hand
-    , starting_locations
     )
 
 import Set
@@ -21,21 +19,6 @@ import Type
         , Color
         , Location
         )
-
-
-
-{--
-This dev_hack thingy is for developers...if you turn it on,
-it sets up pieces in "interesting" configurations to
-facilitate manual testing of scenarios like splitting
-sevens, trading jacks, and being forced to go in
-reverse.
---}
-
-
-dev_hack : Bool
-dev_hack =
-    False
 
 
 gutter_size : Float
@@ -66,24 +49,6 @@ is_base_id id =
 holding_pen_locations : List String
 holding_pen_locations =
     [ "HP1", "HP2", "HP3", "HP4" ]
-
-
-starting_locations : List String
-starting_locations =
-    if dev_hack then
-        [ "HP1", "HP2", "B1", "R0" ]
-
-    else
-        holding_pen_locations
-
-
-starting_hand : List Card
-starting_hand =
-    if dev_hack then
-        [ "7", "8", "10", "J", "J" ]
-
-    else
-        []
 
 
 is_holding_pen_id : String -> Bool
