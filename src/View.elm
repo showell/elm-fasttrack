@@ -408,8 +408,15 @@ view_hand_card color player playable_cards idx card =
 
         attrs =
             case player.turn of
+                TurnNeedDiscard ->
+                    [ onClick (DiscardCard color idx) ]
+
                 TurnNeedCard _ ->
-                    [ onClick (ActivateCard color idx) ]
+                    if enabled then
+                        [ onClick (ActivateCard color idx) ]
+
+                    else
+                        [ disabled True ]
 
                 _ ->
                     [ disabled True ]
@@ -458,6 +465,9 @@ player_view player color =
 
         console =
             case player.turn of
+                TurnNeedDiscard ->
+                    div [] [ Html.text "click a card to discard" ]
+
                 TurnNeedCard _ ->
                     div [] [ Html.text "click a card above" ]
 
@@ -522,16 +532,9 @@ player_need_start play_type color =
 
         active_card =
             get_card_for_play_type play_type
-
-        -- We will get rid of this once we have a new state for discards.
-        finish_button =
-            button
-                [ onClick (FinishCard color) ]
-                [ Html.text "Done" ]
     in
     div []
         [ active_card_view active_card color instructions
-        , div [] [ finish_button ]
         ]
 
 

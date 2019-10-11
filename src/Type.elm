@@ -107,6 +107,7 @@ type Turn
     | TurnNeedCard TurnNeedCardInfo
     | TurnNeedStartLoc TurnNeedStartLocInfo
     | TurnNeedEndLoc TurnNeedEndLocInfo
+    | TurnNeedDiscard
     | TurnDone
 
 
@@ -150,7 +151,7 @@ type alias Model =
 type Msg
     = ReplenishHand
     | ActivateCard Color Int
-    | FinishCard Color
+    | DiscardCard Color Int
     | RotateBoard
     | SetEndLocation PieceLocation
     | SetStartLocation PieceLocation

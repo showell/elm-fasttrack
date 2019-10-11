@@ -2,6 +2,7 @@ module Player exposing
     ( activate_card
     , begin_turn
     , config_players
+    , discard_card
     , end_locs_for_player
     , finish_card
     , finish_move
@@ -158,9 +159,13 @@ turn_need_card player piece_map zone_colors active_color =
         moves =
             get_moves_for_player player piece_map zone_colors active_color
     in
-    TurnNeedCard
-        { moves = moves
-        }
+    if List.length moves == 0 then
+        TurnNeedDiscard
+
+    else
+        TurnNeedCard
+            { moves = moves
+            }
 
 
 maybe_finish_turn : Card -> Player -> PieceDict -> List Color -> Color -> Turn
@@ -333,6 +338,38 @@ set_turn color turn players =
                 | turn = turn
             }
         )
+
+
+discard_card : Int -> Player -> Player
+discard_card idx player =
+    case List.Extra.getAt idx player.hand of
+        Nothing ->
+            -- some kind of programming error or race
+            -- condition must have happened
+            player
+
+        Just card ->
+            case player.turn of
+                TurnNeedDiscard ->
+                    let
+                        new_hand =
+                            List.Extra.removeAt idx player.hand
+
+                        turn =
+                            if is_move_again_card card then
+                                TurnNeedDiscard
+
+                            else
+                                TurnDone
+                    in
+                    { player
+                        | hand = new_hand
+                        , turn = turn
+                    }
+
+                _ ->
+                    -- programming error
+                    player
 
 
 activate_card : Int -> Player -> Player

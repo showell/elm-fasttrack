@@ -6,15 +6,21 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
-
-    jack swap/kill
+    refine styling a bit for discard buttons
 
     get-out pile (and cover)
         build credits
         also make clicks more rigorous
 
+    jack swap/kill:
+        at least fix comment
+
+    clean up get_full_height in Polygon
+
     fix before-turn-card experience:
         show pieces that can be moved
+
+    set number of players
 
     log moves
 

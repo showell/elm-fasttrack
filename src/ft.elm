@@ -19,6 +19,7 @@ import Player
         ( activate_card
         , begin_turn
         , config_players
+        , discard_card
         , finish_card
         , get_player
         , get_player_move_type
@@ -163,13 +164,10 @@ update msg model =
             in
             ( model_, Cmd.none )
 
-        FinishCard player_color ->
+        DiscardCard player_color idx ->
             let
-                active_color =
-                    get_active_color model.zone_colors
-
                 model_ =
-                    model |> finish_card player_color
+                    update_active_player (discard_card idx) model
             in
             ( model_, Cmd.none )
 
