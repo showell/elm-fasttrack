@@ -4,7 +4,6 @@ module Player exposing
     , config_players
     , discard_card
     , end_locs_for_player
-    , finish_card
     , finish_move
     , get_playable_cards
     , get_player
@@ -27,7 +26,6 @@ import Dict
 import LegalMove
     exposing
         ( get_card_for_move_type
-        , get_card_for_play_type
         , get_moves_for_cards
         , get_moves_for_move_type
         )
@@ -501,48 +499,6 @@ draw_card idx player =
                 | deck = maybe_replenish_deck deck
                 , hand = hand
             }
-
-
-finish_card : Color -> Model -> Model
-finish_card active_color model =
-    let
-        players =
-            update_player
-                model.players
-                active_color
-                (\player ->
-                    let
-                        possibly_finish_turn play_type =
-                            let
-                                card =
-                                    get_card_for_play_type play_type
-                            in
-                            maybe_finish_turn card player model.piece_map model.zone_colors active_color
-
-                        turn =
-                            case player.turn of
-                                TurnNeedStartLoc info ->
-                                    -- This is broken--we should really have a separate state
-                                    -- for when we're discarding.  Right now players can play a card
-                                    -- without actually finishing the move (even when a valid move
-                                    -- does exist).
-                                    possibly_finish_turn info.play_type
-
-                                TurnNeedEndLoc info ->
-                                    possibly_finish_turn info.play_type
-
-                                other ->
-                                    other
-                    in
-                    { player | turn = turn }
-                )
-
-        model_ =
-            { model
-                | players = players
-            }
-    in
-    model_ |> maybe_replenish_hand active_color
 
 
 start_locs_for_player : Player -> Set.Set PieceLocation

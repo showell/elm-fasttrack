@@ -20,7 +20,6 @@ import Player
         , begin_turn
         , config_players
         , discard_card
-        , finish_card
         , get_player
         , get_player_move_type
         , replenish_hand
