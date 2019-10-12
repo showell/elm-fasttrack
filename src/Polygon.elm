@@ -56,7 +56,7 @@ make_polygon panel_width panel_height panels =
         side_count =
             List.length panels
 
-        pad_one_panel idx panel =
+        pad_one_panel panel =
             let
                 offset =
                     incircle_radius side_count panel_width
@@ -90,7 +90,7 @@ make_polygon panel_width panel_height panels =
 
         new_panels =
             panels
-                |> List.indexedMap pad_one_panel
+                |> List.map pad_one_panel
                 |> List.indexedMap arrange_one_panel
     in
     g [] new_panels

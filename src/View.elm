@@ -157,7 +157,7 @@ board_view piece_map zone_colors active_player active_color =
             end_locs_for_player active_player
 
         content =
-            List.map (zone_view piece_map start_locs end_locs active_color start_location zone_colors) zone_colors
+            List.map (zone_view piece_map start_locs end_locs active_color start_location) zone_colors
                 |> make_polygon panel_width panel_height
                 |> nudge
 
@@ -197,14 +197,11 @@ nudge board =
     g [ transform translate ] [ board ]
 
 
-zone_view : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> List Color -> Color -> Html Msg
-zone_view piece_map start_locs end_locs active_color start_location zone_colors zone_color =
+zone_view : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Color -> Html Msg
+zone_view piece_map start_locs end_locs active_color start_location zone_color =
     let
         locations =
             config_locations
-
-        side_count =
-            List.length zone_colors
 
         drawn_locations =
             List.map (location_view piece_map zone_color start_locs end_locs active_color start_location) locations
