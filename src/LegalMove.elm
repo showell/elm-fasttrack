@@ -153,6 +153,9 @@ getCanGoNSpaces pieceMap loc zoneColors n =
         canFastTrack =
             id == "FT"
 
+        canLeaveBullsEye =
+            False
+
         pieceColor =
             getThePiece pieceMap loc
 
@@ -165,6 +168,7 @@ getCanGoNSpaces pieceMap loc zoneColors n =
                 { reverseMode = False
                 , canFastTrack = canFastTrack
                 , canLeavePen = False
+                , canLeaveBullsEye = canLeaveBullsEye
                 , pieceColor = pieceColor
                 , pieceMap = pieceMap
                 , zoneColors = zoneColors
@@ -256,6 +260,9 @@ getMovesFromLocation moveType pieceMap zoneColors startLoc =
         activeCard =
             getCardForMoveType moveType
 
+        canLeaveBullsEye =
+            List.member activeCard [ "J", "Q", "K" ] && id == "bullseye"
+
         canLeavePen =
             List.member activeCard [ "A", "joker", "6" ]
 
@@ -279,6 +286,7 @@ getMovesFromLocation moveType pieceMap zoneColors startLoc =
                 { reverseMode = reverseMode
                 , canFastTrack = canFastTrack
                 , canLeavePen = canLeavePen
+                , canLeaveBullsEye = canLeaveBullsEye
                 , pieceColor = pieceColor
                 , pieceMap = pieceMap
                 , zoneColors = zoneColors
@@ -429,6 +437,9 @@ getNextLocs params loc =
         canLeavePen =
             params.canLeavePen
 
+        canLeaveBullsEye =
+            params.canLeaveBullsEye
+
         pieceMap =
             params.pieceMap
 
@@ -447,7 +458,21 @@ getNextLocs params loc =
             []
 
     else if id == "FT" then
-        if canFastTrack && (nextColor /= pieceColor) then
+        if pieceColor == zoneColor then
+            if canFastTrack then
+                filter
+                    [ ( nextColor, "FT" )
+                    , ( nextColor, "R4" )
+                    , ( "black", "bullseye" )
+                    ]
+
+            else
+                filter
+                    [ ( nextColor, "R4" )
+                    , ( "black", "bullseye" )
+                    ]
+
+        else if canFastTrack && (pieceColor /= nextColor) then
             filter
                 [ ( nextColor, "FT" )
                 , ( nextColor, "R4" )
@@ -457,6 +482,19 @@ getNextLocs params loc =
             filter
                 [ ( nextColor, "R4" )
                 ]
+
+    else if id == "bullseye" then
+        if canLeaveBullsEye then
+            let
+                prevColor =
+                    prevZoneColor pieceColor zoneColors
+            in
+            filter
+                [ ( prevColor, "FT" )
+                ]
+
+        else
+            []
 
     else
         let
@@ -496,6 +534,9 @@ getPrevLocs params loc =
         []
 
     else if isBaseId id then
+        []
+
+    else if id == "bullseye" then
         []
 
     else if id == "R4" then

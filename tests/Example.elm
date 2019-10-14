@@ -39,6 +39,7 @@ getParams pieceMap =
     { reverseMode = False
     , canFastTrack = False
     , canLeavePen = False
+    , canLeaveBullsEye = False
     , pieceColor = "blue"
     , pieceMap = pieceMap
     , zoneColors = zoneColors

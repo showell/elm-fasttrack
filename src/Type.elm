@@ -133,6 +133,7 @@ type AppState
 type alias FindLocParams =
     { canFastTrack : Bool
     , canLeavePen : Bool
+    , canLeaveBullsEye : Bool
     , reverseMode : Bool
     , pieceColor : Color
     , pieceMap : PieceDict

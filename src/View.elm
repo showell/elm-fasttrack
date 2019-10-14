@@ -159,10 +159,9 @@ boardView pieceMap zoneColors activePlayer activeColor =
         endLocs =
             endLocsForPlayer activePlayer
 
-        content =
+        zoneLocations =
             List.map (zoneView pieceMap startLocs endLocs activeColor startLocation) zoneColors
                 |> makePolygon panelWidth panelHeight
-                |> nudge
 
         sideCount =
             List.length zoneColors
@@ -172,10 +171,17 @@ boardView pieceMap zoneColors activePlayer activeColor =
 
         boardSize =
             String.fromFloat (2 * centerOffset + 3 * squareSize)
+
+        bullsEye =
+            bullsEyeView pieceMap startLocs endLocs activeColor startLocation centerOffset
+
+        allLocations =
+            g [] ([ zoneLocations ] ++ [ bullsEye ])
+                |> nudge
     in
     svg
         [ width boardSize, height boardSize ]
-        [ content ]
+        [ allLocations ]
 
 
 panelWidth : Float
@@ -212,7 +218,7 @@ zoneView pieceMap startLocs endLocs activeColor startLocation zoneColor =
     g [] drawnLocations
 
 
-locationView : PieceDict -> String -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html Msg
+locationView : PieceDict -> Color -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html Msg
 locationView pieceMap zoneColor startLocs endLocs activeColor selectedLocation locationInfo =
     let
         cx_ =
@@ -223,6 +229,24 @@ locationView pieceMap zoneColor startLocs endLocs activeColor selectedLocation l
 
         id =
             locationInfo.id
+    in
+    drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_
+
+
+bullsEyeView : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Html Msg
+bullsEyeView pieceMap startLocs endLocs activeColor selectedLocation centerOffset =
+    let
+        cx_ =
+            centerOffset
+
+        cy_ =
+            centerOffset
+
+        zoneColor =
+            "black"
+
+        id =
+            "bullseye"
     in
     drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_
 

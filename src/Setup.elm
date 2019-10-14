@@ -33,6 +33,7 @@ type InitSetup
     | ForcedToReverse
     | Discard
     | Cover
+    | BullsEye
 
 
 initSetup : InitSetup
@@ -72,6 +73,9 @@ startingHand color =
 
         Discard ->
             [ "K", "Q", "Q", "Q", "8" ]
+
+        BullsEye ->
+            [ "A", "6", "Q", "8", "9" ]
 
         _ ->
             []
