@@ -1,8 +1,10 @@
 module Config exposing
-    ( configLocations
+    ( cardValue
+    , configLocations
     , fullDeck
     , getZoneColors
     , gutterSize
+    , hintForCard
     , holdingPenLocations
     , isBaseId
     , isHoldingPenId
@@ -158,6 +160,105 @@ configLocations =
       , id = "R4"
       }
     ]
+
+
+cardValue : Card -> Int
+cardValue card =
+    -- This is just for sorting cards in the cheat sheet.
+    case card of
+        "A" ->
+            1
+
+        "2" ->
+            2
+
+        "3" ->
+            3
+
+        "4" ->
+            4
+
+        "5" ->
+            5
+
+        "6" ->
+            6
+
+        "7" ->
+            7
+
+        "8" ->
+            8
+
+        "9" ->
+            9
+
+        "10" ->
+            10
+
+        "J" ->
+            11
+
+        "Q" ->
+            12
+
+        "K" ->
+            13
+
+        "joker" ->
+            14
+
+        _ ->
+            0
+
+
+hintForCard : Card -> String
+hintForCard card =
+    case card of
+        "A" ->
+            "move 1 or get out"
+
+        "2" ->
+            "move 2"
+
+        "3" ->
+            "move 3"
+
+        "4" ->
+            "move backward 4"
+
+        "5" ->
+            "move 5"
+
+        "6" ->
+            "move 6 or get out"
+
+        "7" ->
+            "move 7 or split"
+
+        "8" ->
+            "move 8"
+
+        "9" ->
+            "move 9"
+
+        "10" ->
+            "move 10"
+
+        "J" ->
+            "move 1 or trade pieces"
+
+        "Q" ->
+            "move 1"
+
+        "K" ->
+            "move 1"
+
+        "joker" ->
+            "move 1 or get out"
+
+        _ ->
+            ""
 
 
 moveCountForCard : Card -> String -> Int

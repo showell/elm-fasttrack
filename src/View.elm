@@ -3,8 +3,10 @@ module View exposing (view)
 import Browser
 import Config
     exposing
-        ( configLocations
+        ( cardValue
+        , configLocations
         , gutterSize
+        , hintForCard
         , isBaseId
         , isHoldingPenId
         , squareSize
@@ -13,6 +15,7 @@ import Html
     exposing
         ( Html
         , b
+        , br
         , button
         , div
         , hr
@@ -394,7 +397,7 @@ playerView player color =
                         ]
 
                 TurnNeedCard _ ->
-                    div [] [ Html.text "click a card above" ]
+                    playerNeedCard playableCards
 
                 TurnNeedStartLoc turnInfo ->
                     playerNeedStart turnInfo.playType color
@@ -479,6 +482,39 @@ handCardView color player playableCards idx card =
     button
         (attrs ++ css)
         [ Html.text card ]
+
+
+playerNeedCard : Set.Set Card -> Html Msg
+playerNeedCard playableCards =
+    let
+        instructions =
+            div [] [ Html.text "click a card above" ]
+
+        title =
+            b [] [ Html.text "Cheat sheet:" ]
+
+        cardHint card =
+            let
+                hint =
+                    card ++ " - " ++ hintForCard card
+            in
+            div [] [ Html.text hint ]
+
+        cardHints =
+            playableCards
+                |> Set.toList
+                |> List.sortBy cardValue
+                |> List.map cardHint
+                |> div []
+
+        cheatSheet =
+            div []
+                [ br [] []
+                , title
+                , cardHints
+                ]
+    in
+    div [] [ instructions, cheatSheet ]
 
 
 playerNeedStart : PlayType -> Color -> Html Msg
