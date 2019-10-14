@@ -489,7 +489,13 @@ playerNeedCard playableCards =
     let
         instructions =
             div [] [ Html.text "click a card above" ]
+    in
+    div [] [ instructions, cheatSheet playableCards ]
 
+
+cheatSheet : Set.Set Card -> Html Msg
+cheatSheet cards =
+    let
         title =
             b [] [ Html.text "Cheat sheet:" ]
 
@@ -501,20 +507,17 @@ playerNeedCard playableCards =
             div [] [ Html.text hint ]
 
         cardHints =
-            playableCards
+            cards
                 |> Set.toList
                 |> List.sortBy cardValue
                 |> List.map cardHint
                 |> div []
-
-        cheatSheet =
-            div []
-                [ br [] []
-                , title
-                , cardHints
-                ]
     in
-    div [] [ instructions, cheatSheet ]
+    div []
+        [ br [] []
+        , title
+        , cardHints
+        ]
 
 
 playerNeedStart : PlayType -> Color -> Html Msg
@@ -533,6 +536,7 @@ playerNeedStart playType color =
     in
     div []
         [ activeCardView activeCard color instructions
+        , cheatSheet (Set.fromList [ activeCard ])
         ]
 
 
