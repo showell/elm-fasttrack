@@ -8,12 +8,12 @@ sounds).  The biggest next steps are these:
 
 WHAT IS FAST TRACK?
 
-    Fast track is a board game where you move pieces
-    around the board from your holding pen to your
-    final base.
+Fast track is a board game where you move pieces
+around the board from your holding pen to your
+final base.
 
-    You draw cards to move N spaces.  Most cards have
-    normal moves.  And they end turn your turn.
+You draw cards to move N spaces.  Most cards have
+normal moves.  And they end turn your turn.
 
 * 2 - move 2
 * 3 - move 3
@@ -23,25 +23,26 @@ WHAT IS FAST TRACK?
 * 9 - move 9
 * 10 - move 10
 
-    The four goes in reverse, and it ends your turn.
+The four goes in reverse, and it ends your turn.
 
 * 4 - move back 4
 
-    The remaining cards extend your turn (A/6/J/Q/K/joker).
+The remaining cards extend your turn (A/6/J/Q/K/joker).
 
-    These cards let you leave the holding pen:
+These cards let you leave the holding pen:
 
 * joker - leave pen (or move 1)
 * A - leave pen (or move 1)
 * 6 - leave pen (or move 1
 
-    These cards let you leave the bullseye:
+These cards let you leave the bullseye:
 
 * J - leave bullseye (or move 1)
 * Q - leave bullseye (or move 1)
 * K - leave bullseye (or move 1)
 
-    And then Jacks can trade.
+And then Jacks can trade.
+
 * J - trade with opponent piece (or move 1)
 
 
@@ -50,6 +51,7 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
+
     jack swap/kill:
         at least fix comment
 
