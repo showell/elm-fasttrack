@@ -224,23 +224,11 @@ locationView pieceMap zoneColor startLocs endLocs activeColor selectedLocation l
         w =
             squareSize - gutterSize
 
-        h =
-            squareSize - gutterSize
-
-        radius =
-            w / 2
-
         cx_ =
             locationInfo.x * squareSize
 
         cy_ =
             panelHeight - (locationInfo.y * squareSize)
-
-        xpos =
-            cx_ - w / 2
-
-        ypos =
-            cy_ - h / 2
 
         myPiece =
             getPiece pieceMap pieceLocation
@@ -304,6 +292,16 @@ locationView pieceMap zoneColor startLocs endLocs activeColor selectedLocation l
 
         sLocation =
             if isRect then
+                let
+                    h =
+                        w
+
+                    xpos =
+                        cx_ - w / 2
+
+                    ypos =
+                        cy_ - h / 2
+                in
                 rect
                     ([ x (String.fromFloat xpos)
                      , y (String.fromFloat ypos)
@@ -318,6 +316,10 @@ locationView pieceMap zoneColor startLocs endLocs activeColor selectedLocation l
                     []
 
             else
+                let
+                    radius =
+                        w / 2
+                in
                 circle
                     ([ cx (String.fromFloat cx_)
                      , cy (String.fromFloat cy_)
