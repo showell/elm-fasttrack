@@ -6,12 +6,16 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
-    update README to indicate it mostly works
-
     snake_case -> elmCase
+
+    show what cards can do
+
+    update README to indicate it mostly works
 
     jack swap/kill:
         at least fix comment
+
+    fix sizes
 
     fix before-turn-card experience:
         show pieces that can be moved
