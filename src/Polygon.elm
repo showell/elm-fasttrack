@@ -1,6 +1,6 @@
 module Polygon exposing
-    ( get_center_offset
-    , make_polygon
+    ( getCenterOffset
+    , makePolygon
     )
 
 import Svg
@@ -13,32 +13,32 @@ import Svg.Attributes
         )
 
 
-get_angle : Int -> Float
-get_angle side_count =
-    360.0 / toFloat side_count
+getAngle : Int -> Float
+getAngle sideCount =
+    360.0 / toFloat sideCount
 
 
-incircle_radius : Int -> Float -> Float
-incircle_radius side_count panel_width =
+incircleRadius : Int -> Float -> Float
+incircleRadius sideCount panelWidth =
     let
         angle =
             180.0
-                / toFloat side_count
+                / toFloat sideCount
                 |> degrees
 
-        half_side =
-            panel_width / 2
+        halfSide =
+            panelWidth / 2
     in
-    half_side / tan angle
+    halfSide / tan angle
 
 
-get_center_offset : Int -> Float -> Float -> Float
-get_center_offset side_count panel_width panel_height =
-    panel_height + incircle_radius side_count panel_width
+getCenterOffset : Int -> Float -> Float -> Float
+getCenterOffset sideCount panelWidth panelHeight =
+    panelHeight + incircleRadius sideCount panelWidth
 
 
-make_polygon : Float -> Float -> List (Svg.Svg msg) -> Svg.Svg msg
-make_polygon panel_width panel_height panels =
+makePolygon : Float -> Float -> List (Svg.Svg msg) -> Svg.Svg msg
+makePolygon panelWidth panelHeight panels =
     {--
         This function takes N svg elements (which I call panels) and
         arrange them in a sort of circular fashion so that the edges
@@ -53,29 +53,29 @@ make_polygon panel_width panel_height panels =
         the side of the eventual polygon.
     --}
     let
-        side_count =
+        sideCount =
             List.length panels
 
-        pad_one_panel panel =
+        padOnePanel panel =
             let
                 offset =
-                    incircle_radius side_count panel_width
+                    incircleRadius sideCount panelWidth
 
                 translate =
                     "translate(0 " ++ String.fromFloat offset ++ ")"
             in
             g [ transform translate ] [ panel ]
 
-        arrange_one_panel idx panel =
+        arrangeOnePanel idx panel =
             let
                 angle =
-                    toFloat idx * get_angle side_count
+                    toFloat idx * getAngle sideCount
 
-                center_offset =
-                    get_center_offset side_count panel_width panel_height
+                centerOffset =
+                    getCenterOffset sideCount panelWidth panelHeight
 
                 center =
-                    String.fromFloat center_offset
+                    String.fromFloat centerOffset
 
                 translate =
                     "translate(" ++ center ++ " " ++ center ++ ")"
@@ -88,9 +88,9 @@ make_polygon panel_width panel_height panels =
             in
             g [ transform transform_ ] [ panel ]
 
-        new_panels =
+        newPanels =
             panels
-                |> List.map pad_one_panel
-                |> List.indexedMap arrange_one_panel
+                |> List.map padOnePanel
+                |> List.indexedMap arrangeOnePanel
     in
-    g [] new_panels
+    g [] newPanels

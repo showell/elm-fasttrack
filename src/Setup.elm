@@ -1,11 +1,11 @@
 module Setup exposing
-    ( starting_hand
-    , starting_locations
+    ( startingHand
+    , startingLocations
     )
 
 import Config
     exposing
-        ( holding_pen_locations
+        ( holdingPenLocations
         )
 import Type
     exposing
@@ -17,7 +17,7 @@ import Type
 
 
 {--
-This dev_hack code is for developers...if you turn it on,
+This devHack code is for developers...if you turn it on,
 it sets up pieces in "interesting" configurations to
 facilitate manual testing of scenarios like splitting
 sevens, trading jacks, and being forced to go in
@@ -35,35 +35,35 @@ type InitSetup
     | Cover
 
 
-init_setup : InitSetup
-init_setup =
+initSetup : InitSetup
+initSetup =
     Normal
 
 
-starting_locations : Color -> List PieceLocation
-starting_locations color =
+startingLocations : Color -> List PieceLocation
+startingLocations color =
     let
-        in_my_zone ids =
+        inMyZone ids =
             ids
                 |> List.map (\id -> ( color, id ))
     in
-    case init_setup of
+    case initSetup of
         ForcedToReverse ->
             [ "HP1", "B1", "B3", "R0" ]
-                |> in_my_zone
+                |> inMyZone
 
         Cover ->
             [ "HP1", "HP2", "HP3", "B2" ]
-                |> in_my_zone
+                |> inMyZone
 
         _ ->
-            holding_pen_locations
-                |> in_my_zone
+            holdingPenLocations
+                |> inMyZone
 
 
-starting_hand : Color -> List Card
-starting_hand color =
-    case init_setup of
+startingHand : Color -> List Card
+startingHand color =
+    case initSetup of
         ForcedToReverse ->
             [ "7", "8", "10", "9", "9" ]
 

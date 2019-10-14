@@ -6,8 +6,6 @@ HOW TO BUILD:
     elm make --optimize src/ft.elm --output ft.html
 
 TODO:
-    snake_case -> elmCase
-
     show what cards can do
 
     update README to indicate it mostly works

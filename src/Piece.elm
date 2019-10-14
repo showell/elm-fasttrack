@@ -1,21 +1,21 @@
 module Piece exposing
-    ( bring_player_out
-    , config_pieces
-    , fake_location
-    , get_piece
-    , get_the_piece
-    , move_piece
+    ( bringPlayerOut
+    , configPieces
+    , fakeLocation
+    , getPiece
+    , getThePiece
+    , movePiece
     )
 
 import Config
     exposing
-        ( holding_pen_locations
+        ( holdingPenLocations
         )
 import Dict
 import List.Extra
 import Setup
     exposing
-        ( starting_locations
+        ( startingLocations
         )
 import Type
     exposing
@@ -27,31 +27,31 @@ import Type
         )
 
 
-fake_location : PieceLocation
-fake_location =
+fakeLocation : PieceLocation
+fakeLocation =
     ( "bogus", "bogus" )
 
 
-get_piece : PieceDict -> PieceLocation -> Maybe String
-get_piece piece_map piece_loc =
-    Dict.get piece_loc piece_map
+getPiece : PieceDict -> PieceLocation -> Maybe String
+getPiece pieceMap pieceLoc =
+    Dict.get pieceLoc pieceMap
 
 
-get_the_piece : PieceDict -> PieceLocation -> String
-get_the_piece piece_map piece_loc =
+getThePiece : PieceDict -> PieceLocation -> String
+getThePiece pieceMap pieceLoc =
     -- This should be called ONLY when we know there's
     -- a piece at the location.  Most use cases are when
     -- our callers already know the location has a valid
     -- piece, because they're iterating through some kind
     -- of list of moves that have already been validated.
-    Dict.get piece_loc piece_map
+    Dict.get pieceLoc pieceMap
         |> Maybe.withDefault "bogus"
 
 
-is_open_location : PieceDict -> PieceLocation -> Bool
-is_open_location piece_map piece_loc =
+isOpenLocation : PieceDict -> PieceLocation -> Bool
+isOpenLocation pieceMap pieceLoc =
     case
-        get_piece piece_map piece_loc
+        getPiece pieceMap pieceLoc
     of
         Nothing ->
             True
@@ -60,107 +60,107 @@ is_open_location piece_map piece_loc =
             False
 
 
-occupied_holding_pen_location : PieceDict -> Color -> Maybe PieceLocation
-occupied_holding_pen_location piece_map color =
+occupiedHoldingPenLocation : PieceDict -> Color -> Maybe PieceLocation
+occupiedHoldingPenLocation pieceMap color =
     let
-        is_occupied id =
-            get_piece piece_map ( color, id ) /= Nothing
+        isOccupied id =
+            getPiece pieceMap ( color, id ) /= Nothing
     in
-    holding_pen_locations
-        |> List.Extra.find is_occupied
+    holdingPenLocations
+        |> List.Extra.find isOccupied
         |> Maybe.map (\id -> ( color, id ))
 
 
-open_holding_pen_location : PieceDict -> Color -> PieceLocation
-open_holding_pen_location piece_map color =
+openHoldingPenLocation : PieceDict -> Color -> PieceLocation
+openHoldingPenLocation pieceMap color =
     -- We expect to only be called when we know we're sending a
     -- piece home, so there should always be a square.
     let
-        is_open id =
-            is_open_location piece_map ( color, id )
+        isOpen id =
+            isOpenLocation pieceMap ( color, id )
     in
-    List.Extra.find is_open holding_pen_locations
+    List.Extra.find isOpen holdingPenLocations
         |> Maybe.andThen (\id -> Just ( color, id ))
-        |> Maybe.withDefault fake_location
+        |> Maybe.withDefault fakeLocation
 
 
-config_zone_pieces : String -> PieceDict -> PieceDict
-config_zone_pieces color piece_map =
+configZonePieces : String -> PieceDict -> PieceDict
+configZonePieces color pieceMap =
     let
         assign loc =
             Dict.insert loc color
     in
-    List.foldl assign piece_map (starting_locations color)
+    List.foldl assign pieceMap (startingLocations color)
 
 
-config_pieces : List Color -> PieceDict
-config_pieces zone_colors =
+configPieces : List Color -> PieceDict
+configPieces zoneColors =
     let
         dct =
             Dict.empty
     in
-    List.foldl config_zone_pieces dct zone_colors
+    List.foldl configZonePieces dct zoneColors
 
 
-bring_player_out : Color -> PieceDict -> PieceDict
-bring_player_out color piece_map =
+bringPlayerOut : Color -> PieceDict -> PieceDict
+bringPlayerOut color pieceMap =
     let
-        pen_loc =
-            occupied_holding_pen_location piece_map color
+        penLoc =
+            occupiedHoldingPenLocation pieceMap color
     in
-    case pen_loc of
+    case penLoc of
         Nothing ->
             -- probably a bug
-            piece_map
+            pieceMap
 
-        Just start_loc ->
+        Just startLoc ->
             let
-                end_loc =
+                endLoc =
                     ( color, "L0" )
 
-                move_type =
+                moveType =
                     ComeOutWithCredits
 
                 move =
-                    ( move_type, start_loc, end_loc )
+                    ( moveType, startLoc, endLoc )
             in
-            piece_map
-                |> move_piece move
+            pieceMap
+                |> movePiece move
 
 
-move_piece : Move -> PieceDict -> PieceDict
-move_piece move piece_map =
+movePiece : Move -> PieceDict -> PieceDict
+movePiece move pieceMap =
     let
-        ( move_type, start_loc, end_loc ) =
+        ( moveType, startLoc, endLoc ) =
             move
 
-        want_trade =
-            move_type == JackTrade
+        wantTrade =
+            moveType == JackTrade
 
-        start_color =
-            get_the_piece piece_map start_loc
+        startColor =
+            getThePiece pieceMap startLoc
 
-        maybe_end_color =
-            get_piece piece_map end_loc
+        maybeEndColor =
+            getPiece pieceMap endLoc
     in
-    case maybe_end_color of
-        Just end_color ->
-            if want_trade then
-                piece_map
-                    |> Dict.insert start_loc end_color
-                    |> Dict.insert end_loc start_color
+    case maybeEndColor of
+        Just endColor ->
+            if wantTrade then
+                pieceMap
+                    |> Dict.insert startLoc endColor
+                    |> Dict.insert endLoc startColor
 
             else
                 let
-                    pen_loc =
-                        open_holding_pen_location piece_map end_color
+                    penLoc =
+                        openHoldingPenLocation pieceMap endColor
                 in
-                piece_map
-                    |> Dict.insert pen_loc end_color
-                    |> Dict.remove start_loc
-                    |> Dict.insert end_loc start_color
+                pieceMap
+                    |> Dict.insert penLoc endColor
+                    |> Dict.remove startLoc
+                    |> Dict.insert endLoc startColor
 
         _ ->
-            piece_map
-                |> Dict.remove start_loc
-                |> Dict.insert end_loc start_color
+            pieceMap
+                |> Dict.remove startLoc
+                |> Dict.insert endLoc startColor

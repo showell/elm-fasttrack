@@ -1,41 +1,41 @@
 module Player exposing
-    ( activate_card
-    , begin_turn
-    , clear_credits
-    , config_players
-    , cover_card
-    , discard_card
-    , end_locs_for_player
-    , finish_move
-    , get_playable_cards
-    , get_player
-    , get_player_move_type
-    , get_start_location
-    , maybe_replenish_hand
-    , replenish_hand
-    , set_start_location
-    , set_turn
-    , start_locs_for_player
-    , update_active_player
+    ( activateCard
+    , beginTurn
+    , clearCredits
+    , configPlayers
+    , coverCard
+    , discardCard
+    , endLocsForPlayer
+    , finishMove
+    , getPlayableCards
+    , getPlayer
+    , getPlayerMoveType
+    , getStartLocation
+    , maybeReplenishHand
+    , replenishHand
+    , setStartLocation
+    , setTurn
+    , startLocsForPlayer
+    , updateActivePlayer
     )
 
 import Config
     exposing
-        ( full_deck
+        ( fullDeck
         )
 import Dict
 import LegalMove
     exposing
-        ( get_card_for_move_type
-        , get_moves_for_cards
-        , get_moves_for_move_type
+        ( getCardForMoveType
+        , getMovesForCards
+        , getMovesForMoveType
         )
 import List.Extra
 import Random
 import Set
 import Setup
     exposing
-        ( starting_hand
+        ( startingHand
         )
 import Type
     exposing
@@ -53,36 +53,36 @@ import Type
         )
 
 
-get_playable_cards : Player -> Set.Set Card
-get_playable_cards player =
+getPlayableCards : Player -> Set.Set Card
+getPlayableCards player =
     case player.turn of
         TurnNeedCard info ->
             info.moves
-                |> List.map (\( move_type, _, _ ) -> move_type)
-                |> List.map get_card_for_move_type
+                |> List.map (\( moveType, _, _ ) -> moveType)
+                |> List.map getCardForMoveType
                 |> Set.fromList
 
         _ ->
             Set.empty
 
 
-get_player_move_type : Player -> PieceLocation -> Maybe MoveType
-get_player_move_type player end_loc =
+getPlayerMoveType : Player -> PieceLocation -> Maybe MoveType
+getPlayerMoveType player endLoc =
     case player.turn of
         TurnNeedEndLoc info ->
             let
                 moves =
                     info.moves
-                        |> List.filter (\( _, _, end ) -> end == end_loc)
+                        |> List.filter (\( _, _, end ) -> end == endLoc)
 
-                move_types =
+                moveTypes =
                     moves
-                        |> List.map (\( move_type, _, _ ) -> move_type)
+                        |> List.map (\( moveType, _, _ ) -> moveType)
 
-                the_move_type =
-                    case List.length move_types of
+                theMoveType =
+                    case List.length moveTypes of
                         1 ->
-                            List.head move_types
+                            List.head moveTypes
 
                         2 ->
                             -- The only way we'd have two possible ways
@@ -95,72 +95,72 @@ get_player_move_type player end_loc =
                             --
                             -- TODO: make this way more rigourous (and let user
                             --       choose)
-                            List.head move_types
+                            List.head moveTypes
 
                         _ ->
                             -- programming error
                             Nothing
             in
-            the_move_type
+            theMoveType
 
         _ ->
             -- programming error
             Nothing
 
 
-config_player : Color -> Player
-config_player color =
+configPlayer : Color -> Player
+configPlayer color =
     let
-        -- starting_hand is usually empty, unless
-        -- we turn on dev_hack
-        original_setup =
-            { deck = full_deck
-            , hand = starting_hand color
-            , get_out_credits = 0
+        -- startingHand is usually empty, unless
+        -- we turn on devHack
+        originalSetup =
+            { deck = fullDeck
+            , hand = startingHand color
+            , getOutCredits = 0
             , turn = TurnBegin
             }
     in
-    original_setup
+    originalSetup
 
 
-config_players : List Color -> PlayerDict
-config_players zone_colors =
+configPlayers : List Color -> PlayerDict
+configPlayers zoneColors =
     let
-        config_one color =
-            Dict.insert color (config_player color)
+        configOne color =
+            Dict.insert color (configPlayer color)
 
         dct =
             Dict.empty
     in
-    List.foldl config_one dct zone_colors
+    List.foldl configOne dct zoneColors
 
 
-get_player : PlayerDict -> Color -> Player
-get_player players color =
+getPlayer : PlayerDict -> Color -> Player
+getPlayer players color =
     -- The "Maybe" is just to satisfy the compiler
     Dict.get color players
-        |> Maybe.withDefault (config_player color)
+        |> Maybe.withDefault (configPlayer color)
 
 
-is_move_again_card : Card -> Bool
-is_move_again_card card =
+isMoveAgainCard : Card -> Bool
+isMoveAgainCard card =
     List.member card [ "A", "K", "Q", "J", "joker", "6" ]
 
 
-get_moves_for_player : Player -> PieceDict -> List Color -> Color -> List Move
-get_moves_for_player player piece_map zone_colors active_color =
+getMovesForPlayer : Player -> PieceDict -> List Color -> Color -> List Move
+getMovesForPlayer player pieceMap zoneColors activeColor =
     let
         cards =
             Set.fromList player.hand
     in
-    get_moves_for_cards cards piece_map zone_colors active_color
+    getMovesForCards cards pieceMap zoneColors activeColor
 
 
-turn_need_card : PieceDict -> List Color -> Color -> Player -> Player
-turn_need_card piece_map zone_colors active_color player =
+turnNeedCard : PieceDict -> List Color -> Color -> Player -> Player
+turnNeedCard pieceMap zoneColors activeColor player =
     let
         moves =
-            get_moves_for_player player piece_map zone_colors active_color
+            getMovesForPlayer player pieceMap zoneColors activeColor
     in
     if List.length moves == 0 then
         let
@@ -182,15 +182,15 @@ turn_need_card piece_map zone_colors active_color player =
                 TurnNeedCard
                     { moves = moves
                     }
-            , get_out_credits = 0
+            , getOutCredits = 0
         }
 
 
-maybe_finish_turn : Card -> PieceDict -> List Color -> Color -> Player -> Player
-maybe_finish_turn card piece_map zone_colors active_color player =
-    if is_move_again_card card then
+maybeFinishTurn : Card -> PieceDict -> List Color -> Color -> Player -> Player
+maybeFinishTurn card pieceMap zoneColors activeColor player =
+    if isMoveAgainCard card then
         player
-            |> turn_need_card piece_map zone_colors active_color
+            |> turnNeedCard pieceMap zoneColors activeColor
 
     else
         { player
@@ -198,72 +198,72 @@ maybe_finish_turn card piece_map zone_colors active_color player =
         }
 
 
-maybe_replenish_hand : Color -> Model -> Model
-maybe_replenish_hand active_color model =
+maybeReplenishHand : Color -> Model -> Model
+maybeReplenishHand activeColor model =
     let
         player =
-            get_player model.players active_color
+            getPlayer model.players activeColor
     in
     if List.length player.hand > 0 then
         model
 
     else
-        replenish_hand active_color model
+        replenishHand activeColor model
 
 
-set_turn_to_need_card : Color -> Model -> Model
-set_turn_to_need_card active_color model =
-    update_active_player
+setTurnToNeedCard : Color -> Model -> Model
+setTurnToNeedCard activeColor model =
+    updateActivePlayer
         (\player ->
             let
-                piece_map =
-                    model.piece_map
+                pieceMap =
+                    model.pieceMap
 
-                zone_colors =
-                    model.zone_colors
+                zoneColors =
+                    model.zoneColors
             in
             player
-                |> turn_need_card piece_map zone_colors active_color
+                |> turnNeedCard pieceMap zoneColors activeColor
         )
         model
 
 
-finish_seven_split : PieceDict -> List Color -> Color -> Int -> PieceLocation -> Turn
-finish_seven_split piece_map zone_colors active_color distance end_loc =
+finishSevenSplit : PieceDict -> List Color -> Color -> Int -> PieceLocation -> Turn
+finishSevenSplit pieceMap zoneColors activeColor distance endLoc =
     let
-        move_count =
+        moveCount =
             7 - distance
 
         -- We exclude the piece we just moved from the subsequent split.  We
         -- keep track of the piece by its location.
-        exclude_loc =
-            end_loc
+        excludeLoc =
+            endLoc
 
-        play_type =
-            FinishSeven move_count
+        playType =
+            FinishSeven moveCount
 
-        move_type =
-            FinishSplit move_count exclude_loc
+        moveType =
+            FinishSplit moveCount excludeLoc
 
         moves =
-            get_moves_for_move_type move_type piece_map zone_colors active_color
+            getMovesForMoveType moveType pieceMap zoneColors activeColor
 
-        start_locs =
+        startLocs =
             moves
                 |> List.map (\( _, start, _ ) -> start)
                 |> Set.fromList
     in
     TurnNeedStartLoc
-        { play_type = play_type
+        { playType = playType
         , moves = moves
-        , start_locs = start_locs
+        , startLocs = startLocs
         }
 
 
-clear_credits : Player -> Player
-clear_credits player =
+clearCredits : Player -> Player
+clearCredits player =
     let
-        new_turn =
+        newTurn =
             case player.turn of
                 TurnNeedDiscard ->
                     TurnNeedCover
@@ -272,56 +272,56 @@ clear_credits player =
                     other
     in
     { player
-        | get_out_credits = 0
-        , turn = new_turn
+        | getOutCredits = 0
+        , turn = newTurn
     }
 
 
-finish_move : PieceDict -> List Color -> Color -> Move -> Player -> Player
-finish_move piece_map zone_colors active_color move player =
+finishMove : PieceDict -> List Color -> Color -> Move -> Player -> Player
+finishMove pieceMap zoneColors activeColor move player =
     let
-        ( move_type, _, end_loc ) =
+        ( moveType, _, endLoc ) =
             move
 
         card =
-            get_card_for_move_type move_type
+            getCardForMoveType moveType
     in
-    case move_type of
+    case moveType of
         StartSplit distance ->
             let
                 turn =
-                    finish_seven_split piece_map zone_colors active_color distance end_loc
+                    finishSevenSplit pieceMap zoneColors activeColor distance endLoc
             in
             { player | turn = turn }
 
         _ ->
             player
-                |> maybe_finish_turn card piece_map zone_colors active_color
+                |> maybeFinishTurn card pieceMap zoneColors activeColor
 
 
-set_start_location : PieceLocation -> Player -> Player
-set_start_location start_loc player =
+setStartLocation : PieceLocation -> Player -> Player
+setStartLocation startLoc player =
     case player.turn of
         TurnNeedStartLoc info ->
             let
-                play_type =
-                    info.play_type
+                playType =
+                    info.playType
 
                 moves =
                     info.moves
-                        |> List.filter (\( _, start, _ ) -> start == start_loc)
+                        |> List.filter (\( _, start, _ ) -> start == startLoc)
 
-                end_locs =
+                endLocs =
                     moves
                         |> List.map (\( _, _, end ) -> end)
                         |> Set.fromList
 
                 turn =
                     TurnNeedEndLoc
-                        { play_type = play_type
+                        { playType = playType
                         , moves = moves
-                        , start_location = start_loc
-                        , end_locs = end_locs
+                        , startLocation = startLoc
+                        , endLocs = endLocs
                         }
             in
             { player | turn = turn }
@@ -330,43 +330,43 @@ set_start_location start_loc player =
             player
 
 
-get_start_location : Player -> Maybe PieceLocation
-get_start_location player =
+getStartLocation : Player -> Maybe PieceLocation
+getStartLocation player =
     case player.turn of
         TurnNeedEndLoc info ->
-            Just info.start_location
+            Just info.startLocation
 
         _ ->
             Nothing
 
 
-update_active_player : (Player -> Player) -> Model -> Model
-update_active_player f model =
+updateActivePlayer : (Player -> Player) -> Model -> Model
+updateActivePlayer f model =
     let
-        active_color =
-            model.get_active_color model.zone_colors
+        activeColor =
+            model.getActiveColor model.zoneColors
 
         players =
-            update_player model.players active_color f
+            updatePlayer model.players activeColor f
     in
     { model | players = players }
 
 
-update_player : PlayerDict -> Color -> (Player -> Player) -> PlayerDict
-update_player players color f =
+updatePlayer : PlayerDict -> Color -> (Player -> Player) -> PlayerDict
+updatePlayer players color f =
     let
         player =
-            get_player players color
+            getPlayer players color
 
-        new_player =
+        newPlayer =
             f player
     in
-    Dict.insert color new_player players
+    Dict.insert color newPlayer players
 
 
-set_turn : Color -> Turn -> PlayerDict -> PlayerDict
-set_turn color turn players =
-    update_player
+setTurn : Color -> Turn -> PlayerDict -> PlayerDict
+setTurn color turn players =
+    updatePlayer
         players
         color
         (\player ->
@@ -376,8 +376,8 @@ set_turn color turn players =
         )
 
 
-discard_card : Int -> Player -> Player
-discard_card idx player =
+discardCard : Int -> Player -> Player
+discardCard idx player =
     case List.Extra.getAt idx player.hand of
         Nothing ->
             -- some kind of programming error or race
@@ -388,11 +388,11 @@ discard_card idx player =
             case player.turn of
                 TurnNeedDiscard ->
                     let
-                        new_hand =
+                        newHand =
                             List.Extra.removeAt idx player.hand
 
                         turn =
-                            if is_move_again_card card then
+                            if isMoveAgainCard card then
                                 -- we can rely on the caller to move us to
                                 -- TurnNeedCover if we have enough credits to get
                                 -- out of the pen
@@ -402,12 +402,12 @@ discard_card idx player =
                                 TurnDone
 
                         credits =
-                            player.get_out_credits + 1
+                            player.getOutCredits + 1
                     in
                     { player
-                        | hand = new_hand
+                        | hand = newHand
                         , turn = turn
-                        , get_out_credits = credits
+                        , getOutCredits = credits
                     }
 
                 _ ->
@@ -415,8 +415,8 @@ discard_card idx player =
                     player
 
 
-cover_card : Int -> Player -> Player
-cover_card idx player =
+coverCard : Int -> Player -> Player
+coverCard idx player =
     case List.Extra.getAt idx player.hand of
         Nothing ->
             -- some kind of programming error or race
@@ -427,18 +427,18 @@ cover_card idx player =
             case player.turn of
                 TurnNeedCover ->
                     let
-                        new_hand =
+                        newHand =
                             List.Extra.removeAt idx player.hand
 
                         turn =
-                            if is_move_again_card card then
+                            if isMoveAgainCard card then
                                 TurnNeedCover
 
                             else
                                 TurnDone
                     in
                     { player
-                        | hand = new_hand
+                        | hand = newHand
                         , turn = turn
                     }
 
@@ -447,46 +447,46 @@ cover_card idx player =
                     player
 
 
-activate_card : Int -> Player -> Player
-activate_card idx player =
+activateCard : Int -> Player -> Player
+activateCard idx player =
     case List.Extra.getAt idx player.hand of
         Nothing ->
             -- some kind of programming error or race
             -- condition must have happened
             player
 
-        Just active_card ->
+        Just activeCard ->
             case player.turn of
                 TurnNeedCard info ->
                     let
-                        new_hand =
+                        newHand =
                             List.Extra.removeAt idx player.hand
 
-                        good_move move =
+                        goodMove move =
                             let
-                                ( move_type, _, _ ) =
+                                ( moveType, _, _ ) =
                                     move
                             in
-                            get_card_for_move_type move_type == active_card
+                            getCardForMoveType moveType == activeCard
 
                         moves =
                             info.moves
-                                |> List.filter good_move
+                                |> List.filter goodMove
 
-                        start_locs =
+                        startLocs =
                             moves
                                 |> List.map (\( _, start, _ ) -> start)
                                 |> Set.fromList
 
                         turn =
                             TurnNeedStartLoc
-                                { play_type = PlayCard active_card
+                                { playType = PlayCard activeCard
                                 , moves = moves
-                                , start_locs = start_locs
+                                , startLocs = startLocs
                                 }
                     in
                     { player
-                        | hand = new_hand
+                        | hand = newHand
                         , turn = turn
                     }
 
@@ -496,38 +496,38 @@ activate_card idx player =
                     player
 
 
-maybe_replenish_deck : List Card -> List Card
-maybe_replenish_deck deck =
+maybeReplenishDeck : List Card -> List Card
+maybeReplenishDeck deck =
     case List.length deck of
         0 ->
-            full_deck
+            fullDeck
 
         _ ->
             deck
 
 
-replenish_hand : Color -> Model -> Model
-replenish_hand active_color model =
+replenishHand : Color -> Model -> Model
+replenishHand activeColor model =
     let
         players =
             model.players
 
-        active_player =
-            get_player model.players active_color
+        activePlayer =
+            getPlayer model.players activeColor
     in
-    if List.length active_player.hand >= 5 then
+    if List.length activePlayer.hand >= 5 then
         -- The length of the hand should never actually
         -- exceed 5, but we want to prevent infinite loops
-        -- for dev_hack kind of stuff.
+        -- for devHack kind of stuff.
         model
 
     else
         let
             ( idx, seed ) =
-                get_card_idx active_player model.seed
+                getCardIdx activePlayer model.seed
 
             players_ =
-                update_player players active_color (draw_card idx)
+                updatePlayer players activeColor (drawCard idx)
 
             model_ =
                 { model
@@ -535,18 +535,18 @@ replenish_hand active_color model =
                     , seed = seed
                 }
         in
-        replenish_hand active_color model_
+        replenishHand activeColor model_
 
 
-begin_turn : Color -> Model -> Model
-begin_turn active_color model =
+beginTurn : Color -> Model -> Model
+beginTurn activeColor model =
     model
-        |> replenish_hand active_color
-        |> set_turn_to_need_card active_color
+        |> replenishHand activeColor
+        |> setTurnToNeedCard activeColor
 
 
-get_card_idx : Player -> Random.Seed -> ( Int, Random.Seed )
-get_card_idx player seed =
+getCardIdx : Player -> Random.Seed -> ( Int, Random.Seed )
+getCardIdx player seed =
     let
         deckCount =
             List.length player.deck
@@ -557,8 +557,8 @@ get_card_idx player seed =
     Random.step (Random.int 0 max) seed
 
 
-draw_card : Int -> Player -> Player
-draw_card idx player =
+drawCard : Int -> Player -> Player
+drawCard idx player =
     case List.Extra.getAt idx player.deck of
         Nothing ->
             -- this should never happen...idx should always be valid
@@ -573,26 +573,26 @@ draw_card idx player =
                     List.Extra.removeAt idx player.deck
             in
             { player
-                | deck = maybe_replenish_deck deck
+                | deck = maybeReplenishDeck deck
                 , hand = hand
             }
 
 
-start_locs_for_player : Player -> Set.Set PieceLocation
-start_locs_for_player player =
+startLocsForPlayer : Player -> Set.Set PieceLocation
+startLocsForPlayer player =
     case player.turn of
         TurnNeedStartLoc info ->
-            info.start_locs
+            info.startLocs
 
         _ ->
             Set.empty
 
 
-end_locs_for_player : Player -> Set.Set PieceLocation
-end_locs_for_player player =
+endLocsForPlayer : Player -> Set.Set PieceLocation
+endLocsForPlayer player =
     case player.turn of
         TurnNeedEndLoc info ->
-            info.end_locs
+            info.endLocs
 
         _ ->
             Set.empty

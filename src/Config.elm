@@ -1,16 +1,16 @@
 module Config exposing
-    ( config_locations
-    , full_deck
-    , get_zone_colors
-    , gutter_size
-    , holding_pen_locations
-    , is_base_id
-    , is_holding_pen_id
-    , move_count_for_card
-    , next_ids_in_zone
-    , num_credits_to_get_out
-    , prev_id_in_zone
-    , square_size
+    ( configLocations
+    , fullDeck
+    , getZoneColors
+    , gutterSize
+    , holdingPenLocations
+    , isBaseId
+    , isHoldingPenId
+    , moveCountForCard
+    , nextIdsInZone
+    , numCreditsToGetOut
+    , prevIdInZone
+    , squareSize
     )
 
 import Set
@@ -22,48 +22,48 @@ import Type
         )
 
 
-num_credits_to_get_out : Int
-num_credits_to_get_out =
+numCreditsToGetOut : Int
+numCreditsToGetOut =
     5
 
 
-gutter_size : Float
-gutter_size =
+gutterSize : Float
+gutterSize =
     4.0
 
 
-square_size : Float
-square_size =
+squareSize : Float
+squareSize =
     26.0
 
 
-get_zone_colors : Int -> List String
-get_zone_colors num_players =
-    List.take num_players [ "red", "blue", "green", "purple", "aqua", "brown" ]
+getZoneColors : Int -> List String
+getZoneColors numPlayers =
+    List.take numPlayers [ "red", "blue", "green", "purple", "aqua", "brown" ]
 
 
-base_locations : List String
-base_locations =
+baseLocations : List String
+baseLocations =
     [ "B1", "B2", "B3", "B4" ]
 
 
-is_base_id : String -> Bool
-is_base_id id =
-    Set.member id (Set.fromList base_locations)
+isBaseId : String -> Bool
+isBaseId id =
+    Set.member id (Set.fromList baseLocations)
 
 
-holding_pen_locations : List String
-holding_pen_locations =
+holdingPenLocations : List String
+holdingPenLocations =
     [ "HP1", "HP2", "HP3", "HP4" ]
 
 
-is_holding_pen_id : String -> Bool
-is_holding_pen_id id =
-    Set.member id (Set.fromList holding_pen_locations)
+isHoldingPenId : String -> Bool
+isHoldingPenId id =
+    Set.member id (Set.fromList holdingPenLocations)
 
 
-config_locations : List Location
-config_locations =
+configLocations : List Location
+configLocations =
     [ -- holding pen
       { x = -4.2
       , y = 1.7
@@ -160,9 +160,9 @@ config_locations =
     ]
 
 
-move_count_for_card : Card -> String -> Int
-move_count_for_card active_card id =
-    case active_card of
+moveCountForCard : Card -> String -> Int
+moveCountForCard activeCard id =
+    case activeCard of
         "A" ->
             1
 
@@ -179,7 +179,7 @@ move_count_for_card active_card id =
             5
 
         "6" ->
-            if is_holding_pen_id id then
+            if isHoldingPenId id then
                 1
 
             else
@@ -213,8 +213,8 @@ move_count_for_card active_card id =
             0
 
 
-next_ids_in_zone : String -> Color -> Color -> List String
-next_ids_in_zone id piece_color zone_color =
+nextIdsInZone : String -> Color -> Color -> List String
+nextIdsInZone id pieceColor zoneColor =
     -- Note, this handle neither holding pen locations nor
     -- fast track locations--the caller handles those
     -- special cases.
@@ -255,7 +255,7 @@ next_ids_in_zone id piece_color zone_color =
         [ "DS" ]
 
     else if id == "DS" then
-        if zone_color == piece_color then
+        if zoneColor == pieceColor then
             [ "B1" ]
 
         else
@@ -278,8 +278,8 @@ next_ids_in_zone id piece_color zone_color =
         []
 
 
-prev_id_in_zone : String -> String
-prev_id_in_zone id =
+prevIdInZone : String -> String
+prevIdInZone id =
     -- This only handles cases where there is an obvious previous
     -- location to move to.  The caller handles R4, plus holding pen
     -- locations and base locations.
@@ -333,8 +333,8 @@ prev_id_in_zone id =
 -- cards.
 
 
-full_deck : List Card
-full_deck =
+fullDeck : List Card
+fullDeck =
     [ "2"
     , "3"
     , "4"

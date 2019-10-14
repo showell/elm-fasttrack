@@ -3,11 +3,11 @@ module View exposing (view)
 import Browser
 import Config
     exposing
-        ( config_locations
-        , gutter_size
-        , is_base_id
-        , is_holding_pen_id
-        , square_size
+        ( configLocations
+        , gutterSize
+        , isBaseId
+        , isHoldingPenId
+        , squareSize
         )
 import Html
     exposing
@@ -29,24 +29,24 @@ import Html.Events
         )
 import LegalMove
     exposing
-        ( get_card_for_play_type
+        ( getCardForPlayType
         )
 import Piece
     exposing
-        ( get_piece
+        ( getPiece
         )
 import Player
     exposing
-        ( end_locs_for_player
-        , get_playable_cards
-        , get_player
-        , get_start_location
-        , start_locs_for_player
+        ( endLocsForPlayer
+        , getPlayableCards
+        , getPlayer
+        , getStartLocation
+        , startLocsForPlayer
         )
 import Polygon
     exposing
-        ( get_center_offset
-        , make_polygon
+        ( getCenterOffset
+        , makePolygon
         )
 import Set
 import Svg
@@ -104,39 +104,39 @@ view model =
             }
 
         Ready ->
-            normal_view model
+            normalView model
 
 
-normal_view : Model -> Browser.Document Msg
-normal_view model =
+normalView : Model -> Browser.Document Msg
+normalView model =
     let
-        piece_map =
-            model.piece_map
+        pieceMap =
+            model.pieceMap
 
-        zone_colors =
-            model.zone_colors
+        zoneColors =
+            model.zoneColors
 
         players =
             model.players
 
-        active_color =
-            model.get_active_color zone_colors
+        activeColor =
+            model.getActiveColor zoneColors
 
-        active_player =
-            get_player players active_color
+        activePlayer =
+            getPlayer players activeColor
 
         board =
             div
                 []
-                [ board_view piece_map zone_colors active_player active_color ]
+                [ boardView pieceMap zoneColors activePlayer activeColor ]
 
-        player_console =
-            player_view active_player active_color
+        playerConsole =
+            playerView activePlayer activeColor
 
         body =
             [ board
             , hr [] []
-            , player_console
+            , playerConsole
             ]
     in
     { title = "Fast Track"
@@ -144,52 +144,52 @@ normal_view model =
     }
 
 
-board_view : PieceDict -> List Color -> Player -> Color -> Html Msg
-board_view piece_map zone_colors active_player active_color =
+boardView : PieceDict -> List Color -> Player -> Color -> Html Msg
+boardView pieceMap zoneColors activePlayer activeColor =
     let
-        start_location =
-            get_start_location active_player
+        startLocation =
+            getStartLocation activePlayer
 
-        start_locs =
-            start_locs_for_player active_player
+        startLocs =
+            startLocsForPlayer activePlayer
 
-        end_locs =
-            end_locs_for_player active_player
+        endLocs =
+            endLocsForPlayer activePlayer
 
         content =
-            List.map (zone_view piece_map start_locs end_locs active_color start_location) zone_colors
-                |> make_polygon panel_width panel_height
+            List.map (zoneView pieceMap startLocs endLocs activeColor startLocation) zoneColors
+                |> makePolygon panelWidth panelHeight
                 |> nudge
 
-        side_count =
-            List.length zone_colors
+        sideCount =
+            List.length zoneColors
 
-        center_offset =
-            get_center_offset side_count panel_width panel_height
+        centerOffset =
+            getCenterOffset sideCount panelWidth panelHeight
 
-        board_size =
-            String.fromFloat (2 * center_offset + 3 * square_size)
+        boardSize =
+            String.fromFloat (2 * centerOffset + 3 * squareSize)
     in
     svg
-        [ width board_size, height board_size ]
+        [ width boardSize, height boardSize ]
         [ content ]
 
 
-panel_width : Float
-panel_width =
-    4 * square_size
+panelWidth : Float
+panelWidth =
+    4 * squareSize
 
 
-panel_height : Float
-panel_height =
-    5 * square_size
+panelHeight : Float
+panelHeight =
+    5 * squareSize
 
 
 nudge : Svg.Svg Msg -> Svg.Svg Msg
 nudge board =
     let
         offset =
-            String.fromFloat square_size
+            String.fromFloat squareSize
 
         translate =
             "translate(" ++ offset ++ " " ++ offset ++ ")"
@@ -197,41 +197,41 @@ nudge board =
     g [ transform translate ] [ board ]
 
 
-zone_view : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Color -> Html Msg
-zone_view piece_map start_locs end_locs active_color start_location zone_color =
+zoneView : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Color -> Html Msg
+zoneView pieceMap startLocs endLocs activeColor startLocation zoneColor =
     let
         locations =
-            config_locations
+            configLocations
 
-        drawn_locations =
-            List.map (location_view piece_map zone_color start_locs end_locs active_color start_location) locations
+        drawnLocations =
+            List.map (locationView pieceMap zoneColor startLocs endLocs activeColor startLocation) locations
     in
-    g [] drawn_locations
+    g [] drawnLocations
 
 
-location_view : PieceDict -> String -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html Msg
-location_view piece_map zone_color start_locs end_locs active_color selected_location location_info =
+locationView : PieceDict -> String -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html Msg
+locationView pieceMap zoneColor startLocs endLocs activeColor selectedLocation locationInfo =
     let
         id =
-            location_info.id
+            locationInfo.id
 
-        piece_location =
-            ( zone_color, id )
+        pieceLocation =
+            ( zoneColor, id )
 
         w =
-            square_size - gutter_size
+            squareSize - gutterSize
 
         h =
-            square_size - gutter_size
+            squareSize - gutterSize
 
         radius =
             w / 2
 
         cx_ =
-            location_info.x * square_size
+            locationInfo.x * squareSize
 
         cy_ =
-            panel_height - (location_info.y * square_size)
+            panelHeight - (locationInfo.y * squareSize)
 
         xpos =
             cx_ - w / 2
@@ -239,78 +239,78 @@ location_view piece_map zone_color start_locs end_locs active_color selected_loc
         ypos =
             cy_ - h / 2
 
-        my_piece =
-            get_piece piece_map piece_location
+        myPiece =
+            getPiece pieceMap pieceLocation
 
-        is_me =
-            my_piece == Just active_color
+        isMe =
+            myPiece == Just activeColor
 
-        is_selected_piece =
+        isSelectedPiece =
             case
-                selected_location
+                selectedLocation
             of
                 Just location ->
-                    piece_location == location
+                    pieceLocation == location
 
                 Nothing ->
                     False
 
-        is_start_loc =
-            Set.member piece_location start_locs
+        isStartLoc =
+            Set.member pieceLocation startLocs
 
-        is_reachable =
-            Set.member piece_location end_locs
+        isReachable =
+            Set.member pieceLocation endLocs
 
-        fill_color =
-            if is_selected_piece then
+        fillColor =
+            if isSelectedPiece then
                 "lightblue"
 
-            else if is_start_loc then
+            else if isStartLoc then
                 "lightcyan"
 
-            else if is_reachable then
+            else if isReachable then
                 "lightgreen"
 
-            else if is_me then
+            else if isMe then
                 "mintcream"
 
             else
                 "white"
 
-        stroke_color =
-            if is_start_loc then
+        strokeColor =
+            if isStartLoc then
                 "black"
 
             else
-                zone_color
+                zoneColor
 
-        is_rect =
-            is_holding_pen_id id || is_base_id id
+        isRect =
+            isHoldingPenId id || isBaseId id
 
-        loc_handlers =
-            if is_start_loc then
-                [ onClick (SetStartLocation piece_location)
+        locHandlers =
+            if isStartLoc then
+                [ onClick (SetStartLocation pieceLocation)
                 ]
 
-            else if is_reachable then
-                [ onClick (SetEndLocation piece_location)
+            else if isReachable then
+                [ onClick (SetEndLocation pieceLocation)
                 ]
 
             else
                 []
 
-        s_location =
-            if is_rect then
+        sLocation =
+            if isRect then
                 rect
                     ([ x (String.fromFloat xpos)
                      , y (String.fromFloat ypos)
-                     , fill fill_color
-                     , stroke stroke_color
+                     , fill fillColor
+                     , stroke strokeColor
                      , width (String.fromFloat w)
                      , height (String.fromFloat h)
                      , rx "2"
                      ]
-                        ++ loc_handlers
+                        ++ locHandlers
                     )
                     []
 
@@ -318,36 +318,36 @@ location_view piece_map zone_color start_locs end_locs active_color selected_loc
                 circle
                     ([ cx (String.fromFloat cx_)
                      , cy (String.fromFloat cy_)
-                     , fill fill_color
-                     , stroke stroke_color
+                     , fill fillColor
+                     , stroke strokeColor
                      , r (String.fromFloat radius)
                      ]
-                        ++ loc_handlers
+                        ++ locHandlers
                     )
                     []
 
-        s_pieces =
-            case my_piece of
-                Just piece_color ->
-                    [ piece_view piece_color is_selected_piece is_start_loc cx_ cy_ loc_handlers ]
+        sPieces =
+            case myPiece of
+                Just pieceColor ->
+                    [ pieceView pieceColor isSelectedPiece isStartLoc cx_ cy_ locHandlers ]
 
                 Nothing ->
                     []
 
         contents =
-            s_location :: s_pieces
+            sLocation :: sPieces
     in
     g [] contents
 
 
-piece_view : Color -> Bool -> Bool -> Float -> Float -> List (Svg.Attribute Msg) -> Html Msg
-piece_view color is_selected_piece is_start_loc cx_ cy_ handlers =
+pieceView : Color -> Bool -> Bool -> Float -> Float -> List (Svg.Attribute Msg) -> Html Msg
+pieceView color isSelectedPiece isStartLoc cx_ cy_ handlers =
     let
         radius =
-            if is_selected_piece then
+            if isSelectedPiece then
                 "7"
 
-            else if is_start_loc then
+            else if isStartLoc then
                 "6"
 
             else
@@ -366,20 +366,20 @@ piece_view color is_selected_piece is_start_loc cx_ cy_ handlers =
         []
 
 
-player_view : Player -> Color -> Html Msg
-player_view player color =
+playerView : Player -> Color -> Html Msg
+playerView player color =
     let
-        playable_cards =
-            get_playable_cards player
+        playableCards =
+            getPlayableCards player
 
-        hand_cards =
-            List.indexedMap (hand_card_view color player playable_cards) player.hand
+        handCards =
+            List.indexedMap (handCardView color player playableCards) player.hand
 
         hand =
-            span [] hand_cards
+            span [] handCards
 
         deck =
-            deck_view player color
+            deckView player color
 
         console =
             case player.turn of
@@ -396,17 +396,17 @@ player_view player color =
                 TurnNeedCard _ ->
                     div [] [ Html.text "click a card above" ]
 
-                TurnNeedStartLoc turn_info ->
-                    player_need_start turn_info.play_type color
+                TurnNeedStartLoc turnInfo ->
+                    playerNeedStart turnInfo.playType color
 
-                TurnNeedEndLoc turn_info ->
-                    player_need_end turn_info.play_type color
+                TurnNeedEndLoc turnInfo ->
+                    playerNeedEnd turnInfo.playType color
 
                 TurnDone ->
                     div
                         []
                         [ Html.text "ok, now finish your turn"
-                        , rotate_button
+                        , rotateButton
                         ]
 
                 _ ->
@@ -414,7 +414,7 @@ player_view player color =
     in
     div []
         [ span [] [ hand, deck ]
-        , credits_view player
+        , creditsView player
         , console
         ]
 
@@ -426,14 +426,14 @@ type CardAction
     | Ignore
 
 
-hand_card_view : Color -> Player -> Set.Set Card -> Int -> Card -> Html Msg
-hand_card_view color player playable_cards idx card =
+handCardView : Color -> Player -> Set.Set Card -> Int -> Card -> Html Msg
+handCardView color player playableCards idx card =
     let
         action =
             case player.turn of
                 TurnNeedCard _ ->
-                    -- ideally, we should put playable_cards on TurnNeedCard
-                    if Set.member card playable_cards then
+                    -- ideally, we should put playableCards on TurnNeedCard
+                    if Set.member card playableCards then
                         CanActivate
 
                     else
@@ -451,16 +451,16 @@ hand_card_view color player playable_cards idx card =
         css =
             case action of
                 CanActivate ->
-                    card_css color color
+                    cardCss color color
 
                 CanDiscard ->
-                    card_css "gray" color
+                    cardCss "gray" color
 
                 CanCover ->
-                    card_css "gray" color
+                    cardCss "gray" color
 
                 Ignore ->
-                    card_css "gray" "gray"
+                    cardCss "gray" "gray"
 
         attrs =
             case action of
@@ -481,41 +481,41 @@ hand_card_view color player playable_cards idx card =
         [ Html.text card ]
 
 
-player_need_start : PlayType -> Color -> Html Msg
-player_need_start play_type color =
+playerNeedStart : PlayType -> Color -> Html Msg
+playerNeedStart playType color =
     let
         instructions =
-            case play_type of
+            case playType of
                 PlayCard _ ->
                     "click a piece to start move"
 
                 FinishSeven count ->
                     "click a piece to finish split (moving " ++ String.fromInt count ++ ")"
 
-        active_card =
-            get_card_for_play_type play_type
+        activeCard =
+            getCardForPlayType playType
     in
     div []
-        [ active_card_view active_card color instructions
+        [ activeCardView activeCard color instructions
         ]
 
 
-player_need_end : PlayType -> Color -> Html Msg
-player_need_end play_type color =
+playerNeedEnd : PlayType -> Color -> Html Msg
+playerNeedEnd playType color =
     let
-        active_card =
-            get_card_for_play_type play_type
+        activeCard =
+            getCardForPlayType playType
 
         instructions =
             "now click piece's end location"
     in
     div []
-        [ active_card_view active_card color instructions
+        [ activeCardView activeCard color instructions
         ]
 
 
-active_card_view : Card -> Color -> String -> Html Msg
-active_card_view active_card color instructions =
+activeCardView : Card -> Color -> String -> Html Msg
+activeCardView activeCard color instructions =
     let
         css =
             [ style "color" color
@@ -525,13 +525,13 @@ active_card_view active_card color instructions =
             ]
 
         card =
-            b css [ Html.text active_card ]
+            b css [ Html.text activeCard ]
     in
     span [] [ card, Html.text instructions ]
 
 
-deck_view : Player -> Color -> Html Msg
-deck_view player color =
+deckView : Player -> Color -> Html Msg
+deckView player color =
     let
         handCount =
             List.length player.hand
@@ -539,7 +539,7 @@ deck_view player color =
     if (player.turn == TurnDone) && (handCount < 5) then
         let
             css =
-                card_css color color
+                cardCss color color
 
             attrs =
                 [ onClick ReplenishHand ]
@@ -552,9 +552,9 @@ deck_view player color =
         span [] []
 
 
-card_css : Color -> Color -> List (Html.Attribute Msg)
-card_css border_color color =
-    [ style "border-color" border_color
+cardCss : Color -> Color -> List (Html.Attribute Msg)
+cardCss borderColor color =
+    [ style "border-color" borderColor
     , style "color" color
     , style "background" "white"
     , style "padding" "4px"
@@ -564,12 +564,12 @@ card_css border_color color =
     ]
 
 
-credits_view : Player -> Html Msg
-credits_view player =
-    if player.get_out_credits > 0 then
+creditsView : Player -> Html Msg
+creditsView player =
+    if player.getOutCredits > 0 then
         let
             credits =
-                String.fromInt player.get_out_credits
+                String.fromInt player.getOutCredits
         in
         div []
             [ Html.text "You have "
@@ -581,8 +581,8 @@ credits_view player =
         span [] []
 
 
-rotate_button : Html Msg
-rotate_button =
+rotateButton : Html Msg
+rotateButton =
     div
         []
         [ button

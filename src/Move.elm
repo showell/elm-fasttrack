@@ -1,28 +1,28 @@
 module Move exposing
-    ( maybe_auto_move
-    , maybe_get_out_via_discard
-    , move_to_end_loc
+    ( maybeAutoMove
+    , maybeGetOutViaDiscard
+    , moveToEndLoc
     )
 
 import Config
     exposing
-        ( num_credits_to_get_out
+        ( numCreditsToGetOut
         )
 import Piece
     exposing
-        ( bring_player_out
-        , get_piece
-        , move_piece
+        ( bringPlayerOut
+        , getPiece
+        , movePiece
         )
 import Player
     exposing
-        ( clear_credits
-        , end_locs_for_player
-        , finish_move
-        , get_player
-        , get_player_move_type
-        , maybe_replenish_hand
-        , update_active_player
+        ( clearCredits
+        , endLocsForPlayer
+        , finishMove
+        , getPlayer
+        , getPlayerMoveType
+        , maybeReplenishHand
+        , updateActivePlayer
         )
 import Set
 import Type
@@ -36,113 +36,113 @@ import Type
         )
 
 
-perform_move : Model -> Move -> Color -> Model
-perform_move model move active_color =
+performMove : Model -> Move -> Color -> Model
+performMove model move activeColor =
     let
-        ( _, start_loc, _ ) =
+        ( _, startLoc, _ ) =
             move
 
-        piece_map =
-            model.piece_map
+        pieceMap =
+            model.pieceMap
 
-        piece_color =
-            get_piece piece_map start_loc
+        pieceColor =
+            getPiece pieceMap startLoc
     in
-    case piece_color of
+    case pieceColor of
         Nothing ->
             model
 
         Just _ ->
             let
-                zone_colors =
-                    model.zone_colors
+                zoneColors =
+                    model.zoneColors
 
-                new_piece_map =
-                    piece_map
-                        |> move_piece move
+                newPieceMap =
+                    pieceMap
+                        |> movePiece move
 
                 model_ =
                     { model
-                        | piece_map = new_piece_map
+                        | pieceMap = newPieceMap
                     }
             in
             model_
-                |> maybe_replenish_hand active_color
-                |> update_active_player (finish_move new_piece_map zone_colors active_color move)
+                |> maybeReplenishHand activeColor
+                |> updateActivePlayer (finishMove newPieceMap zoneColors activeColor move)
 
 
-maybe_auto_move : PieceLocation -> Model -> Model
-maybe_auto_move start_loc model =
+maybeAutoMove : PieceLocation -> Model -> Model
+maybeAutoMove startLoc model =
     let
-        zone_colors =
-            model.zone_colors
+        zoneColors =
+            model.zoneColors
 
         players =
             model.players
 
-        active_color =
-            model.get_active_color zone_colors
+        activeColor =
+            model.getActiveColor zoneColors
 
-        active_player =
-            get_player players active_color
+        activePlayer =
+            getPlayer players activeColor
 
-        end_locs =
-            end_locs_for_player active_player
+        endLocs =
+            endLocsForPlayer activePlayer
 
-        unique_end_loc =
-            if Set.size end_locs == 1 then
-                end_locs
+        uniqueEndLoc =
+            if Set.size endLocs == 1 then
+                endLocs
                     |> Set.toList
                     |> List.head
 
             else
                 Nothing
     in
-    case unique_end_loc of
+    case uniqueEndLoc of
         Nothing ->
             -- If we don't have exactly one location, don't update the
             -- model (and we have UI to let the user pick the location).
             model
 
-        Just end_loc ->
+        Just endLoc ->
             model
-                |> move_to_end_loc active_player active_color start_loc end_loc
+                |> moveToEndLoc activePlayer activeColor startLoc endLoc
 
 
-maybe_get_out_via_discard : Color -> Model -> Model
-maybe_get_out_via_discard active_color model =
+maybeGetOutViaDiscard : Color -> Model -> Model
+maybeGetOutViaDiscard activeColor model =
     let
         player =
-            get_player model.players active_color
+            getPlayer model.players activeColor
     in
-    if player.get_out_credits < num_credits_to_get_out then
+    if player.getOutCredits < numCreditsToGetOut then
         model
 
     else
         let
-            new_piece_map =
-                model.piece_map
-                    |> bring_player_out active_color
+            newPieceMap =
+                model.pieceMap
+                    |> bringPlayerOut activeColor
         in
         { model
-            | piece_map = new_piece_map
+            | pieceMap = newPieceMap
         }
-            |> update_active_player clear_credits
+            |> updateActivePlayer clearCredits
 
 
-move_to_end_loc : Player -> Color -> PieceLocation -> PieceLocation -> Model -> Model
-move_to_end_loc active_player active_color start_loc end_loc model =
+moveToEndLoc : Player -> Color -> PieceLocation -> PieceLocation -> Model -> Model
+moveToEndLoc activePlayer activeColor startLoc endLoc model =
     let
-        move_type_ =
-            get_player_move_type active_player end_loc
+        moveType_ =
+            getPlayerMoveType activePlayer endLoc
     in
-    case move_type_ of
-        Just move_type ->
+    case moveType_ of
+        Just moveType ->
             let
                 move =
-                    ( move_type, start_loc, end_loc )
+                    ( moveType, startLoc, endLoc )
             in
-            perform_move model move active_color
+            performMove model move activeColor
 
         Nothing ->
             -- this is actually a programming error

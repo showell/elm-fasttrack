@@ -88,17 +88,17 @@ type alias TurnNeedCardInfo =
 
 
 type alias TurnNeedStartLocInfo =
-    { play_type : PlayType
+    { playType : PlayType
     , moves : List Move
-    , start_locs : Set.Set PieceLocation
+    , startLocs : Set.Set PieceLocation
     }
 
 
 type alias TurnNeedEndLocInfo =
-    { play_type : PlayType
-    , start_location : PieceLocation
+    { playType : PlayType
+    , startLocation : PieceLocation
     , moves : List Move
-    , end_locs : Set.Set PieceLocation
+    , endLocs : Set.Set PieceLocation
     }
 
 
@@ -116,7 +116,7 @@ type Turn
 type alias Player =
     { deck : List Card
     , hand : List Card
-    , get_out_credits : Int
+    , getOutCredits : Int
     , turn : Turn
     }
 
@@ -131,22 +131,22 @@ type AppState
 
 
 type alias FindLocParams =
-    { can_fast_track : Bool
-    , can_leave_pen : Bool
-    , reverse_mode : Bool
-    , piece_color : Color
-    , piece_map : PieceDict
-    , zone_colors : List Color
+    { canFastTrack : Bool
+    , canLeavePen : Bool
+    , reverseMode : Bool
+    , pieceColor : Color
+    , pieceMap : PieceDict
+    , zoneColors : List Color
     }
 
 
 type alias Model =
-    { zone_colors : List Color
-    , piece_map : PieceDict
+    { zoneColors : List Color
+    , pieceMap : PieceDict
     , players : PlayerDict
     , seed : Random.Seed
     , state : AppState
-    , get_active_color : List Color -> Color
+    , getActiveColor : List Color -> Color
     }
 
 

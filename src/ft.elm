@@ -3,31 +3,31 @@ module Main exposing (..)
 import Browser
 import Config
     exposing
-        ( get_zone_colors
+        ( getZoneColors
         )
 import Move
     exposing
-        ( maybe_auto_move
-        , maybe_get_out_via_discard
-        , move_to_end_loc
+        ( maybeAutoMove
+        , maybeGetOutViaDiscard
+        , moveToEndLoc
         )
 import Piece
     exposing
-        ( config_pieces
+        ( configPieces
         )
 import Player
     exposing
-        ( activate_card
-        , begin_turn
-        , config_players
-        , cover_card
-        , discard_card
-        , get_player
-        , get_player_move_type
-        , replenish_hand
-        , set_start_location
-        , set_turn
-        , update_active_player
+        ( activateCard
+        , beginTurn
+        , configPlayers
+        , coverCard
+        , discardCard
+        , getPlayer
+        , getPlayerMoveType
+        , replenishHand
+        , setStartLocation
+        , setTurn
+        , updateActivePlayer
         )
 import Random
 import Set
@@ -68,51 +68,51 @@ main =
 init : () -> ( Model, Cmd Msg )
 init flags =
     let
-        num_players =
+        numPlayers =
             4
 
-        zone_colors =
-            get_zone_colors num_players
+        zoneColors =
+            getZoneColors numPlayers
 
         model =
-            { zone_colors = zone_colors
-            , piece_map = config_pieces zone_colors
-            , players = config_players zone_colors
+            { zoneColors = zoneColors
+            , pieceMap = configPieces zoneColors
+            , players = configPlayers zoneColors
             , seed = Random.initialSeed 42
             , state = Loading
-            , get_active_color = get_active_color
+            , getActiveColor = getActiveColor
             }
     in
     ( model, Task.perform LoadGame Time.now )
 
 
-replenish_active_hand : Model -> Model
-replenish_active_hand model =
+replenishActiveHand : Model -> Model
+replenishActiveHand model =
     let
-        active_color =
-            get_active_color model.zone_colors
+        activeColor =
+            getActiveColor model.zoneColors
     in
-    replenish_hand active_color model
+    replenishHand activeColor model
 
 
-begin_active_turn : Model -> Model
-begin_active_turn model =
+beginActiveTurn : Model -> Model
+beginActiveTurn model =
     let
-        active_color =
-            get_active_color model.zone_colors
+        activeColor =
+            getActiveColor model.zoneColors
     in
-    begin_turn active_color model
+    beginTurn activeColor model
 
 
-seed_from_time : Time.Posix -> Random.Seed
-seed_from_time time =
+seedFromTime : Time.Posix -> Random.Seed
+seedFromTime time =
     Random.initialSeed (Time.posixToMillis time)
 
 
-get_active_color : List Color -> Color
-get_active_color zone_colors =
+getActiveColor : List Color -> Color
+getActiveColor zoneColors =
     -- appease compiler with Maybe
-    List.head zone_colors
+    List.head zoneColors
         |> Maybe.withDefault "bogus"
 
 
@@ -126,135 +126,135 @@ update msg model =
         LoadGame time ->
             let
                 seed =
-                    seed_from_time time
+                    seedFromTime time
 
                 model_ =
                     { model
                         | seed = seed
                         , state = Ready
                     }
-                        |> begin_active_turn
+                        |> beginActiveTurn
             in
             ( model_, Cmd.none )
 
-        SetStartLocation clicked_loc ->
+        SetStartLocation clickedLoc ->
             let
                 model_ =
-                    handle_start_loc_click model clicked_loc
+                    handleStartLocClick model clickedLoc
             in
             ( model_, Cmd.none )
 
-        SetEndLocation clicked_loc ->
+        SetEndLocation clickedLoc ->
             let
                 model_ =
-                    handle_end_loc_click model clicked_loc
+                    handleEndLocClick model clickedLoc
             in
             ( model_, Cmd.none )
 
         ReplenishHand ->
             let
                 model_ =
-                    replenish_active_hand model
+                    replenishActiveHand model
             in
             ( model_, Cmd.none )
 
-        ActivateCard player_color idx ->
+        ActivateCard playerColor idx ->
             let
                 model_ =
-                    update_active_player (activate_card idx) model
+                    updateActivePlayer (activateCard idx) model
             in
             ( model_, Cmd.none )
 
-        DiscardCard player_color idx ->
+        DiscardCard playerColor idx ->
             let
                 model_ =
-                    update_active_player (discard_card idx) model
-                        |> maybe_get_out_via_discard player_color
+                    updateActivePlayer (discardCard idx) model
+                        |> maybeGetOutViaDiscard playerColor
             in
             ( model_, Cmd.none )
 
-        CoverCard player_color idx ->
+        CoverCard playerColor idx ->
             let
                 model_ =
-                    update_active_player (cover_card idx) model
-                        |> maybe_get_out_via_discard player_color
+                    updateActivePlayer (coverCard idx) model
+                        |> maybeGetOutViaDiscard playerColor
             in
             ( model_, Cmd.none )
 
         RotateBoard ->
             let
-                old_player_color =
-                    get_active_color model.zone_colors
+                oldPlayerColor =
+                    getActiveColor model.zoneColors
 
-                new_zone_colors =
-                    rotate_board model.zone_colors
+                newZoneColors =
+                    rotateBoard model.zoneColors
 
-                new_player_color =
-                    get_active_color new_zone_colors
+                newPlayerColor =
+                    getActiveColor newZoneColors
 
                 players =
                     model.players
-                        |> set_turn old_player_color TurnIdle
-                        |> set_turn new_player_color TurnBegin
+                        |> setTurn oldPlayerColor TurnIdle
+                        |> setTurn newPlayerColor TurnBegin
 
                 model_ =
                     { model
-                        | zone_colors = new_zone_colors
+                        | zoneColors = newZoneColors
                         , players = players
                     }
-                        |> begin_active_turn
+                        |> beginActiveTurn
             in
             ( model_, Cmd.none )
 
 
-rotate_board : List Color -> List Color
-rotate_board zones =
+rotateBoard : List Color -> List Color
+rotateBoard zones =
     List.drop 1 zones ++ List.take 1 zones
 
 
-handle_start_loc_click : Model -> PieceLocation -> Model
-handle_start_loc_click model location =
+handleStartLocClick : Model -> PieceLocation -> Model
+handleStartLocClick model location =
     let
-        active_color =
-            get_active_color model.zone_colors
+        activeColor =
+            getActiveColor model.zoneColors
 
         players =
             model.players
 
-        active_player =
-            get_player players active_color
+        activePlayer =
+            getPlayer players activeColor
     in
-    case active_player.turn of
+    case activePlayer.turn of
         TurnNeedStartLoc _ ->
             model
-                |> update_active_player (set_start_location location)
-                |> maybe_auto_move location
+                |> updateActivePlayer (setStartLocation location)
+                |> maybeAutoMove location
 
         _ ->
             -- something is wrong with our click handlers
             model
 
 
-handle_end_loc_click : Model -> PieceLocation -> Model
-handle_end_loc_click model end_loc =
+handleEndLocClick : Model -> PieceLocation -> Model
+handleEndLocClick model endLoc =
     let
-        active_color =
-            get_active_color model.zone_colors
+        activeColor =
+            getActiveColor model.zoneColors
 
         players =
             model.players
 
-        active_player =
-            get_player players active_color
+        activePlayer =
+            getPlayer players activeColor
     in
-    case active_player.turn of
+    case activePlayer.turn of
         TurnNeedEndLoc info ->
             let
-                start_loc =
-                    info.start_location
+                startLoc =
+                    info.startLocation
             in
             model
-                |> move_to_end_loc active_player active_color start_loc end_loc
+                |> moveToEndLoc activePlayer activeColor startLoc endLoc
 
         _ ->
             -- something is wrong with our click handlers
