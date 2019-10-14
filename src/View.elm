@@ -215,20 +215,26 @@ zoneView pieceMap startLocs endLocs activeColor startLocation zoneColor =
 locationView : PieceDict -> String -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html Msg
 locationView pieceMap zoneColor startLocs endLocs activeColor selectedLocation locationInfo =
     let
-        id =
-            locationInfo.id
-
-        pieceLocation =
-            ( zoneColor, id )
-
-        w =
-            squareSize - gutterSize
-
         cx_ =
             locationInfo.x * squareSize
 
         cy_ =
             panelHeight - (locationInfo.y * squareSize)
+
+        id =
+            locationInfo.id
+    in
+    drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_
+
+
+drawLocationAtCoords : PieceDict -> Color -> String -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Float -> Html Msg
+drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_ =
+    let
+        pieceLocation =
+            ( zoneColor, id )
+
+        w =
+            squareSize - gutterSize
 
         myPiece =
             getPiece pieceMap pieceLocation
