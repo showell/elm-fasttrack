@@ -31,8 +31,8 @@ import Piece
         , getThePiece
         , hasPieceOnFastTrack
         , isNormalLoc
+        , movablePieces
         , movePiece
-        , myPieces
         , otherNonPenPieces
         , swappableLocs
         )
@@ -177,7 +177,7 @@ getMovesForMoveType moveType pieceMap zoneColors activeColor =
                     otherNonPenPieces pieceMap activeColor excludeLoc
 
                 _ ->
-                    myPieces pieceMap activeColor
+                    movablePieces pieceMap activeColor
 
         getMoves : PieceLocation -> List Move
         getMoves startLoc =

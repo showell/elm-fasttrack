@@ -6,8 +6,8 @@ module Piece exposing
     , getThePiece
     , hasPieceOnFastTrack
     , isNormalLoc
+    , movablePieces
     , movePiece
-    , myPieces
     , otherNonPenPieces
     , swappableLocs
     )
@@ -125,6 +125,21 @@ myPieces pieceMap activeColor =
     Dict.keys pieceMap
         |> List.filter (isColor pieceMap activeColor)
         |> Set.fromList
+
+
+movablePieces : PieceDict -> Color -> Set.Set PieceLocation
+movablePieces pieceMap color =
+    -- This excludes redundant pieces from the holding pen.
+    let
+        pieces =
+            nonPenPieces pieceMap color
+    in
+    case pieceToMoveOutOfPen pieceMap color of
+        Nothing ->
+            pieces
+
+        Just pen_loc ->
+            Set.insert pen_loc pieces
 
 
 nonPenPieces : PieceDict -> Color -> Set.Set PieceLocation

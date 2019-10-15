@@ -15,7 +15,7 @@ import LegalMove
 import Piece
     exposing
         ( hasPieceOnFastTrack
-        , myPieces
+        , movablePieces
         , otherNonPenPieces
         , swappableLocs
         )
@@ -284,8 +284,8 @@ testGetMovesForMoveType =
         ]
 
 
-testMyPieces : Test
-testMyPieces =
+testMovablePieces : Test
+testMovablePieces =
     Test.concat
         [ test "find my pieces" <|
             \_ ->
@@ -301,18 +301,19 @@ testMyPieces =
                             |> Dict.insert ( "blue", "L3" ) activeColor
                             |> Dict.insert ( "blue", "L4" ) "green"
                             |> Dict.insert ( "blue", "HP1" ) activeColor
+                            |> Dict.insert ( "blue", "HP2" ) activeColor
                             |> Dict.insert ( "blue", "B2" ) activeColor
                             |> Dict.insert ( "blue", "FT" ) "red"
 
                     locs =
-                        myPieces pieceMap activeColor
+                        movablePieces pieceMap activeColor
 
                     expected =
                         Set.fromList
                             [ ( "red", "L0" )
                             , ( "green", "FT" )
                             , ( "blue", "L3" )
-                            , ( "blue", "HP1" )
+                            , ( "blue", "HP2" )
                             , ( "blue", "B2" )
                             ]
                 in
