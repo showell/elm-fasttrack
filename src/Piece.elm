@@ -60,14 +60,16 @@ isOpenLocation pieceMap pieceLoc =
             False
 
 
-occupiedHoldingPenLocation : PieceDict -> Color -> Maybe PieceLocation
-occupiedHoldingPenLocation pieceMap color =
+pieceToMoveOutOfPen : PieceDict -> Color -> Maybe PieceLocation
+pieceToMoveOutOfPen pieceMap color =
     let
         isOccupied id =
             getPiece pieceMap ( color, id ) /= Nothing
     in
     holdingPenLocations
-        |> List.Extra.find isOccupied
+        |> List.filter isOccupied
+        |> List.reverse
+        |> List.head
         |> Maybe.map (\id -> ( color, id ))
 
 
@@ -106,7 +108,7 @@ bringPlayerOut : Color -> PieceDict -> PieceDict
 bringPlayerOut color pieceMap =
     let
         penLoc =
-            occupiedHoldingPenLocation pieceMap color
+            pieceToMoveOutOfPen pieceMap color
     in
     case penLoc of
         Nothing ->
