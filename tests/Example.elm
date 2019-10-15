@@ -9,11 +9,14 @@ import LegalMove
         , getMovesForCards
         , getMovesForMoveType
         , getMovesFromLocation
-        , hasPieceOnFastTrack
-        , myPieces
         , nextZoneColor
-        , otherNonPenPieces
         , prevZoneColor
+        )
+import Piece
+    exposing
+        ( hasPieceOnFastTrack
+        , myPieces
+        , otherNonPenPieces
         , swappableLocs
         )
 import Set

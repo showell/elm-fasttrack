@@ -6,12 +6,8 @@ module LegalMove exposing
     , getMovesForCards
     , getMovesForMoveType
     , getMovesFromLocation
-    , hasPieceOnFastTrack
-    , myPieces
     , nextZoneColor
-    , otherNonPenPieces
     , prevZoneColor
-    , swappableLocs
     )
 
 import Config
@@ -33,7 +29,12 @@ import Piece
     exposing
         ( getPiece
         , getThePiece
+        , hasPieceOnFastTrack
+        , isNormalLoc
         , movePiece
+        , myPieces
+        , otherNonPenPieces
+        , swappableLocs
         )
 import Set
 import Type
@@ -48,66 +49,6 @@ import Type
         , PlayType(..)
         , Turn(..)
         )
-
-
-isColor : PieceDict -> Color -> PieceLocation -> Bool
-isColor pieceMap color loc =
-    let
-        locColor =
-            Dict.get loc pieceMap
-    in
-    locColor == Just color
-
-
-isNormalLoc : PieceLocation -> Bool
-isNormalLoc ( _, id ) =
-    not (isHoldingPenId id) && not (isBaseId id)
-
-
-swappableLocs : PieceDict -> Color -> Set.Set PieceLocation
-swappableLocs pieceMap activeColor =
-    let
-        isThem loc =
-            not (isColor pieceMap activeColor loc)
-    in
-    Dict.keys pieceMap
-        |> List.filter isThem
-        |> List.filter isNormalLoc
-        |> Set.fromList
-
-
-myPieces : PieceDict -> Color -> Set.Set PieceLocation
-myPieces pieceMap activeColor =
-    Dict.keys pieceMap
-        |> List.filter (isColor pieceMap activeColor)
-        |> Set.fromList
-
-
-nonPenPieces : PieceDict -> Color -> Set.Set PieceLocation
-nonPenPieces pieceMap activeColor =
-    let
-        isMobile ( _, id ) =
-            not (isHoldingPenId id)
-    in
-    myPieces pieceMap activeColor
-        |> Set.filter isMobile
-
-
-otherNonPenPieces : PieceDict -> Color -> PieceLocation -> Set.Set PieceLocation
-otherNonPenPieces pieceMap activeColor loc =
-    nonPenPieces pieceMap activeColor
-        |> Set.remove loc
-
-
-hasPieceOnFastTrack : PieceDict -> Color -> Bool
-hasPieceOnFastTrack pieceMap activeColor =
-    let
-        isFt ( _, id ) =
-            id == "FT"
-    in
-    myPieces pieceMap activeColor
-        |> Set.toList
-        |> List.any isFt
 
 
 nextZoneColor : Color -> List Color -> Color
