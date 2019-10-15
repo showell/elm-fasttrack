@@ -50,6 +50,7 @@ import View
     exposing
         ( view
         )
+import WhatIf
 
 
 
@@ -102,6 +103,7 @@ beginActiveTurn model =
             getActiveColor model.zoneColors
     in
     beginTurn activeColor model
+        |> WhatIf.debugWhatIf
 
 
 seedFromTime : Time.Posix -> Random.Seed

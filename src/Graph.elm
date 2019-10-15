@@ -1,5 +1,6 @@
 module Graph exposing
     ( canTravelNEdges
+    , getFinalStates
     , getNodesNEdgesAway
     )
 
@@ -22,3 +23,21 @@ canTravelNEdges getNeighbors n node =
 
     else
         List.any (canTravelNEdges getNeighbors (n - 1)) (getNeighbors node)
+
+
+getFinalStates : (state -> List state) -> (state -> Bool) -> state -> List state
+getFinalStates neighborStates isFinal startState =
+    {--
+        This is basically getting leaf nodes of a directed graph,
+        where each node is a "state" that is either final
+        (i.e. no edges) or has neighbors.  We depend on
+        caller to pass us sensible functions that implicitly
+        represent a tree of states (i.e. finite, no cycles).
+    --}
+    if isFinal startState then
+        [ startState ]
+
+    else
+        neighborStates startState
+            |> List.map (getFinalStates neighborStates isFinal)
+            |> List.concat
