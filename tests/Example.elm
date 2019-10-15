@@ -125,6 +125,7 @@ testGetMovesForCards =
                             , ( "2", ( "blue", "L0" ), ( "blue", "L2" ) )
                             , ( "3", ( "red", "L0" ), ( "red", "L3" ) )
                             , ( "3", ( "blue", "L3" ), ( "green", "R4" ) )
+                            , ( "3", ( "blue", "L3" ), ( "black", "bullseye" ) )
                             , ( "3", ( "green", "R3" ), ( "green", "R0" ) )
                             ]
                 in
