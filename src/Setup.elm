@@ -34,6 +34,7 @@ type InitSetup
     | Discard
     | Cover
     | BullsEye
+    | SevenSplit
 
 
 initSetup : InitSetup
@@ -51,6 +52,10 @@ startingLocations color =
     case initSetup of
         ForcedToReverse ->
             [ "HP1", "B1", "B3", "R0" ]
+                |> inMyZone
+
+        SevenSplit ->
+            [ "L0", "L2", "R2", "B2" ]
                 |> inMyZone
 
         Cover ->
@@ -76,6 +81,9 @@ startingHand color =
 
         BullsEye ->
             [ "A", "6", "Q", "8", "9" ]
+
+        SevenSplit ->
+            [ "7", "7", "2", "Q", "K" ]
 
         _ ->
             []
