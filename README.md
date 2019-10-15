@@ -47,8 +47,11 @@ And then Jacks can trade.
 
 
 HOW TO BUILD:
+    
+    (We are deploying a non-optimized version so that
+    debug can be turned on.)
 
-    elm make --optimize src/ft.elm --output ft.html
+    elm make src/ft.elm --output ft.html
 
 TODO:
 
