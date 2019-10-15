@@ -8,6 +8,7 @@ module Config exposing
     , holdingPenLocations
     , isBaseId
     , isHoldingPenId
+    , isMoveAgainCard
     , moveCountForCard
     , nextIdsInZone
     , numCreditsToGetOut
@@ -62,6 +63,11 @@ holdingPenLocations =
 isHoldingPenId : String -> Bool
 isHoldingPenId id =
     Set.member id (Set.fromList holdingPenLocations)
+
+
+isMoveAgainCard : Card -> Bool
+isMoveAgainCard card =
+    List.member card [ "A", "K", "Q", "J", "joker", "6" ]
 
 
 configLocations : List Location

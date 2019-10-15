@@ -22,6 +22,7 @@ module Player exposing
 import Config
     exposing
         ( fullDeck
+        , isMoveAgainCard
         )
 import Dict
 import LegalMove
@@ -140,11 +141,6 @@ getPlayer players color =
     -- The "Maybe" is just to satisfy the compiler
     Dict.get color players
         |> Maybe.withDefault (configPlayer color)
-
-
-isMoveAgainCard : Card -> Bool
-isMoveAgainCard card =
-    List.member card [ "A", "K", "Q", "J", "joker", "6" ]
 
 
 getMovesForPlayer : Player -> PieceDict -> List Color -> Color -> List Move
