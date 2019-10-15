@@ -9,7 +9,7 @@ module LegalMove exposing
     , hasPieceOnFastTrack
     , myPieces
     , nextZoneColor
-    , otherMobilePieces
+    , otherNonPenPieces
     , prevZoneColor
     , swappableLocs
     )
@@ -83,17 +83,20 @@ myPieces pieceMap activeColor =
         |> Set.fromList
 
 
-otherMobilePieces : PieceDict -> Color -> PieceLocation -> Set.Set PieceLocation
-otherMobilePieces pieceMap activeColor loc =
-    -- mobile pieces are not in the holding pen (and can theoretically
-    -- move forward on a split seven, until we dig deeper)
+nonPenPieces : PieceDict -> Color -> Set.Set PieceLocation
+nonPenPieces pieceMap activeColor =
     let
         isMobile ( _, id ) =
             not (isHoldingPenId id)
     in
     myPieces pieceMap activeColor
-        |> Set.remove loc
         |> Set.filter isMobile
+
+
+otherNonPenPieces : PieceDict -> Color -> PieceLocation -> Set.Set PieceLocation
+otherNonPenPieces pieceMap activeColor loc =
+    nonPenPieces pieceMap activeColor
+        |> Set.remove loc
 
 
 hasPieceOnFastTrack : PieceDict -> Color -> Bool
@@ -230,7 +233,7 @@ getMovesForMoveType moveType pieceMap zoneColors activeColor =
         startLocs =
             case moveType of
                 FinishSplit _ excludeLoc ->
-                    otherMobilePieces pieceMap activeColor excludeLoc
+                    otherNonPenPieces pieceMap activeColor excludeLoc
 
                 _ ->
                     myPieces pieceMap activeColor
@@ -373,7 +376,7 @@ getMovesForSeven params startLoc =
                 |> List.map (\endLoc -> ( WithCard "7", startLoc, endLoc ))
 
         otherLocs =
-            otherMobilePieces pieceMap pieceColor startLoc
+            otherNonPenPieces pieceMap pieceColor startLoc
     in
     if Set.size otherLocs == 0 then
         fullMoves

@@ -12,7 +12,7 @@ import LegalMove
         , hasPieceOnFastTrack
         , myPieces
         , nextZoneColor
-        , otherMobilePieces
+        , otherNonPenPieces
         , prevZoneColor
         , swappableLocs
         )
@@ -317,8 +317,8 @@ testMyPieces =
         ]
 
 
-testOtherMobilePieces : Test
-testOtherMobilePieces =
+testOtherNonPenPieces : Test
+testOtherNonPenPieces =
     Test.concat
         [ test "other pieces can be found" <|
             \_ ->
@@ -339,7 +339,7 @@ testOtherMobilePieces =
                             |> Dict.insert ( "blue", "FT" ) "red"
 
                     locs =
-                        otherMobilePieces pieceMap activeColor loc
+                        otherNonPenPieces pieceMap activeColor loc
 
                     expected =
                         Set.fromList
