@@ -393,7 +393,7 @@ getMovesForSeven params startLoc =
 
                     candidateMoves =
                         getLocs moveCount
-                            |> List.filter (\endLoc -> endLoc /= ("black", "bullseye"))
+                            |> List.filter (\endLoc -> endLoc /= ( "black", "bullseye" ))
                             |> List.map (\endLoc -> ( moveType, startLoc, endLoc ))
                 in
                 candidateMoves
