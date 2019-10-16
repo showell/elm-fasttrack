@@ -123,7 +123,7 @@ normalView model =
             model.players
 
         activeColor =
-            model.getActiveColor zoneColors
+            model.activeColor
 
         activePlayer =
             getPlayer players activeColor

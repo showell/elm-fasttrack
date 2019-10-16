@@ -318,7 +318,7 @@ getWhatIfGameStates model =
             model.zoneColors
 
         activeColor =
-            model.getActiveColor zoneColors
+            model.activeColor
 
         pieceMap =
             model.pieceMap

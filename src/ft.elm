@@ -75,13 +75,16 @@ init flags =
         zoneColors =
             getZoneColors numPlayers
 
+        activeColor =
+            getActiveColor zoneColors
+
         model =
             { zoneColors = zoneColors
             , pieceMap = configPieces zoneColors
             , players = configPlayers zoneColors
             , seed = Random.initialSeed 42
             , state = Loading
-            , getActiveColor = getActiveColor
+            , activeColor = activeColor
             }
     in
     ( model, Task.perform LoadGame Time.now )
@@ -129,7 +132,7 @@ updateModel msg model =
         DiscardCard playerColor idx ->
             model
                 |> updateActivePlayer (discardCard idx)
-                |> maybeGetOutViaDiscard playerColor
+                |> maybeGetOutViaDiscard
 
         CoverCard playerColor idx ->
             model
@@ -168,6 +171,7 @@ rotateBoard model =
     { model
         | zoneColors = newZoneColors
         , players = players
+        , activeColor = newPlayerColor
     }
         |> beginActiveTurn
 
@@ -176,11 +180,11 @@ beginActiveTurn : Model -> Model
 beginActiveTurn model =
     let
         activeColor =
-            getActiveColor model.zoneColors
+            model.activeColor
     in
     model
-        |> replenishHand activeColor
-        |> setTurnToNeedCard activeColor
+        |> replenishHand
+        |> setTurnToNeedCard
         |> WhatIf.debugWhatIf
 
 
@@ -206,7 +210,7 @@ handleStartLocClick : PieceLocation -> Model -> Model
 handleStartLocClick location model =
     let
         activeColor =
-            getActiveColor model.zoneColors
+            model.activeColor
 
         players =
             model.players
@@ -229,7 +233,7 @@ handleEndLocClick : PieceLocation -> Model -> Model
 handleEndLocClick endLoc model =
     let
         activeColor =
-            getActiveColor model.zoneColors
+            model.activeColor
 
         players =
             model.players
@@ -244,7 +248,7 @@ handleEndLocClick endLoc model =
                     info.startLocation
             in
             model
-                |> moveToEndLoc activePlayer activeColor startLoc endLoc
+                |> moveToEndLoc activePlayer startLoc endLoc
 
         _ ->
             -- something is wrong with our click handlers

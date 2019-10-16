@@ -27,8 +27,7 @@ import Player
 import Set
 import Type
     exposing
-        ( Color
-        , Model
+        ( Model
         , Move
         , MoveType(..)
         , PieceLocation
@@ -36,9 +35,12 @@ import Type
         )
 
 
-performMove : Model -> Move -> Color -> Model
-performMove model move activeColor =
+performMove : Move -> Model -> Model
+performMove move model =
     let
+        activeColor =
+            model.activeColor
+
         ( _, startLoc, _ ) =
             move
 
@@ -67,21 +69,18 @@ performMove model move activeColor =
                     }
             in
             model_
-                |> ensureHandNotEmpty activeColor
+                |> ensureHandNotEmpty
                 |> updateActivePlayer (finishMove newPieceMap zoneColors activeColor move)
 
 
 maybeAutoMove : PieceLocation -> Model -> Model
 maybeAutoMove startLoc model =
     let
-        zoneColors =
-            model.zoneColors
-
         players =
             model.players
 
         activeColor =
-            model.getActiveColor zoneColors
+            model.activeColor
 
         activePlayer =
             getPlayer players activeColor
@@ -106,12 +105,15 @@ maybeAutoMove startLoc model =
 
         Just endLoc ->
             model
-                |> moveToEndLoc activePlayer activeColor startLoc endLoc
+                |> moveToEndLoc activePlayer startLoc endLoc
 
 
-maybeGetOutViaDiscard : Color -> Model -> Model
-maybeGetOutViaDiscard activeColor model =
+maybeGetOutViaDiscard : Model -> Model
+maybeGetOutViaDiscard model =
     let
+        activeColor =
+            model.activeColor
+
         player =
             getPlayer model.players activeColor
     in
@@ -130,8 +132,8 @@ maybeGetOutViaDiscard activeColor model =
             |> updateActivePlayer clearCredits
 
 
-moveToEndLoc : Player -> Color -> PieceLocation -> PieceLocation -> Model -> Model
-moveToEndLoc activePlayer activeColor startLoc endLoc model =
+moveToEndLoc : Player -> PieceLocation -> PieceLocation -> Model -> Model
+moveToEndLoc activePlayer startLoc endLoc model =
     let
         moveType_ =
             getPlayerMoveType activePlayer endLoc
@@ -142,7 +144,8 @@ moveToEndLoc activePlayer activeColor startLoc endLoc model =
                 move =
                     ( moveType, startLoc, endLoc )
             in
-            performMove model move activeColor
+            model
+                |> performMove move
 
         Nothing ->
             -- this is actually a programming error

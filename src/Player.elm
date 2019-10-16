@@ -194,9 +194,12 @@ maybeFinishTurn card pieceMap zoneColors activeColor player =
         }
 
 
-ensureHandNotEmpty : Color -> Model -> Model
-ensureHandNotEmpty activeColor model =
+ensureHandNotEmpty : Model -> Model
+ensureHandNotEmpty model =
     let
+        activeColor =
+            model.activeColor
+
         player =
             getPlayer model.players activeColor
     in
@@ -204,11 +207,11 @@ ensureHandNotEmpty activeColor model =
         model
 
     else
-        replenishHand activeColor model
+        replenishHand model
 
 
-setTurnToNeedCard : Color -> Model -> Model
-setTurnToNeedCard activeColor model =
+setTurnToNeedCard : Model -> Model
+setTurnToNeedCard model =
     updateActivePlayer
         (\player ->
             let
@@ -217,6 +220,9 @@ setTurnToNeedCard activeColor model =
 
                 zoneColors =
                     model.zoneColors
+
+                activeColor =
+                    model.activeColor
             in
             player
                 |> turnNeedCard pieceMap zoneColors activeColor
@@ -340,7 +346,7 @@ updateActivePlayer : (Player -> Player) -> Model -> Model
 updateActivePlayer f model =
     let
         activeColor =
-            model.getActiveColor model.zoneColors
+            model.activeColor
 
         players =
             updatePlayer model.players activeColor f
@@ -502,9 +508,12 @@ maybeReplenishDeck deck =
             deck
 
 
-replenishHand : Color -> Model -> Model
-replenishHand activeColor model =
+replenishHand : Model -> Model
+replenishHand model =
     let
+        activeColor =
+            model.activeColor
+
         players =
             model.players
 
@@ -531,7 +540,7 @@ replenishHand activeColor model =
                     , seed = seed
                 }
         in
-        replenishHand activeColor model_
+        replenishHand model_
 
 
 getCardIdx : Player -> Random.Seed -> ( Int, Random.Seed )

@@ -147,7 +147,7 @@ type alias Model =
     , players : PlayerDict
     , seed : Random.Seed
     , state : AppState
-    , getActiveColor : List Color -> Color
+    , activeColor : Color
     }
 
 
