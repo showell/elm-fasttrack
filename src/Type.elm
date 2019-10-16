@@ -152,8 +152,7 @@ type alias Model =
 
 
 type Msg
-    = ReplenishHand
-    | ActivateCard Color Int
+    = ActivateCard Color Int
     | DiscardCard Color Int
     | CoverCard Color Int
     | RotateBoard

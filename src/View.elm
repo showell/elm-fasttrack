@@ -414,9 +414,6 @@ playerView player color =
         hand =
             span [] handCards
 
-        deck =
-            deckView player color
-
         console =
             case player.turn of
                 TurnNeedDiscard ->
@@ -449,7 +446,7 @@ playerView player color =
                     div [] []
     in
     div []
-        [ span [] [ hand, deck ]
+        [ hand
         , creditsView player
         , console
         ]
@@ -601,28 +598,6 @@ activeCardView activeCard color instructions =
             b css [ Html.text activeCard ]
     in
     span [] [ card, Html.text instructions ]
-
-
-deckView : Player -> Color -> Html Msg
-deckView player color =
-    let
-        handCount =
-            List.length player.hand
-    in
-    if (player.turn == TurnDone) && (handCount < 5) then
-        let
-            css =
-                cardCss color color
-
-            attrs =
-                [ onClick ReplenishHand ]
-        in
-        button
-            (attrs ++ css)
-            [ Html.text "Deck" ]
-
-    else
-        span [] []
 
 
 cardCss : Color -> Color -> List (Html.Attribute Msg)

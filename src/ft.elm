@@ -147,10 +147,6 @@ updateModel msg model =
             model
                 |> handleEndLocClick clickedLoc
 
-        ReplenishHand ->
-            model
-                |> replenishActiveHand
-
 
 rotateBoard : Model -> Model
 rotateBoard model =
@@ -174,16 +170,6 @@ rotateBoard model =
         , players = players
     }
         |> beginActiveTurn
-
-
-replenishActiveHand : Model -> Model
-replenishActiveHand model =
-    let
-        activeColor =
-            getActiveColor model.zoneColors
-    in
-    model
-        |> replenishHand activeColor
 
 
 beginActiveTurn : Model -> Model
