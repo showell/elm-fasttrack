@@ -87,6 +87,96 @@ init flags =
     ( model, Task.perform LoadGame Time.now )
 
 
+seedFromTime : Time.Posix -> Random.Seed
+seedFromTime time =
+    Random.initialSeed (Time.posixToMillis time)
+
+
+getActiveColor : List Color -> Color
+getActiveColor zoneColors =
+    -- appease compiler with Maybe
+    List.head zoneColors
+        |> Maybe.withDefault "bogus"
+
+
+rotateColors : List Color -> List Color
+rotateColors zones =
+    List.drop 1 zones ++ List.take 1 zones
+
+
+
+-- UPDATE
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    ( updateModel msg model, Cmd.none )
+
+
+updateModel : Msg -> Model -> Model
+updateModel msg model =
+    case msg of
+        LoadGame time ->
+            model
+                |> updateSeed time
+                |> makeReady
+                |> beginActiveTurn
+
+        ActivateCard playerColor idx ->
+            model
+                |> updateActivePlayer (activateCard idx)
+
+        DiscardCard playerColor idx ->
+            model
+                |> updateActivePlayer (discardCard idx)
+                |> maybeGetOutViaDiscard playerColor
+
+        CoverCard playerColor idx ->
+            model
+                |> updateActivePlayer (coverCard idx)
+                |> maybeGetOutViaDiscard playerColor
+
+        RotateBoard ->
+            model
+                |> rotateBoard
+
+        SetStartLocation clickedLoc ->
+            model
+                |> handleStartLocClick clickedLoc
+
+        SetEndLocation clickedLoc ->
+            model
+                |> handleEndLocClick clickedLoc
+
+        ReplenishHand ->
+            model
+                |> replenishActiveHand
+
+
+rotateBoard : Model -> Model
+rotateBoard model =
+    let
+        oldPlayerColor =
+            getActiveColor model.zoneColors
+
+        newZoneColors =
+            rotateColors model.zoneColors
+
+        newPlayerColor =
+            getActiveColor newZoneColors
+
+        players =
+            model.players
+                |> setTurn oldPlayerColor TurnIdle
+                |> setTurn newPlayerColor TurnBegin
+    in
+    { model
+        | zoneColors = newZoneColors
+        , players = players
+    }
+        |> beginActiveTurn
+
+
 replenishActiveHand : Model -> Model
 replenishActiveHand model =
     let
@@ -108,118 +198,22 @@ beginActiveTurn model =
         |> WhatIf.debugWhatIf
 
 
-seedFromTime : Time.Posix -> Random.Seed
-seedFromTime time =
-    Random.initialSeed (Time.posixToMillis time)
+updateSeed : Time.Posix -> Model -> Model
+updateSeed time model =
+    let
+        seed =
+            seedFromTime time
+    in
+    { model
+        | seed = seed
+    }
 
 
-getActiveColor : List Color -> Color
-getActiveColor zoneColors =
-    -- appease compiler with Maybe
-    List.head zoneColors
-        |> Maybe.withDefault "bogus"
-
-
-
--- UPDATE
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        LoadGame time ->
-            let
-                seed =
-                    seedFromTime time
-
-                model_ =
-                    { model
-                        | seed = seed
-                        , state = Ready
-                    }
-                        |> beginActiveTurn
-            in
-            ( model_, Cmd.none )
-
-        SetStartLocation clickedLoc ->
-            let
-                model_ =
-                    model
-                        |> handleStartLocClick clickedLoc
-            in
-            ( model_, Cmd.none )
-
-        SetEndLocation clickedLoc ->
-            let
-                model_ =
-                    model
-                        |> handleEndLocClick clickedLoc
-            in
-            ( model_, Cmd.none )
-
-        ReplenishHand ->
-            let
-                model_ =
-                    model
-                        |> replenishActiveHand
-            in
-            ( model_, Cmd.none )
-
-        ActivateCard playerColor idx ->
-            let
-                model_ =
-                    model
-                        |> updateActivePlayer (activateCard idx)
-            in
-            ( model_, Cmd.none )
-
-        DiscardCard playerColor idx ->
-            let
-                model_ =
-                    model
-                        |> updateActivePlayer (discardCard idx)
-                        |> maybeGetOutViaDiscard playerColor
-            in
-            ( model_, Cmd.none )
-
-        CoverCard playerColor idx ->
-            let
-                model_ =
-                    model
-                        |> updateActivePlayer (coverCard idx)
-                        |> maybeGetOutViaDiscard playerColor
-            in
-            ( model_, Cmd.none )
-
-        RotateBoard ->
-            let
-                oldPlayerColor =
-                    getActiveColor model.zoneColors
-
-                newZoneColors =
-                    rotateBoard model.zoneColors
-
-                newPlayerColor =
-                    getActiveColor newZoneColors
-
-                players =
-                    model.players
-                        |> setTurn oldPlayerColor TurnIdle
-                        |> setTurn newPlayerColor TurnBegin
-
-                model_ =
-                    { model
-                        | zoneColors = newZoneColors
-                        , players = players
-                    }
-                        |> beginActiveTurn
-            in
-            ( model_, Cmd.none )
-
-
-rotateBoard : List Color -> List Color
-rotateBoard zones =
-    List.drop 1 zones ++ List.take 1 zones
+makeReady : Model -> Model
+makeReady model =
+    { model
+        | state = Ready
+    }
 
 
 handleStartLocClick : PieceLocation -> Model -> Model
