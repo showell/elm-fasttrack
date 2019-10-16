@@ -21,7 +21,7 @@ module Type exposing
 
 import Dict exposing (Dict)
 import Random
-import Set
+import Set exposing (Set)
 import Time
 
 
@@ -95,7 +95,7 @@ type alias TurnNeedCardInfo =
 type alias TurnNeedStartLocInfo =
     { playType : PlayType
     , moves : List Move
-    , startLocs : Set.Set PieceLocation
+    , startLocs : Set PieceLocation
     }
 
 
@@ -103,7 +103,7 @@ type alias TurnNeedEndLocInfo =
     { playType : PlayType
     , startLocation : PieceLocation
     , moves : List Move
-    , endLocs : Set.Set PieceLocation
+    , endLocs : Set PieceLocation
     }
 
 

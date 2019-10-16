@@ -33,7 +33,7 @@ import LegalMove
         )
 import List.Extra
 import Random
-import Set
+import Set exposing (Set)
 import Setup
     exposing
         ( startingHand
@@ -54,7 +54,7 @@ import Type
         )
 
 
-getPlayableCards : Player -> Set.Set Card
+getPlayableCards : Player -> Set Card
 getPlayableCards player =
     case player.turn of
         TurnNeedCard info ->
@@ -576,7 +576,7 @@ drawCard idx player =
             }
 
 
-startLocsForPlayer : Player -> Set.Set PieceLocation
+startLocsForPlayer : Player -> Set PieceLocation
 startLocsForPlayer player =
     case player.turn of
         TurnNeedStartLoc info ->
@@ -586,7 +586,7 @@ startLocsForPlayer player =
             Set.empty
 
 
-endLocsForPlayer : Player -> Set.Set PieceLocation
+endLocsForPlayer : Player -> Set PieceLocation
 endLocsForPlayer player =
     case player.turn of
         TurnNeedEndLoc info ->

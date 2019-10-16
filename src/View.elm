@@ -51,7 +51,7 @@ import Polygon
         ( getCenterOffset
         , makePolygon
         )
-import Set
+import Set exposing (Set)
 import Svg
     exposing
         ( circle
@@ -207,7 +207,7 @@ nudge board =
     g [ transform translate ] [ board ]
 
 
-zoneView : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Color -> Html Msg
+zoneView : PieceDict -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Color -> Html Msg
 zoneView pieceMap startLocs endLocs activeColor startLocation zoneColor =
     let
         locations =
@@ -219,7 +219,7 @@ zoneView pieceMap startLocs endLocs activeColor startLocation zoneColor =
     g [] drawnLocations
 
 
-locationView : PieceDict -> Color -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html Msg
+locationView : PieceDict -> Color -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html Msg
 locationView pieceMap zoneColor startLocs endLocs activeColor selectedLocation locationInfo =
     let
         cx_ =
@@ -234,7 +234,7 @@ locationView pieceMap zoneColor startLocs endLocs activeColor selectedLocation l
     drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_
 
 
-bullsEyeView : PieceDict -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Html Msg
+bullsEyeView : PieceDict -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Html Msg
 bullsEyeView pieceMap startLocs endLocs activeColor selectedLocation centerOffset =
     let
         cx_ =
@@ -252,7 +252,7 @@ bullsEyeView pieceMap startLocs endLocs activeColor selectedLocation centerOffse
     drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_
 
 
-drawLocationAtCoords : PieceDict -> Color -> String -> Set.Set PieceLocation -> Set.Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Float -> Html Msg
+drawLocationAtCoords : PieceDict -> Color -> String -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Float -> Html Msg
 drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_ =
     let
         pieceLocation =
@@ -459,7 +459,7 @@ type CardAction
     | Ignore
 
 
-handCardView : Color -> Player -> Set.Set Card -> Int -> Card -> Html Msg
+handCardView : Color -> Player -> Set Card -> Int -> Card -> Html Msg
 handCardView color player playableCards idx card =
     let
         action =
@@ -514,7 +514,7 @@ handCardView color player playableCards idx card =
         [ Html.text card ]
 
 
-playerNeedCard : Set.Set Card -> Html Msg
+playerNeedCard : Set Card -> Html Msg
 playerNeedCard playableCards =
     let
         instructions =
@@ -523,7 +523,7 @@ playerNeedCard playableCards =
     div [] [ instructions, cheatSheet playableCards ]
 
 
-cheatSheet : Set.Set Card -> Html Msg
+cheatSheet : Set Card -> Html Msg
 cheatSheet cards =
     let
         title =

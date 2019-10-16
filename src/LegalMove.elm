@@ -35,7 +35,7 @@ import Piece
         , otherNonPenPieces
         , swappableLocs
         )
-import Set
+import Set exposing (Set)
 import Type
     exposing
         ( Card
@@ -126,7 +126,7 @@ getCanGoNSpaces pieceMap loc zoneColors n =
         False
 
 
-getMovesForCards : Set.Set Card -> PieceDict -> List Color -> Color -> List Move
+getMovesForCards : Set Card -> PieceDict -> List Color -> Color -> List Move
 getMovesForCards cards pieceMap zoneColors activeColor =
     let
         normalMoveType : Card -> MoveType
@@ -169,7 +169,7 @@ getMovesForCards cards pieceMap zoneColors activeColor =
 getMovesForMoveType : MoveType -> PieceDict -> List Color -> Color -> List Move
 getMovesForMoveType moveType pieceMap zoneColors activeColor =
     let
-        startLocs : Set.Set PieceLocation
+        startLocs : Set PieceLocation
         startLocs =
             case moveType of
                 FinishSplit _ excludeLoc ->
@@ -253,7 +253,7 @@ getMovesFromLocation moveType pieceMap zoneColors startLoc =
         []
 
 
-canFinishSplit : List Color -> Set.Set PieceLocation -> PieceDict -> Int -> Move -> Bool
+canFinishSplit : List Color -> Set PieceLocation -> PieceDict -> Int -> Move -> Bool
 canFinishSplit zoneColors otherLocs pieceMap count move =
     let
         modifiedPieceMap =

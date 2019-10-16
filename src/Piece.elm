@@ -20,7 +20,7 @@ import Config
         )
 import Dict
 import List.Extra
-import Set
+import Set exposing (Set)
 import Setup
     exposing
         ( startingLocations
@@ -109,7 +109,7 @@ isNormalLoc ( _, id ) =
     not (isHoldingPenId id) && not (isBaseId id)
 
 
-swappableLocs : PieceDict -> Color -> Set.Set PieceLocation
+swappableLocs : PieceDict -> Color -> Set PieceLocation
 swappableLocs pieceMap activeColor =
     let
         isThem loc =
@@ -121,14 +121,14 @@ swappableLocs pieceMap activeColor =
         |> Set.fromList
 
 
-myPieces : PieceDict -> Color -> Set.Set PieceLocation
+myPieces : PieceDict -> Color -> Set PieceLocation
 myPieces pieceMap activeColor =
     Dict.keys pieceMap
         |> List.filter (isColor pieceMap activeColor)
         |> Set.fromList
 
 
-movablePieces : PieceDict -> Color -> Set.Set PieceLocation
+movablePieces : PieceDict -> Color -> Set PieceLocation
 movablePieces pieceMap color =
     -- This excludes redundant pieces from the holding pen.
     let
@@ -143,7 +143,7 @@ movablePieces pieceMap color =
             Set.insert pen_loc pieces
 
 
-nonPenPieces : PieceDict -> Color -> Set.Set PieceLocation
+nonPenPieces : PieceDict -> Color -> Set PieceLocation
 nonPenPieces pieceMap activeColor =
     let
         isMobile ( _, id ) =
@@ -153,7 +153,7 @@ nonPenPieces pieceMap activeColor =
         |> Set.filter isMobile
 
 
-otherNonPenPieces : PieceDict -> Color -> PieceLocation -> Set.Set PieceLocation
+otherNonPenPieces : PieceDict -> Color -> PieceLocation -> Set PieceLocation
 otherNonPenPieces pieceMap activeColor loc =
     nonPenPieces pieceMap activeColor
         |> Set.remove loc
