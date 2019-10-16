@@ -77,7 +77,11 @@ startingHand color =
             [ "K", "Q", "Q", "Q", "2" ]
 
         Discard ->
-            [ "K", "Q", "Q", "Q", "8" ]
+            if color == "blue" then
+                [ "K", "Q", "Q", "Q", "Q" ]
+
+            else
+                [ "K", "Q", "Q", "2", "3" ]
 
         BullsEye ->
             [ "A", "6", "Q", "8", "9" ]

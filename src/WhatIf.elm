@@ -6,6 +6,7 @@ module WhatIf exposing
 import Config
     exposing
         ( isMoveAgainCard
+        , numCreditsToGetOut
         )
 import Debug
 import Graph
@@ -20,7 +21,8 @@ import LegalMove
 import List.Extra
 import Piece
     exposing
-        ( movePiece
+        ( bringPlayerOut
+        , movePiece
         )
 import Player
     exposing
@@ -80,6 +82,12 @@ getStateFromAction priorState action =
 getStateFromDiscard : GameState -> Card -> GameState
 getStateFromDiscard priorState card =
     let
+        activeColor =
+            priorState.activeColor
+
+        pieceMap =
+            priorState.pieceMap
+
         newActions =
             priorState.actions ++ [ DoDiscard card ]
 
@@ -90,16 +98,39 @@ getStateFromDiscard priorState card =
         credits =
             priorState.credits + 1
 
+        gettingOut =
+            credits >= numCreditsToGetOut
+
+        newPieceMap =
+            if gettingOut then
+                pieceMap
+                    |> bringPlayerOut activeColor
+
+            else
+                pieceMap
+
+        newCredits =
+            if gettingOut then
+                0
+
+            else
+                credits
+
         nextStep =
             if isMoveAgainCard card then
-                DiscardCard
+                if gettingOut then
+                    CoverCard
+
+                else
+                    DiscardCard
 
             else
                 Nada
     in
     { priorState
         | cards = newCards
-        , credits = credits
+        , credits = newCredits
+        , pieceMap = newPieceMap
         , actions = newActions
         , nextStep = nextStep
     }
@@ -204,6 +235,7 @@ getStateFromMove priorState move =
         , cards = newCards
         , nextStep = nextStep
         , actions = newActions
+        , credits = 0
     }
 
 
@@ -330,7 +362,7 @@ debugWhatIf model =
 
         _ =
             whatIfs
-                |> List.map (\w -> ( w.credits, w.actions ))
+                |> List.map (\w -> ( w.credits, w.actions, w.pieceMap ))
                 |> List.map (Debug.log "what if...")
     in
     model
