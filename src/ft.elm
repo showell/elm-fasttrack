@@ -134,7 +134,6 @@ updateModel msg model =
         CoverCard playerColor idx ->
             model
                 |> updateActivePlayer (coverCard idx)
-                |> maybeGetOutViaDiscard playerColor
 
         RotateBoard ->
             model
