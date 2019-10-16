@@ -29,6 +29,7 @@ import Type
     exposing
         ( Color
         , Move
+        , MoveFlavor(..)
         , MoveType(..)
         , PieceDict
         , PieceLocation
@@ -202,15 +203,9 @@ bringPlayerOut color pieceMap =
             let
                 endLoc =
                     ( color, "L0" )
-
-                moveType =
-                    ComeOutWithCredits
-
-                move =
-                    ( moveType, startLoc, endLoc )
             in
             pieceMap
-                |> movePiece move
+                |> executeMove RegularMove startLoc endLoc
 
 
 movePiece : Move -> PieceDict -> PieceDict
@@ -219,9 +214,21 @@ movePiece move pieceMap =
         ( moveType, startLoc, endLoc ) =
             move
 
-        wantTrade =
-            moveType == JackTrade
+        moveFlavor =
+            case moveType of
+                JackTrade ->
+                    TradePieces
 
+                _ ->
+                    RegularMove
+    in
+    pieceMap
+        |> executeMove moveFlavor startLoc endLoc
+
+
+executeMove : MoveFlavor -> PieceLocation -> PieceLocation -> PieceDict -> PieceDict
+executeMove moveFlavor startLoc endLoc pieceMap =
+    let
         startColor =
             getThePiece pieceMap startLoc
 
@@ -230,7 +237,7 @@ movePiece move pieceMap =
     in
     case maybeEndColor of
         Just endColor ->
-            if wantTrade then
+            if moveFlavor == TradePieces then
                 pieceMap
                     |> Dict.insert startLoc endColor
                     |> Dict.insert endLoc startColor

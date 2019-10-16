@@ -197,10 +197,6 @@ getStateFromMove priorState move =
                 JackTrade ->
                     NormalPlay
 
-                ComeOutWithCredits ->
-                    -- We aren't handling credits yet.
-                    Nada
-
         maybeCard =
             case moveType of
                 WithCard card ->
@@ -217,9 +213,6 @@ getStateFromMove priorState move =
 
                 JackTrade ->
                     Just "J"
-
-                ComeOutWithCredits ->
-                    Nothing
 
         newCards =
             case maybeCard of

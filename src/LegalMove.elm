@@ -523,10 +523,6 @@ getCardForMoveType moveType =
         JackTrade ->
             "J"
 
-        ComeOutWithCredits ->
-            -- should never be called
-            "via discards"
-
 
 moveCountForMoveType : MoveType -> String -> Int
 moveCountForMoveType moveType id =
@@ -546,10 +542,6 @@ moveCountForMoveType moveType id =
         JackTrade ->
             -- we never call this for J trades
             0
-
-        ComeOutWithCredits ->
-            -- should never be called
-            1
 
 
 isLocFree : PieceDict -> Color -> PieceLocation -> Bool

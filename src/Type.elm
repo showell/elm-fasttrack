@@ -6,6 +6,7 @@ module Type exposing
     , Location
     , Model
     , Move
+    , MoveFlavor(..)
     , MoveType(..)
     , Msg(..)
     , PieceDict
@@ -75,7 +76,11 @@ type MoveType
     | StartSplit Int
     | FinishSplit Int PieceLocation
     | JackTrade
-    | ComeOutWithCredits
+
+
+type MoveFlavor
+    = RegularMove
+    | TradePieces
 
 
 type alias Move =
