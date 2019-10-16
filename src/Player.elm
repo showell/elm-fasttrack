@@ -5,12 +5,12 @@ module Player exposing
     , coverCard
     , discardCard
     , endLocsForPlayer
+    , ensureHandNotEmpty
     , finishMove
     , getPlayableCards
     , getPlayer
     , getPlayerMoveType
     , getStartLocation
-    , maybeReplenishHand
     , replenishHand
     , setStartLocation
     , setTurn
@@ -194,8 +194,8 @@ maybeFinishTurn card pieceMap zoneColors activeColor player =
         }
 
 
-maybeReplenishHand : Color -> Model -> Model
-maybeReplenishHand activeColor model =
+ensureHandNotEmpty : Color -> Model -> Model
+ensureHandNotEmpty activeColor model =
     let
         player =
             getPlayer model.players activeColor

@@ -18,10 +18,10 @@ import Player
     exposing
         ( clearCredits
         , endLocsForPlayer
+        , ensureHandNotEmpty
         , finishMove
         , getPlayer
         , getPlayerMoveType
-        , maybeReplenishHand
         , updateActivePlayer
         )
 import Set
@@ -67,7 +67,7 @@ performMove model move activeColor =
                     }
             in
             model_
-                |> maybeReplenishHand activeColor
+                |> ensureHandNotEmpty activeColor
                 |> updateActivePlayer (finishMove newPieceMap zoneColors activeColor move)
 
 
