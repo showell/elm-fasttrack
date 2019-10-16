@@ -176,7 +176,8 @@ boardView pieceMap zoneColors activePlayer activeColor =
             bullsEyeView pieceMap startLocs endLocs activeColor startLocation centerOffset
 
         allLocations =
-            g [] ([ zoneLocations ] ++ [ bullsEye ])
+            [ zoneLocations, bullsEye ]
+                |> g []
                 |> nudge
     in
     svg
