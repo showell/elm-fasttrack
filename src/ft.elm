@@ -93,7 +93,8 @@ replenishActiveHand model =
         activeColor =
             getActiveColor model.zoneColors
     in
-    replenishHand activeColor model
+    model
+        |> replenishHand activeColor
 
 
 beginActiveTurn : Model -> Model
@@ -102,7 +103,8 @@ beginActiveTurn model =
         activeColor =
             getActiveColor model.zoneColors
     in
-    beginTurn activeColor model
+    model
+        |> beginTurn activeColor
         |> WhatIf.debugWhatIf
 
 
@@ -142,35 +144,40 @@ update msg model =
         SetStartLocation clickedLoc ->
             let
                 model_ =
-                    handleStartLocClick model clickedLoc
+                    model
+                        |> handleStartLocClick clickedLoc
             in
             ( model_, Cmd.none )
 
         SetEndLocation clickedLoc ->
             let
                 model_ =
-                    handleEndLocClick model clickedLoc
+                    model
+                        |> handleEndLocClick clickedLoc
             in
             ( model_, Cmd.none )
 
         ReplenishHand ->
             let
                 model_ =
-                    replenishActiveHand model
+                    model
+                        |> replenishActiveHand
             in
             ( model_, Cmd.none )
 
         ActivateCard playerColor idx ->
             let
                 model_ =
-                    updateActivePlayer (activateCard idx) model
+                    model
+                        |> updateActivePlayer (activateCard idx)
             in
             ( model_, Cmd.none )
 
         DiscardCard playerColor idx ->
             let
                 model_ =
-                    updateActivePlayer (discardCard idx) model
+                    model
+                        |> updateActivePlayer (discardCard idx)
                         |> maybeGetOutViaDiscard playerColor
             in
             ( model_, Cmd.none )
@@ -178,7 +185,8 @@ update msg model =
         CoverCard playerColor idx ->
             let
                 model_ =
-                    updateActivePlayer (coverCard idx) model
+                    model
+                        |> updateActivePlayer (coverCard idx)
                         |> maybeGetOutViaDiscard playerColor
             in
             ( model_, Cmd.none )
@@ -214,8 +222,8 @@ rotateBoard zones =
     List.drop 1 zones ++ List.take 1 zones
 
 
-handleStartLocClick : Model -> PieceLocation -> Model
-handleStartLocClick model location =
+handleStartLocClick : PieceLocation -> Model -> Model
+handleStartLocClick location model =
     let
         activeColor =
             getActiveColor model.zoneColors
@@ -237,8 +245,8 @@ handleStartLocClick model location =
             model
 
 
-handleEndLocClick : Model -> PieceLocation -> Model
-handleEndLocClick model endLoc =
+handleEndLocClick : PieceLocation -> Model -> Model
+handleEndLocClick endLoc model =
     let
         activeColor =
             getActiveColor model.zoneColors
