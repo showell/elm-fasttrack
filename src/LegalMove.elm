@@ -18,7 +18,6 @@ import Config
         , nextIdsInZone
         , prevIdInZone
         )
-import Dict
 import Graph
     exposing
         ( canTravelNEdges
