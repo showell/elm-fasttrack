@@ -18,7 +18,6 @@ import Piece
 import Player
     exposing
         ( activateCard
-        , beginTurn
         , configPlayers
         , coverCard
         , discardCard
@@ -27,6 +26,7 @@ import Player
         , replenishHand
         , setStartLocation
         , setTurn
+        , setTurnToNeedCard
         , updateActivePlayer
         )
 import Random
@@ -179,7 +179,8 @@ beginActiveTurn model =
             getActiveColor model.zoneColors
     in
     model
-        |> beginTurn activeColor
+        |> replenishHand activeColor
+        |> setTurnToNeedCard activeColor
         |> WhatIf.debugWhatIf
 
 

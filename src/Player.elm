@@ -1,6 +1,5 @@
 module Player exposing
     ( activateCard
-    , beginTurn
     , clearCredits
     , configPlayers
     , coverCard
@@ -15,6 +14,7 @@ module Player exposing
     , replenishHand
     , setStartLocation
     , setTurn
+    , setTurnToNeedCard
     , startLocsForPlayer
     , updateActivePlayer
     )
@@ -532,13 +532,6 @@ replenishHand activeColor model =
                 }
         in
         replenishHand activeColor model_
-
-
-beginTurn : Color -> Model -> Model
-beginTurn activeColor model =
-    model
-        |> replenishHand activeColor
-        |> setTurnToNeedCard activeColor
 
 
 getCardIdx : Player -> Random.Seed -> ( Int, Random.Seed )
