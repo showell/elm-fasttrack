@@ -19,7 +19,7 @@ module Type exposing
     , TurnNeedStartLocInfo
     )
 
-import Dict
+import Dict exposing (Dict)
 import Random
 import Set
 import Time
@@ -45,7 +45,7 @@ type alias PieceLocation =
 
 
 type alias PieceDict =
-    Dict.Dict PieceLocation Color
+    Dict PieceLocation Color
 
 
 
@@ -127,7 +127,7 @@ type alias Player =
 
 
 type alias PlayerDict =
-    Dict.Dict Color Player
+    Dict Color Player
 
 
 type AppState
