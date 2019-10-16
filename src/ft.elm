@@ -21,6 +21,7 @@ import Player
         , configPlayers
         , coverCard
         , discardCard
+        , ensureHandNotEmpty
         , getPlayer
         , getPlayerMoveType
         , replenishHand
@@ -133,10 +134,12 @@ updateModel msg model =
             model
                 |> updateActivePlayer (discardCard idx)
                 |> maybeGetOutViaDiscard
+                |> ensureHandNotEmpty
 
         CoverCard playerColor idx ->
             model
                 |> updateActivePlayer (coverCard idx)
+                |> ensureHandNotEmpty
 
         RotateBoard ->
             model
