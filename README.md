@@ -54,6 +54,7 @@ HOW TO BUILD:
     elm make src/ft.elm --output ft.html
 
 TODO:
+    finish-button leads to landing screen
 
     jack swap/kill:
         at least fix comment
@@ -65,19 +66,13 @@ TODO:
 
     set number of players 2/3/4/5/6
 
-    log moves
+    log moves:
+        may need hovers
 
     basic undo
 
     UI to pick number of players:
         clean up Msg/Model to have game vs. setup
 
-    --
-
-    consider opaque type for piece
-
-    maybe rename HH/DS/BR
-
-    have landing screen between players
-
-    add title hovers for squares
+    code cleanup:
+        de-dup getCardForMoveType?
