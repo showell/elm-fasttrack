@@ -6,6 +6,11 @@ import Game
         ( beginGame
         , updateGame
         )
+import History
+    exposing
+        ( canUndo
+        , init
+        )
 import Html
 import Task
 import Time
@@ -39,6 +44,7 @@ init _ =
     let
         model =
             { game = Nothing
+            , history = History.init
             }
     in
     ( model, Task.perform BeginGame Time.now )
@@ -51,18 +57,36 @@ init _ =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
-        newGame =
-            case msg of
-                BeginGame time ->
-                    Just (beginGame time)
-
-                UpdateGame gameMsg ->
-                    model.game
-                        |> Maybe.map (updateGame gameMsg)
+        history =
+            model.history
 
         newModel =
-            { game = newGame
-            }
+            case msg of
+                BeginGame time ->
+                    let
+                        newGame =
+                            beginGame time
+                    in
+                    { model
+                        | game = Just newGame
+                        , history = History.reset newGame
+                    }
+
+                UpdateGame gameMsg ->
+                    case model.game of
+                        Nothing ->
+                            -- should not happen
+                            model
+
+                        Just game ->
+                            let
+                                ( newHistory, newGame ) =
+                                    updateGame gameMsg history game
+                            in
+                            { model
+                                | game = Just newGame
+                                , history = newHistory
+                            }
     in
     ( newModel, Cmd.none )
 
@@ -93,7 +117,11 @@ view model =
                     [ Html.text "loading..." ]
 
                 Just game ->
-                    gameView game
+                    let
+                        showUndoButton =
+                            canUndo model.history game
+                    in
+                    gameView game showUndoButton
                         |> List.map (\msg -> Html.map UpdateGame msg)
     in
     { title = "Fast Track"

@@ -22,6 +22,7 @@ module Type exposing
     )
 
 import Dict exposing (Dict)
+import History exposing (History)
 import Random
 import Set exposing (Set)
 import Time
@@ -159,6 +160,7 @@ type alias Game =
 
 type alias Model =
     { game : Maybe Game
+    , history : History Game
     }
 
 
@@ -169,6 +171,7 @@ type GameMsg
     | RotateBoard
     | SetEndLocation PieceLocation
     | SetStartLocation PieceLocation
+    | UndoAction
 
 
 type Msg

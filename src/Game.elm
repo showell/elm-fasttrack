@@ -4,6 +4,10 @@ import Config
     exposing
         ( getZoneColors
         )
+import History
+    exposing
+        ( History
+        )
 import Move
     exposing
         ( maybeAutoMove
@@ -66,35 +70,68 @@ beginGame time =
         |> beginActiveTurn
 
 
-updateGame : GameMsg -> Game -> Game
-updateGame msg game =
+updateGame : GameMsg -> History Game -> Game -> ( History Game, Game )
+updateGame msg history game =
+    let
+        {--
+            We reset history **after** we rotate the board to the next
+            player.  Then before any play with a card, we save the history
+            **before** we apply that event.  And then as we're moving,
+            we don't create any intermediate checkpoints.
+        --}
+        resetToNew newGame =
+            let
+                newHistory =
+                    History.reset newGame
+            in
+            ( newHistory, newGame )
+
+        savePrior newGame =
+            let
+                newHistory =
+                    History.update history game
+            in
+            ( newHistory, newGame )
+
+        leaveHistoryAlone newGame =
+            ( history, newGame )
+    in
     case msg of
+        UndoAction ->
+            History.undo history game
+
         ActivateCard idx ->
             game
                 |> updateActivePlayer (activateCard idx)
+                |> savePrior
 
         DiscardCard idx ->
             game
                 |> updateActivePlayer (discardCard idx)
                 |> maybeGetOutViaDiscard
                 |> ensureHandNotEmpty
+                |> savePrior
 
         CoverCard idx ->
             game
                 |> updateActivePlayer (coverCard idx)
                 |> ensureHandNotEmpty
+                |> savePrior
 
         RotateBoard ->
             game
                 |> rotateBoard
+                |> resetToNew
 
         SetStartLocation clickedLoc ->
             game
                 |> handleStartLocClick clickedLoc
+                |> leaveHistoryAlone
 
         SetEndLocation clickedLoc ->
             game
                 |> handleEndLocClick clickedLoc
+                |> leaveHistoryAlone
 
 
 seedFromTime : Time.Posix -> Random.Seed

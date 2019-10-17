@@ -93,8 +93,8 @@ import Type
 -- VIEW
 
 
-gameView : Game -> List (Html GameMsg)
-gameView game =
+gameView : Game -> Bool -> List (Html GameMsg)
+gameView game showUndoButton =
     let
         pieceMap =
             game.pieceMap
@@ -116,8 +116,15 @@ gameView game =
                 []
                 [ boardView pieceMap zoneColors activePlayer activeColor ]
 
+        undoButtons =
+            if showUndoButton then
+                [ button [ onClick UndoAction ] [ Html.text "oops" ] ]
+
+            else
+                []
+
         playerConsole =
-            playerView activePlayer activeColor
+            playerView activePlayer activeColor undoButtons
     in
     [ board
     , hr [] []
@@ -380,8 +387,8 @@ pieceView color isSelectedPiece isStartLoc cx_ cy_ handlers =
         []
 
 
-playerView : Player -> Color -> Html GameMsg
-playerView player color =
+playerView : Player -> Color -> List (Html GameMsg) -> Html GameMsg
+playerView player color undoButtons =
     let
         playableCards =
             getPlayableCards player
@@ -390,7 +397,7 @@ playerView player color =
             List.indexedMap (handCardView color player playableCards) player.hand
 
         hand =
-            span [] handCards
+            span [] (handCards ++ undoButtons)
 
         console =
             case player.turn of
