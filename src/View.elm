@@ -1,6 +1,5 @@
-module View exposing (view)
+module View exposing (gameView)
 
-import Browser
 import Config
     exposing
         ( cardValue
@@ -78,10 +77,10 @@ import Type
         ( AppState(..)
         , Card
         , Color
+        , Game
+        , GameMsg(..)
         , Location
-        , Model
         , MoveType(..)
-        , Msg(..)
         , PieceDict
         , PieceLocation
         , PlayType(..)
@@ -94,36 +93,20 @@ import Type
 -- VIEW
 
 
-view : Model -> Browser.Document Msg
-view model =
-    case model.state of
-        Loading ->
-            -- The load should basically happen instantly, so this
-            -- is just defensive against race conditions.  Of course,
-            -- this may change in the future if we do things like
-            -- connect to a server.
-            { title = "Fast Track"
-            , body = [ Html.text "loading..." ]
-            }
-
-        Ready ->
-            normalView model
-
-
-normalView : Model -> Browser.Document Msg
-normalView model =
+gameView : Game -> List (Html GameMsg)
+gameView game =
     let
         pieceMap =
-            model.pieceMap
+            game.pieceMap
 
         zoneColors =
-            model.zoneColors
+            game.zoneColors
 
         players =
-            model.players
+            game.players
 
         activeColor =
-            model.activeColor
+            game.activeColor
 
         activePlayer =
             getPlayer players activeColor
@@ -135,19 +118,14 @@ normalView model =
 
         playerConsole =
             playerView activePlayer activeColor
-
-        body =
-            [ board
-            , hr [] []
-            , playerConsole
-            ]
     in
-    { title = "Fast Track"
-    , body = body
-    }
+    [ board
+    , hr [] []
+    , playerConsole
+    ]
 
 
-boardView : PieceDict -> List Color -> Player -> Color -> Html Msg
+boardView : PieceDict -> List Color -> Player -> Color -> Html GameMsg
 boardView pieceMap zoneColors activePlayer activeColor =
     let
         startLocation =
@@ -195,7 +173,7 @@ panelHeight =
     5 * squareSize
 
 
-nudge : Svg.Svg Msg -> Svg.Svg Msg
+nudge : Svg.Svg GameMsg -> Svg.Svg GameMsg
 nudge board =
     let
         offset =
@@ -207,7 +185,7 @@ nudge board =
     g [ transform translate ] [ board ]
 
 
-zoneView : PieceDict -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Color -> Html Msg
+zoneView : PieceDict -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Color -> Html GameMsg
 zoneView pieceMap startLocs endLocs activeColor startLocation zoneColor =
     let
         locations =
@@ -219,7 +197,7 @@ zoneView pieceMap startLocs endLocs activeColor startLocation zoneColor =
     g [] drawnLocations
 
 
-locationView : PieceDict -> Color -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html Msg
+locationView : PieceDict -> Color -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html GameMsg
 locationView pieceMap zoneColor startLocs endLocs activeColor selectedLocation locationInfo =
     let
         cx_ =
@@ -234,7 +212,7 @@ locationView pieceMap zoneColor startLocs endLocs activeColor selectedLocation l
     drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_
 
 
-bullsEyeView : PieceDict -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Html Msg
+bullsEyeView : PieceDict -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Html GameMsg
 bullsEyeView pieceMap startLocs endLocs activeColor selectedLocation centerOffset =
     let
         cx_ =
@@ -252,7 +230,7 @@ bullsEyeView pieceMap startLocs endLocs activeColor selectedLocation centerOffse
     drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_
 
 
-drawLocationAtCoords : PieceDict -> Color -> String -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Float -> Html Msg
+drawLocationAtCoords : PieceDict -> Color -> String -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Float -> Html GameMsg
 drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_ =
     let
         pieceLocation =
@@ -376,7 +354,7 @@ drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selecte
     g [] contents
 
 
-pieceView : Color -> Bool -> Bool -> Float -> Float -> List (Svg.Attribute Msg) -> Html Msg
+pieceView : Color -> Bool -> Bool -> Float -> Float -> List (Svg.Attribute GameMsg) -> Html GameMsg
 pieceView color isSelectedPiece isStartLoc cx_ cy_ handlers =
     let
         radius =
@@ -402,7 +380,7 @@ pieceView color isSelectedPiece isStartLoc cx_ cy_ handlers =
         []
 
 
-playerView : Player -> Color -> Html Msg
+playerView : Player -> Color -> Html GameMsg
 playerView player color =
     let
         playableCards =
@@ -459,7 +437,7 @@ type CardAction
     | Ignore
 
 
-handCardView : Color -> Player -> Set Card -> Int -> Card -> Html Msg
+handCardView : Color -> Player -> Set Card -> Int -> Card -> Html GameMsg
 handCardView color player playableCards idx card =
     let
         action =
@@ -498,13 +476,13 @@ handCardView color player playableCards idx card =
         attrs =
             case action of
                 CanActivate ->
-                    [ onClick (ActivateCard color idx) ]
+                    [ onClick (ActivateCard idx) ]
 
                 CanDiscard ->
-                    [ onClick (DiscardCard color idx) ]
+                    [ onClick (DiscardCard idx) ]
 
                 CanCover ->
-                    [ onClick (CoverCard color idx) ]
+                    [ onClick (CoverCard idx) ]
 
                 Ignore ->
                     [ disabled True ]
@@ -514,7 +492,7 @@ handCardView color player playableCards idx card =
         [ Html.text card ]
 
 
-playerNeedCard : Set Card -> Html Msg
+playerNeedCard : Set Card -> Html GameMsg
 playerNeedCard playableCards =
     let
         instructions =
@@ -523,7 +501,7 @@ playerNeedCard playableCards =
     div [] [ instructions, cheatSheet playableCards ]
 
 
-cheatSheet : Set Card -> Html Msg
+cheatSheet : Set Card -> Html GameMsg
 cheatSheet cards =
     let
         title =
@@ -550,7 +528,7 @@ cheatSheet cards =
         ]
 
 
-playerNeedStart : PlayType -> Color -> Html Msg
+playerNeedStart : PlayType -> Color -> Html GameMsg
 playerNeedStart playType color =
     let
         instructions =
@@ -570,7 +548,7 @@ playerNeedStart playType color =
         ]
 
 
-playerNeedEnd : PlayType -> Color -> Html Msg
+playerNeedEnd : PlayType -> Color -> Html GameMsg
 playerNeedEnd playType color =
     let
         activeCard =
@@ -584,7 +562,7 @@ playerNeedEnd playType color =
         ]
 
 
-activeCardView : Card -> Color -> String -> Html Msg
+activeCardView : Card -> Color -> String -> Html GameMsg
 activeCardView activeCard color instructions =
     let
         css =
@@ -600,7 +578,7 @@ activeCardView activeCard color instructions =
     span [] [ card, Html.text instructions ]
 
 
-cardCss : Color -> Color -> List (Html.Attribute Msg)
+cardCss : Color -> Color -> List (Html.Attribute GameMsg)
 cardCss borderColor color =
     [ style "border-color" borderColor
     , style "color" color
@@ -612,7 +590,7 @@ cardCss borderColor color =
     ]
 
 
-creditsView : Player -> Html Msg
+creditsView : Player -> Html GameMsg
 creditsView player =
     if player.getOutCredits > 0 then
         let
@@ -629,7 +607,7 @@ creditsView player =
         span [] []
 
 
-rotateButton : Html Msg
+rotateButton : Html GameMsg
 rotateButton =
     div
         []

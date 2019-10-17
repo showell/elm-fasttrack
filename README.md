@@ -51,7 +51,7 @@ HOW TO BUILD:
     (We are deploying a non-optimized version so that
     debug can be turned on.)
 
-    elm make src/ft.elm --output ft.html
+    elm make src/Main.elm --output ft.html
 
 TODO:
     finish-button leads to landing screen

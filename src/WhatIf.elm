@@ -33,7 +33,7 @@ import Type
     exposing
         ( Card
         , Color
-        , Model
+        , Game
         , Move
         , MoveType(..)
         , PieceDict
@@ -304,20 +304,20 @@ isFinalState state =
     state.nextStep == Nada || List.length state.cards == 0
 
 
-getWhatIfGameStates : Model -> List GameState
-getWhatIfGameStates model =
+getWhatIfGameStates : Game -> List GameState
+getWhatIfGameStates game =
     let
         zoneColors =
-            model.zoneColors
+            game.zoneColors
 
         activeColor =
-            model.activeColor
+            game.activeColor
 
         pieceMap =
-            model.pieceMap
+            game.pieceMap
 
         players =
-            model.players
+            game.players
 
         activePlayer =
             getPlayer players activeColor
@@ -347,15 +347,15 @@ getWhatIfGameStates model =
     Graph.getFinalStates getNeighborStates isFinalState state
 
 
-debugWhatIf : Model -> Model
-debugWhatIf model =
+debugWhatIf : Game -> Game
+debugWhatIf game =
     let
         whatIfs =
-            getWhatIfGameStates model
+            getWhatIfGameStates game
 
         _ =
             whatIfs
                 |> List.map (\w -> ( w.credits, w.actions, w.pieceMap ))
                 |> List.map (Debug.log "what if...")
     in
-    model
+    game

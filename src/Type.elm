@@ -3,6 +3,8 @@ module Type exposing
     , Card
     , Color
     , FindLocParams
+    , Game
+    , GameMsg(..)
     , Location
     , Model
     , Move
@@ -146,21 +148,29 @@ type alias FindLocParams =
     }
 
 
-type alias Model =
+type alias Game =
     { zoneColors : List Color
     , pieceMap : PieceDict
     , players : PlayerDict
     , seed : Random.Seed
-    , state : AppState
     , activeColor : Color
     }
 
 
-type Msg
-    = ActivateCard Color Int
-    | DiscardCard Color Int
-    | CoverCard Color Int
+type alias Model =
+    { game : Maybe Game
+    }
+
+
+type GameMsg
+    = ActivateCard Int
+    | DiscardCard Int
+    | CoverCard Int
     | RotateBoard
     | SetEndLocation PieceLocation
     | SetStartLocation PieceLocation
-    | LoadGame Time.Posix
+
+
+type Msg
+    = BeginGame Time.Posix
+    | UpdateGame GameMsg

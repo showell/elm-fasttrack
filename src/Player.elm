@@ -42,7 +42,7 @@ import Type
     exposing
         ( Card
         , Color
-        , Model
+        , Game
         , Move
         , MoveType(..)
         , PieceDict
@@ -194,40 +194,40 @@ maybeFinishTurn card pieceMap zoneColors activeColor player =
         }
 
 
-ensureHandNotEmpty : Model -> Model
-ensureHandNotEmpty model =
+ensureHandNotEmpty : Game -> Game
+ensureHandNotEmpty game =
     let
         activeColor =
-            model.activeColor
+            game.activeColor
 
         player =
-            getPlayer model.players activeColor
+            getPlayer game.players activeColor
     in
     if List.length player.hand > 0 then
-        model
+        game
 
     else
-        replenishHand model
+        replenishHand game
 
 
-setTurnToNeedCard : Model -> Model
-setTurnToNeedCard model =
+setTurnToNeedCard : Game -> Game
+setTurnToNeedCard game =
     updateActivePlayer
         (\player ->
             let
                 pieceMap =
-                    model.pieceMap
+                    game.pieceMap
 
                 zoneColors =
-                    model.zoneColors
+                    game.zoneColors
 
                 activeColor =
-                    model.activeColor
+                    game.activeColor
             in
             player
                 |> turnNeedCard pieceMap zoneColors activeColor
         )
-        model
+        game
 
 
 finishSevenSplit : PieceDict -> List Color -> Color -> Int -> PieceLocation -> Turn
@@ -342,16 +342,16 @@ getStartLocation player =
             Nothing
 
 
-updateActivePlayer : (Player -> Player) -> Model -> Model
-updateActivePlayer f model =
+updateActivePlayer : (Player -> Player) -> Game -> Game
+updateActivePlayer f game =
     let
         activeColor =
-            model.activeColor
+            game.activeColor
 
         players =
-            updatePlayer model.players activeColor f
+            updatePlayer game.players activeColor f
     in
-    { model | players = players }
+    { game | players = players }
 
 
 updatePlayer : PlayerDict -> Color -> (Player -> Player) -> PlayerDict
@@ -508,39 +508,39 @@ maybeReplenishDeck deck =
             deck
 
 
-replenishHand : Model -> Model
-replenishHand model =
+replenishHand : Game -> Game
+replenishHand game =
     let
         activeColor =
-            model.activeColor
+            game.activeColor
 
         players =
-            model.players
+            game.players
 
         activePlayer =
-            getPlayer model.players activeColor
+            getPlayer game.players activeColor
     in
     if List.length activePlayer.hand >= 5 then
         -- The length of the hand should never actually
         -- exceed 5, but we want to prevent infinite loops
         -- for devHack kind of stuff.
-        model
+        game
 
     else
         let
             ( idx, seed ) =
-                getCardIdx activePlayer model.seed
+                getCardIdx activePlayer game.seed
 
             players_ =
                 updatePlayer players activeColor (drawCard idx)
 
-            model_ =
-                { model
+            game_ =
+                { game
                     | players = players_
                     , seed = seed
                 }
         in
-        replenishHand model_
+        replenishHand game_
 
 
 getCardIdx : Player -> Random.Seed -> ( Int, Random.Seed )

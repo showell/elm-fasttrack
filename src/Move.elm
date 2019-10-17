@@ -27,7 +27,7 @@ import Player
 import Set
 import Type
     exposing
-        ( Model
+        ( Game
         , Move
         , MoveType(..)
         , PieceLocation
@@ -35,52 +35,52 @@ import Type
         )
 
 
-performMove : Move -> Model -> Model
-performMove move model =
+performMove : Move -> Game -> Game
+performMove move game =
     let
         activeColor =
-            model.activeColor
+            game.activeColor
 
         ( _, startLoc, _ ) =
             move
 
         pieceMap =
-            model.pieceMap
+            game.pieceMap
 
         pieceColor =
             getPiece pieceMap startLoc
     in
     case pieceColor of
         Nothing ->
-            model
+            game
 
         Just _ ->
             let
                 zoneColors =
-                    model.zoneColors
+                    game.zoneColors
 
                 newPieceMap =
                     pieceMap
                         |> movePiece move
 
-                model_ =
-                    { model
+                game_ =
+                    { game
                         | pieceMap = newPieceMap
                     }
             in
-            model_
+            game_
                 |> ensureHandNotEmpty
                 |> updateActivePlayer (finishMove newPieceMap zoneColors activeColor move)
 
 
-maybeAutoMove : PieceLocation -> Model -> Model
-maybeAutoMove startLoc model =
+maybeAutoMove : PieceLocation -> Game -> Game
+maybeAutoMove startLoc game =
     let
         players =
-            model.players
+            game.players
 
         activeColor =
-            model.activeColor
+            game.activeColor
 
         activePlayer =
             getPlayer players activeColor
@@ -100,40 +100,40 @@ maybeAutoMove startLoc model =
     case uniqueEndLoc of
         Nothing ->
             -- If we don't have exactly one location, don't update the
-            -- model (and we have UI to let the user pick the location).
-            model
+            -- game (and we have UI to let the user pick the location).
+            game
 
         Just endLoc ->
-            model
+            game
                 |> moveToEndLoc activePlayer startLoc endLoc
 
 
-maybeGetOutViaDiscard : Model -> Model
-maybeGetOutViaDiscard model =
+maybeGetOutViaDiscard : Game -> Game
+maybeGetOutViaDiscard game =
     let
         activeColor =
-            model.activeColor
+            game.activeColor
 
         player =
-            getPlayer model.players activeColor
+            getPlayer game.players activeColor
     in
     if player.getOutCredits < numCreditsToGetOut then
-        model
+        game
 
     else
         let
             newPieceMap =
-                model.pieceMap
+                game.pieceMap
                     |> bringPlayerOut activeColor
         in
-        { model
+        { game
             | pieceMap = newPieceMap
         }
             |> updateActivePlayer clearCredits
 
 
-moveToEndLoc : Player -> PieceLocation -> PieceLocation -> Model -> Model
-moveToEndLoc activePlayer startLoc endLoc model =
+moveToEndLoc : Player -> PieceLocation -> PieceLocation -> Game -> Game
+moveToEndLoc activePlayer startLoc endLoc game =
     let
         moveType_ =
             getPlayerMoveType activePlayer endLoc
@@ -144,9 +144,9 @@ moveToEndLoc activePlayer startLoc endLoc model =
                 move =
                     ( moveType, startLoc, endLoc )
             in
-            model
+            game
                 |> performMove move
 
         Nothing ->
             -- this is actually a programming error
-            model
+            game
