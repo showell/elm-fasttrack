@@ -1,0 +1,37 @@
+The following list of todos are just under source control
+for the main developer, me, Steve.  If I ever get collaborators,
+I'll start filing issues.  (As is usually the case, some of
+the most important todos, like adding better comments to the
+code, are either still in my head or just kind of an
+ongoing, constant effort.)
+
+TODO:
+
+    extract color functions
+
+    finish-button:
+        put on same row as cards
+        style it nicely
+        landing screen
+
+    jack swap/kill:
+        at least fix comment
+
+    mobile:
+        fix sizes
+
+    fix before-turn-card experience:
+        show pieces that can be moved
+
+    set number of players 2/3/4/5/6
+
+    log moves:
+        may need hovers
+
+    basic undo
+
+    UI to pick number of players:
+        clean up Msg/Model to have game vs. setup
+
+    code cleanup:
+        de-dup getCardForMoveType?

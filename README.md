@@ -54,25 +54,5 @@ HOW TO BUILD:
     elm make src/Main.elm --output ft.html
 
 TODO:
-    finish-button leads to landing screen
+    see todo.txt
 
-    jack swap/kill:
-        at least fix comment
-
-    fix sizes
-
-    fix before-turn-card experience:
-        show pieces that can be moved
-
-    set number of players 2/3/4/5/6
-
-    log moves:
-        may need hovers
-
-    basic undo
-
-    UI to pick number of players:
-        clean up Msg/Model to have game vs. setup
-
-    code cleanup:
-        de-dup getCardForMoveType?
