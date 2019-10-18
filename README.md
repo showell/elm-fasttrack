@@ -6,7 +6,7 @@ sounds).  The biggest next steps are these:
 * Let the computer play (i.e. basic AI)
 * Connect to a game server for multi-person play.
 
-WHAT IS FAST TRACK?
+## WHAT IS FAST TRACK?
 
 Fast track is a board game where you move pieces
 around the board from your holding pen to your
@@ -46,12 +46,24 @@ And then Jacks can trade.
 * J - trade with opponent piece (or move 1)
 
 
-HOW TO BUILD:
+## HOW TO BUILD:
     
     (We are deploying a non-optimized version so that
     debug can be turned on.)
 
     elm make src/Main.elm --output ft.html
 
-TODO: see [here](https://github.com/showell/elm-fasttrack/blob/master/todo.txt)
+## DEPLOYMENT
+
+I have this deployed using [github pages](https://showell.github.io/ft.html).
+
+My command for doing it is this:
+
+    cd ../fast_track/ && cp ../elm/ft.html . && git commit -am 'latest' && git push origin master && cd -
+
+As of this writing, it's a fully self-contained single HTML file.
+
+## TODO:
+
+see [here](https://github.com/showell/elm-fasttrack/blob/master/src/todo.txt)
 
