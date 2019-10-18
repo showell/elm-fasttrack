@@ -122,7 +122,8 @@ view model =
                             canUndo model.history game
                     in
                     gameView game showUndoButton
-                        |> List.map (\msg -> Html.map UpdateGame msg)
+                        |> Html.map UpdateGame
+                        |> List.singleton
     in
     { title = "Fast Track"
     , body = body

@@ -93,7 +93,7 @@ import Type
 -- VIEW
 
 
-gameView : Game -> Bool -> List (Html GameMsg)
+gameView : Game -> Bool -> Html GameMsg
 gameView game showUndoButton =
     let
         pieceMap =
@@ -129,11 +129,12 @@ gameView game showUndoButton =
         cheatSheet =
             cheatSheetView activePlayer
     in
-    [ board
-    , hr [] []
-    , playerConsole
-    , cheatSheet
-    ]
+    div []
+        [ board
+        , hr [] []
+        , playerConsole
+        , cheatSheet
+        ]
 
 
 boardView : PieceDict -> List Color -> Player -> Color -> Html GameMsg
