@@ -17,6 +17,9 @@ TODO:
     jack swap/kill:
         at least fix comment
 
+    get back to what-if:
+        (computer plays automatically)
+
     mobile:
         fix sizes
 
@@ -27,8 +30,6 @@ TODO:
 
     log moves:
         may need hovers
-
-    basic undo
 
     UI to pick number of players:
         clean up Msg/Model to have game vs. setup

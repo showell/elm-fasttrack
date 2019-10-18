@@ -53,6 +53,5 @@ HOW TO BUILD:
 
     elm make src/Main.elm --output ft.html
 
-TODO:
-    see todo.txt
+TODO: see [here](https://github.com/showell/elm-fasttrack/blob/master/todo.txt)
 
