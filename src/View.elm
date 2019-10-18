@@ -116,7 +116,7 @@ gameView game showUndoButton =
                 []
                 [ boardView pieceMap zoneColors activePlayer activeColor ]
 
-        undoButtons =
+        undoButton =
             if showUndoButton then
                 [ button [ onClick UndoAction ] [ Html.text "oops" ] ]
 
@@ -124,7 +124,7 @@ gameView game showUndoButton =
                 []
 
         playerConsole =
-            playerView activePlayer activeColor undoButtons
+            playerView activePlayer activeColor undoButton
 
         cheatSheet =
             cheatSheetView activePlayer
@@ -415,7 +415,7 @@ cheatSheetCards player =
 
 
 playerView : Player -> Color -> List (Html GameMsg) -> Html GameMsg
-playerView player color undoButtons =
+playerView player color undoButton =
     let
         playableCards =
             getPlayableCards player
@@ -423,8 +423,11 @@ playerView player color undoButtons =
         handCards =
             List.indexedMap (handCardView color player playableCards) player.hand
 
+        rotateButton =
+            rotateButtonView player
+
         hand =
-            span [] (handCards ++ undoButtons)
+            span [] (handCards ++ undoButton ++ rotateButton)
 
         console =
             case player.turn of
@@ -450,8 +453,7 @@ playerView player color undoButtons =
                 TurnDone ->
                     div
                         []
-                        [ Html.text "ok, now finish your turn"
-                        , rotateButton
+                        [ Html.text "ok, now hit 'done' if you're happy"
                         ]
 
                 _ ->
@@ -648,11 +650,18 @@ creditsView player =
         span [] []
 
 
-rotateButton : Html GameMsg
-rotateButton =
-    div
-        []
-        [ button
-            [ onClick RotateBoard ]
-            [ Html.text "Finish Turn" ]
-        ]
+rotateButtonView : Player -> List (Html GameMsg)
+rotateButtonView player =
+    case
+        player.turn
+    of
+        TurnDone ->
+            [ button
+                [ onClick RotateBoard
+                , style "background" "lightgreen"
+                ]
+                [ Html.text "done" ]
+            ]
+
+        _ ->
+            []
