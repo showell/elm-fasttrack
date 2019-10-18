@@ -7,8 +7,6 @@ ongoing, constant effort.)
 
 TODO:
 
-    extract color functions
-
     finish-button:
         put on same row as cards
         style it nicely

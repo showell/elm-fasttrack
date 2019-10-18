@@ -6,10 +6,13 @@ module LegalMove exposing
     , getMovesForCards
     , getMovesForMoveType
     , getMovesFromLocation
-    , nextZoneColor
-    , prevZoneColor
     )
 
+import Color
+    exposing
+        ( nextZoneColor
+        , prevZoneColor
+        )
 import Config
     exposing
         ( isBaseId
@@ -23,7 +26,6 @@ import Graph
         ( canTravelNEdges
         , getNodesNEdgesAway
         )
-import List.Extra
 import Piece
     exposing
         ( getPiece
@@ -48,40 +50,6 @@ import Type
         , PlayType(..)
         , Turn(..)
         )
-
-
-nextZoneColor : Color -> List Color -> Color
-nextZoneColor color zoneColors =
-    let
-        idx =
-            List.Extra.elemIndex color zoneColors
-                |> Maybe.withDefault -1
-
-        len =
-            List.length zoneColors
-
-        nextIdx =
-            (idx + 1) |> modBy len
-    in
-    List.Extra.getAt nextIdx zoneColors
-        |> Maybe.withDefault "bogus"
-
-
-prevZoneColor : Color -> List Color -> Color
-prevZoneColor color zoneColors =
-    let
-        idx =
-            List.Extra.elemIndex color zoneColors
-                |> Maybe.withDefault 1
-
-        len =
-            List.length zoneColors
-
-        nextIdx =
-            (idx - 1) |> modBy len
-    in
-    List.Extra.getAt nextIdx zoneColors
-        |> Maybe.withDefault "bogus"
 
 
 getCanGoNSpaces : PieceDict -> PieceLocation -> List Color -> Int -> Bool

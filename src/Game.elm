@@ -1,8 +1,10 @@
 module Game exposing (beginGame, updateGame)
 
-import Config
+import Color
     exposing
-        ( getZoneColors
+        ( getActiveColor
+        , getZoneColors
+        , rotateColors
         )
 import History
     exposing
@@ -37,7 +39,6 @@ import Time
 import Type
     exposing
         ( AppState(..)
-        , Color
         , Game
         , GameMsg(..)
         , PieceLocation
@@ -137,18 +138,6 @@ updateGame msg history game =
 seedFromTime : Time.Posix -> Random.Seed
 seedFromTime time =
     Random.initialSeed (Time.posixToMillis time)
-
-
-getActiveColor : List Color -> Color
-getActiveColor zoneColors =
-    -- appease compiler with Maybe
-    List.head zoneColors
-        |> Maybe.withDefault "bogus"
-
-
-rotateColors : List Color -> List Color
-rotateColors zones =
-    List.drop 1 zones ++ List.take 1 zones
 
 
 rotateBoard : Game -> Game

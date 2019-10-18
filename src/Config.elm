@@ -2,7 +2,6 @@ module Config exposing
     ( cardValue
     , configLocations
     , fullDeck
-    , getZoneColors
     , gutterSize
     , hintForCard
     , holdingPenLocations
@@ -38,11 +37,6 @@ gutterSize =
 squareSize : Float
 squareSize =
     26.0
-
-
-getZoneColors : Int -> List String
-getZoneColors numPlayers =
-    List.take numPlayers [ "red", "blue", "green", "purple", "aqua", "brown" ]
 
 
 baseLocations : List String

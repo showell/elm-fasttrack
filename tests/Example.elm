@@ -1,5 +1,10 @@
 module Example exposing (..)
 
+import Color
+    exposing
+        ( nextZoneColor
+        , prevZoneColor
+        )
 import Dict
 import Expect exposing (Expectation)
 import LegalMove
@@ -9,8 +14,6 @@ import LegalMove
         , getMovesForCards
         , getMovesForMoveType
         , getMovesFromLocation
-        , nextZoneColor
-        , prevZoneColor
         )
 import Piece
     exposing
