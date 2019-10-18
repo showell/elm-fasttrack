@@ -6,7 +6,23 @@ sounds).  The biggest next steps are these:
 * Let the computer play (i.e. basic AI)
 * Connect to a game server for multi-person play.
 
-## WHAT IS FAST TRACK?
+## See it in action
+
+As of now, it is deployed here:
+
+[github pages](https://showell.github.io/ft.html)
+
+You can also scroll down to see how to build it locally.  It
+is a pretty small, self-contained project.
+
+## Software developers
+
+If you would like to contribute or have questions about
+the project, feel free to open an issue or PR, or try
+to find me (@showell) on Elm's
+[Slack instance](https://elmlang.herokuapp.com/).
+
+## What is FastTrack?
 
 Fast track is a board game where you move pieces
 around the board from your holding pen to your
@@ -46,14 +62,23 @@ And then Jacks can trade.
 * J - trade with opponent piece (or move 1)
 
 
-## HOW TO BUILD:
+## How to build
+
+This project basically only requires installing
+[Elm](https://elm-lang.org/).  And then its Elm
+dependencies are specified with the standard
+[elm.json](https://github.com/showell/elm-fasttrack/blob/master/elm.json)
+mechanism.
+
+There are no strange external dependencies yet.  It's
+pure Elm code.
     
-    (We are deploying a non-optimized version so that
-    debug can be turned on.)
+We are deploying a non-optimized version so that
+debug can be turned on.
 
     elm make src/Main.elm --output ft.html
 
-## DEPLOYMENT
+## Deployment
 
 I have this deployed using [github pages](https://showell.github.io/ft.html).
 
@@ -63,7 +88,7 @@ My command for doing it is this:
 
 As of this writing, it's a fully self-contained single HTML file.
 
-## TODO:
+## Todo
 
 see [here](https://github.com/showell/elm-fasttrack/blob/master/src/todo.txt)
 
