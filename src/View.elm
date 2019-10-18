@@ -125,10 +125,14 @@ gameView game showUndoButton =
 
         playerConsole =
             playerView activePlayer activeColor undoButtons
+
+        cheatSheet =
+            cheatSheetView activePlayer
     in
     [ board
     , hr [] []
     , playerConsole
+    , cheatSheet
     ]
 
 
@@ -387,6 +391,20 @@ pieceView color isSelectedPiece isStartLoc cx_ cy_ handlers =
         []
 
 
+cheatSheetCards : Player -> Set Card
+cheatSheetCards player =
+    case player.turn of
+        TurnNeedCard _ ->
+            getPlayableCards player
+
+        TurnNeedStartLoc info ->
+            getCardForPlayType info.playType
+                |> Set.singleton
+
+        _ ->
+            Set.empty
+
+
 playerView : Player -> Color -> List (Html GameMsg) -> Html GameMsg
 playerView player color undoButtons =
     let
@@ -412,7 +430,7 @@ playerView player color undoButtons =
                         ]
 
                 TurnNeedCard _ ->
-                    playerNeedCard playableCards
+                    playerNeedCard
 
                 TurnNeedStartLoc turnInfo ->
                     playerNeedStart turnInfo.playType color
@@ -499,40 +517,48 @@ handCardView color player playableCards idx card =
         [ Html.text card ]
 
 
-playerNeedCard : Set Card -> Html GameMsg
-playerNeedCard playableCards =
+playerNeedCard : Html GameMsg
+playerNeedCard =
     let
         instructions =
             div [] [ Html.text "click a card above" ]
     in
-    div [] [ instructions, cheatSheet playableCards ]
+    div [] [ instructions ]
 
 
-cheatSheet : Set Card -> Html GameMsg
-cheatSheet cards =
+cheatSheetView : Player -> Html GameMsg
+cheatSheetView player =
     let
-        title =
-            b [] [ Html.text "Cheat sheet:" ]
-
-        cardHint card =
-            let
-                hint =
-                    card ++ " - " ++ hintForCard card
-            in
-            div [] [ Html.text hint ]
-
-        cardHints =
-            cards
-                |> Set.toList
-                |> List.sortBy cardValue
-                |> List.map cardHint
-                |> div []
+        cards =
+            cheatSheetCards player
     in
-    div []
-        [ br [] []
-        , title
-        , cardHints
-        ]
+    if Set.isEmpty cards then
+        div [] []
+
+    else
+        let
+            title =
+                b [] [ Html.text "Cheat sheet:" ]
+
+            cardHint card =
+                let
+                    hint =
+                        card ++ " - " ++ hintForCard card
+                in
+                div [] [ Html.text hint ]
+
+            cardHints =
+                cards
+                    |> Set.toList
+                    |> List.sortBy cardValue
+                    |> List.map cardHint
+                    |> div []
+        in
+        div []
+            [ br [] []
+            , title
+            , cardHints
+            ]
 
 
 playerNeedStart : PlayType -> Color -> Html GameMsg
@@ -551,7 +577,6 @@ playerNeedStart playType color =
     in
     div []
         [ activeCardView activeCard color instructions
-        , cheatSheet (Set.fromList [ activeCard ])
         ]
 
 
