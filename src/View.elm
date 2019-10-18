@@ -128,12 +128,20 @@ gameView game showUndoButton =
 
         cheatSheet =
             cheatSheetView activePlayer
+
+        leftSide =
+            div []
+                [ board
+                , hr [] []
+                , playerConsole
+                ]
+
+        rightSide =
+            cheatSheet
     in
-    div []
-        [ board
-        , hr [] []
-        , playerConsole
-        , cheatSheet
+    div [ style "display" "flex", style "flex-direction" "row" ]
+        [ div [] [ leftSide ]
+        , div [] [ rightSide ]
         ]
 
 
