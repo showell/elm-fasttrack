@@ -7,6 +7,8 @@ module Player exposing
     , endLocsForPlayer
     , ensureHandNotEmpty
     , finishMove
+    , getActivePlayer
+    , getActivePlayerColor
     , getPlayableCards
     , getPlayer
     , getPlayerMoveType
@@ -119,6 +121,7 @@ configPlayer color =
             , hand = startingHand color
             , getOutCredits = 0
             , turn = TurnBegin
+            , color = color
             }
     in
     originalSetup
@@ -127,36 +130,50 @@ configPlayer color =
 configPlayers : List Color -> PlayerDict
 configPlayers zoneColors =
     let
-        configOne color =
-            Dict.insert color (configPlayer color)
-
-        dct =
-            Dict.empty
+        lst =
+            zoneColors
+                |> List.indexedMap
+                    (\idx color ->
+                        ( idx, configPlayer color )
+                    )
     in
-    List.foldl configOne dct zoneColors
+    Dict.fromList lst
 
 
-getPlayer : PlayerDict -> Color -> Player
-getPlayer players color =
+getPlayer : PlayerDict -> Int -> Player
+getPlayer players idx =
     -- The "Maybe" is just to satisfy the compiler
-    Dict.get color players
-        |> Maybe.withDefault (configPlayer color)
+    Dict.get idx players
+        |> Maybe.withDefault (configPlayer "bogus")
 
 
-getMovesForPlayer : Player -> PieceDict -> List Color -> Color -> List Move
-getMovesForPlayer player pieceMap zoneColors activeColor =
+getActivePlayer : Game -> Player
+getActivePlayer game =
+    getPlayer game.players game.activePlayerIdx
+
+
+getActivePlayerColor : Game -> Color
+getActivePlayerColor game =
+    (getActivePlayer game).color
+
+
+getMovesForPlayer : Player -> PieceDict -> List Color -> List Move
+getMovesForPlayer player pieceMap zoneColors =
     let
+        activeColor =
+            player.color
+
         cards =
             Set.fromList player.hand
     in
     getMovesForCards cards pieceMap zoneColors activeColor
 
 
-turnNeedCard : PieceDict -> List Color -> Color -> Player -> Player
-turnNeedCard pieceMap zoneColors activeColor player =
+turnNeedCard : PieceDict -> List Color -> Player -> Player
+turnNeedCard pieceMap zoneColors player =
     let
         moves =
-            getMovesForPlayer player pieceMap zoneColors activeColor
+            getMovesForPlayer player pieceMap zoneColors
     in
     if List.length moves == 0 then
         let
@@ -182,11 +199,11 @@ turnNeedCard pieceMap zoneColors activeColor player =
         }
 
 
-maybeFinishTurn : Card -> PieceDict -> List Color -> Color -> Player -> Player
-maybeFinishTurn card pieceMap zoneColors activeColor player =
+maybeFinishTurn : Card -> PieceDict -> List Color -> Player -> Player
+maybeFinishTurn card pieceMap zoneColors player =
     if isMoveAgainCard card then
         player
-            |> turnNeedCard pieceMap zoneColors activeColor
+            |> turnNeedCard pieceMap zoneColors
 
     else
         { player
@@ -197,11 +214,11 @@ maybeFinishTurn card pieceMap zoneColors activeColor player =
 ensureHandNotEmpty : Game -> Game
 ensureHandNotEmpty game =
     let
-        activeColor =
-            game.activeColor
+        activeIdx =
+            game.activePlayerIdx
 
         player =
-            getPlayer game.players activeColor
+            getPlayer game.players activeIdx
     in
     if List.length player.hand > 0 then
         game
@@ -220,12 +237,9 @@ setTurnToNeedCard game =
 
                 zoneColors =
                     game.zoneColors
-
-                activeColor =
-                    game.activeColor
             in
             player
-                |> turnNeedCard pieceMap zoneColors activeColor
+                |> turnNeedCard pieceMap zoneColors
         )
         game
 
@@ -279,9 +293,12 @@ clearCredits player =
     }
 
 
-finishMove : PieceDict -> List Color -> Color -> Move -> Player -> Player
-finishMove pieceMap zoneColors activeColor move player =
+finishMove : PieceDict -> List Color -> Move -> Player -> Player
+finishMove pieceMap zoneColors move player =
     let
+        activeColor =
+            player.color
+
         ( moveType, _, endLoc ) =
             move
 
@@ -298,7 +315,7 @@ finishMove pieceMap zoneColors activeColor move player =
 
         _ ->
             player
-                |> maybeFinishTurn card pieceMap zoneColors activeColor
+                |> maybeFinishTurn card pieceMap zoneColors
 
 
 setStartLocation : PieceLocation -> Player -> Player
@@ -345,32 +362,32 @@ getStartLocation player =
 updateActivePlayer : (Player -> Player) -> Game -> Game
 updateActivePlayer f game =
     let
-        activeColor =
-            game.activeColor
+        activeIdx =
+            game.activePlayerIdx
 
         players =
-            updatePlayer game.players activeColor f
+            updatePlayer game.players activeIdx f
     in
     { game | players = players }
 
 
-updatePlayer : PlayerDict -> Color -> (Player -> Player) -> PlayerDict
-updatePlayer players color f =
+updatePlayer : PlayerDict -> Int -> (Player -> Player) -> PlayerDict
+updatePlayer players idx f =
     let
         player =
-            getPlayer players color
+            getPlayer players idx
 
         newPlayer =
             f player
     in
-    Dict.insert color newPlayer players
+    Dict.insert idx newPlayer players
 
 
-setTurn : Color -> Turn -> PlayerDict -> PlayerDict
-setTurn color turn players =
+setTurn : Int -> Turn -> PlayerDict -> PlayerDict
+setTurn idx turn players =
     updatePlayer
         players
-        color
+        idx
         (\player ->
             { player
                 | turn = turn
@@ -511,14 +528,14 @@ maybeReplenishDeck deck =
 replenishHand : Game -> Game
 replenishHand game =
     let
-        activeColor =
-            game.activeColor
+        activeIdx =
+            game.activePlayerIdx
 
         players =
             game.players
 
         activePlayer =
-            getPlayer game.players activeColor
+            getPlayer game.players activeIdx
     in
     if List.length activePlayer.hand >= 5 then
         -- The length of the hand should never actually
@@ -532,7 +549,7 @@ replenishHand game =
                 getCardIdx activePlayer game.seed
 
             players_ =
-                updatePlayer players activeColor (drawCard idx)
+                updatePlayer players activeIdx (drawCard idx)
 
             game_ =
                 { game

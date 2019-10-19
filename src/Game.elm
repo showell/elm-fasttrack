@@ -2,9 +2,7 @@ module Game exposing (beginGame, updateGame)
 
 import Color
     exposing
-        ( getActiveColor
-        , getZoneColors
-        , rotateColors
+        ( getZoneColors
         )
 import History
     exposing
@@ -27,7 +25,7 @@ import Player
         , coverCard
         , discardCard
         , ensureHandNotEmpty
-        , getPlayer
+        , getActivePlayer
         , replenishHand
         , setStartLocation
         , setTurn
@@ -56,9 +54,6 @@ beginGame time =
         zoneColors =
             getZoneColors numPlayers
 
-        activeColor =
-            getActiveColor zoneColors
-
         seed =
             seedFromTime time
     in
@@ -66,7 +61,8 @@ beginGame time =
     , pieceMap = configPieces zoneColors
     , players = configPlayers zoneColors
     , seed = seed
-    , activeColor = activeColor
+    , activePlayerIdx = 0
+    , numPlayers = numPlayers
     }
         |> beginActiveTurn
 
@@ -143,24 +139,20 @@ seedFromTime time =
 rotateBoard : Game -> Game
 rotateBoard game =
     let
-        oldPlayerColor =
-            getActiveColor game.zoneColors
+        oldPlayerIdx =
+            game.activePlayerIdx
 
-        newZoneColors =
-            rotateColors game.zoneColors
-
-        newPlayerColor =
-            getActiveColor newZoneColors
+        newPlayerIdx =
+            (oldPlayerIdx + 1) |> modBy game.numPlayers
 
         players =
             game.players
-                |> setTurn oldPlayerColor TurnIdle
-                |> setTurn newPlayerColor TurnBegin
+                |> setTurn oldPlayerIdx TurnIdle
+                |> setTurn newPlayerIdx TurnBegin
     in
     { game
-        | zoneColors = newZoneColors
-        , players = players
-        , activeColor = newPlayerColor
+        | players = players
+        , activePlayerIdx = newPlayerIdx
     }
         |> beginActiveTurn
 
@@ -176,14 +168,8 @@ beginActiveTurn game =
 handleStartLocClick : PieceLocation -> Game -> Game
 handleStartLocClick location game =
     let
-        activeColor =
-            game.activeColor
-
-        players =
-            game.players
-
         activePlayer =
-            getPlayer players activeColor
+            getActivePlayer game
     in
     case activePlayer.turn of
         TurnNeedStartLoc _ ->
@@ -199,14 +185,8 @@ handleStartLocClick location game =
 handleEndLocClick : PieceLocation -> Game -> Game
 handleEndLocClick endLoc game =
     let
-        activeColor =
-            game.activeColor
-
-        players =
-            game.players
-
         activePlayer =
-            getPlayer players activeColor
+            getActivePlayer game
     in
     case activePlayer.turn of
         TurnNeedEndLoc info ->

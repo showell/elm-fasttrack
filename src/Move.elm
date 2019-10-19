@@ -20,7 +20,7 @@ import Player
         , endLocsForPlayer
         , ensureHandNotEmpty
         , finishMove
-        , getPlayer
+        , getActivePlayer
         , getPlayerMoveType
         , updateActivePlayer
         )
@@ -38,9 +38,6 @@ import Type
 performMove : Move -> Game -> Game
 performMove move game =
     let
-        activeColor =
-            game.activeColor
-
         ( _, startLoc, _ ) =
             move
 
@@ -70,20 +67,14 @@ performMove move game =
             in
             game_
                 |> ensureHandNotEmpty
-                |> updateActivePlayer (finishMove newPieceMap zoneColors activeColor move)
+                |> updateActivePlayer (finishMove newPieceMap zoneColors move)
 
 
 maybeAutoMove : PieceLocation -> Game -> Game
 maybeAutoMove startLoc game =
     let
-        players =
-            game.players
-
-        activeColor =
-            game.activeColor
-
         activePlayer =
-            getPlayer players activeColor
+            getActivePlayer game
 
         endLocs =
             endLocsForPlayer activePlayer
@@ -111,11 +102,11 @@ maybeAutoMove startLoc game =
 maybeGetOutViaDiscard : Game -> Game
 maybeGetOutViaDiscard game =
     let
-        activeColor =
-            game.activeColor
-
         player =
-            getPlayer game.players activeColor
+            getActivePlayer game
+
+        activeColor =
+            player.color
     in
     if player.getOutCredits < numCreditsToGetOut then
         game

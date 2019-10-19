@@ -126,11 +126,12 @@ type alias Player =
     , hand : List Card
     , getOutCredits : Int
     , turn : Turn
+    , color : Color
     }
 
 
 type alias PlayerDict =
-    Dict Color Player
+    Dict Int Player
 
 
 type AppState
@@ -154,7 +155,8 @@ type alias Game =
     , pieceMap : PieceDict
     , players : PlayerDict
     , seed : Random.Seed
-    , activeColor : Color
+    , activePlayerIdx : Int
+    , numPlayers : Int
     }
 
 

@@ -1,5 +1,9 @@
 module View exposing (gameView)
 
+import Color
+    exposing
+        ( rotateList
+        )
 import Config
     exposing
         ( cardValue
@@ -99,17 +103,21 @@ gameView game showUndoButton =
         pieceMap =
             game.pieceMap
 
-        zoneColors =
-            game.zoneColors
-
         players =
             game.players
 
-        activeColor =
-            game.activeColor
+        activePlayerIdx =
+            game.activePlayerIdx
 
         activePlayer =
-            getPlayer players activeColor
+            getPlayer players activePlayerIdx
+
+        activeColor =
+            activePlayer.color
+
+        zoneColors =
+            game.zoneColors
+                |> rotateList activePlayerIdx
 
         board =
             div

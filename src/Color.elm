@@ -3,7 +3,7 @@ module Color exposing
     , getZoneColors
     , nextZoneColor
     , prevZoneColor
-    , rotateColors
+    , rotateList
     )
 
 import List.Extra
@@ -25,9 +25,9 @@ getActiveColor zoneColors =
         |> Maybe.withDefault "bogus"
 
 
-rotateColors : List Color -> List Color
-rotateColors zones =
-    List.drop 1 zones ++ List.take 1 zones
+rotateList : Int -> List a -> List a
+rotateList idx lst =
+    List.drop idx lst ++ List.take idx lst
 
 
 nextZoneColor : Color -> List Color -> Color

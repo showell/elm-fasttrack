@@ -26,7 +26,7 @@ import Piece
         )
 import Player
     exposing
-        ( getPlayer
+        ( getActivePlayer
         )
 import Set
 import Type
@@ -310,17 +310,14 @@ getWhatIfGameStates game =
         zoneColors =
             game.zoneColors
 
+        activePlayer =
+            getActivePlayer game
+
         activeColor =
-            game.activeColor
+            activePlayer.color
 
         pieceMap =
             game.pieceMap
-
-        players =
-            game.players
-
-        activePlayer =
-            getPlayer players activeColor
 
         cards =
             activePlayer.hand
