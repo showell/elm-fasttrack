@@ -112,7 +112,7 @@ testZoneColors =
         ]
 
 
-zoneString z =
+ordZone z =
     case z of
         BullsEyeZone ->
             "BE"
@@ -121,30 +121,28 @@ zoneString z =
             color
 
 
-locString ( z, id ) =
-    ( zoneString z, id )
+ordLoc ( z, id ) =
+    ( ordZone z, id )
 
 
-moveString ( pc, loc1, loc2 ) =
-    ( pc, locString loc1, locString loc2 )
+ordMove ( pc, loc1, loc2 ) =
+    ( pc, ordLoc loc1, ordLoc loc2 )
 
 
-locStrings locs =
+sortLocs locs =
     locs
         |> Set.toList
-        |> List.map locString
-        |> List.sort
+        |> List.sortBy ordLoc
+
+
+sortMoves set =
+    set
+        |> Set.toList
+        |> List.sortBy ordMove
 
 
 expectEqMoves set1 set2 =
-    let
-        moveStrings set =
-            set
-                |> Set.toList
-                |> List.map moveString
-                |> List.sort
-    in
-    Expect.equal (moveStrings set1) (moveStrings set2)
+    Expect.equal (sortMoves set1) (sortMoves set2)
 
 
 testGetMovesForCards : Test
@@ -358,7 +356,7 @@ testMovablePieces =
 
                     locs =
                         movablePieces pieceMap activeColor
-                            |> locStrings
+                            |> sortLocs
 
                     expected =
                         Set.fromList
@@ -368,7 +366,7 @@ testMovablePieces =
                             , ( blue, "HP2" )
                             , ( blue, "B2" )
                             ]
-                            |> locStrings
+                            |> sortLocs
                 in
                 locs |> Expect.equal expected
         ]
@@ -397,7 +395,7 @@ testOtherNonPenPieces =
 
                     locs =
                         otherNonPenPieces pieceMap activeColor loc
-                            |> locStrings
+                            |> sortLocs
 
                     expected =
                         Set.fromList
@@ -405,7 +403,7 @@ testOtherNonPenPieces =
                             , ( blue, "L3" )
                             , ( blue, "B2" )
                             ]
-                            |> locStrings
+                            |> sortLocs
                 in
                 locs |> Expect.equal expected
         ]
@@ -434,12 +432,12 @@ testEndLocs =
 
                     expected =
                         Set.fromList [ ( blue, "R1" ) ]
-                            |> locStrings
+                            |> sortLocs
 
                     locs =
                         endLocations params loc 8
                             |> Set.fromList
-                            |> locStrings
+                            |> sortLocs
                 in
                 locs
                     |> Expect.equal expected
@@ -462,13 +460,13 @@ testEndLocs =
                     locs =
                         getMovesFromLocation moveType pieceMap zoneColors loc
                             |> toEndLocs
-                            |> locStrings
+                            |> sortLocs
 
                     expected =
                         Set.fromList
                             [ ( green, "R1" )
                             ]
-                            |> locStrings
+                            |> sortLocs
                 in
                 locs |> Expect.equal expected
         , test "seven split" <|
@@ -491,14 +489,14 @@ testEndLocs =
                     locs =
                         getMovesFromLocation moveType pieceMap zoneColors loc
                             |> toEndLocs
-                            |> locStrings
+                            |> sortLocs
 
                     expected =
                         Set.fromList
                             [ ( blue, "B3" )
                             , ( blue, "B4" )
                             ]
-                            |> locStrings
+                            |> sortLocs
                 in
                 locs |> Expect.equal expected
         , test "can only move FT piece" <|
@@ -631,7 +629,7 @@ testSwappableLocs =
 
                     swapLocs =
                         swappableLocs pieceMap activeColor
-                            |> locStrings
+                            |> sortLocs
 
                     expected =
                         [ ( green, "L0" )
@@ -639,7 +637,7 @@ testSwappableLocs =
                         , ( red, "R3" )
                         ]
                             |> Set.fromList
-                            |> locStrings
+                            |> sortLocs
                 in
                 swapLocs |> Expect.equal expected
         ]
