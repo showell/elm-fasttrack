@@ -23,7 +23,7 @@ module Type exposing
     )
 
 import AssocList
-import AssocSet as Set exposing (Set)
+import AssocSet as Set
 import Dict exposing (Dict)
 import History exposing (History)
 import Random
@@ -105,7 +105,7 @@ type alias TurnNeedCardInfo =
 type alias TurnNeedStartLocInfo =
     { playType : PlayType
     , moves : List Move
-    , startLocs : Set PieceLocation
+    , startLocs : Set.Set PieceLocation
     }
 
 
@@ -113,7 +113,7 @@ type alias TurnNeedEndLocInfo =
     { playType : PlayType
     , startLocation : PieceLocation
     , moves : List Move
-    , endLocs : Set PieceLocation
+    , endLocs : Set.Set PieceLocation
     }
 
 
