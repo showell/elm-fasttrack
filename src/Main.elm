@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Browser
+import DictHelper exposing (..)
 import Game
     exposing
         ( beginGame
@@ -12,6 +13,9 @@ import History
         , init
         )
 import Html
+import List.Extra
+import NewDict exposing (..)
+import Set
 import Task
 import Time
 import Type
@@ -47,7 +51,7 @@ init _ =
             , history = History.init
             }
     in
-    ( model, Task.perform BeginGame Time.now )
+    ( model, Cmd.none)
 
 
 
@@ -91,6 +95,20 @@ update msg model =
     ( newModel, Cmd.none )
 
 
+type alias DictGeneration =
+    { aliases : Dict String String
+    , humanOutput : String
+    , interestingLists : List (List String)
+    , n : Int
+    }
+
+
+type alias SingleGenerationResult =
+    { humanOutput : String
+    , aliases : Dict String String
+    , interestingLists : List (List String)
+    }
+
 
 -- SUBSCRIPTIONS
 
@@ -103,6 +121,11 @@ subscriptions _ =
 
 -- VIEW (see View.elm for the "guts")
 
+show =
+    DictHelper.show
+        |> Html.text
+        |> List.singleton
+        |> Html.pre []
 
 view : Model -> Browser.Document Msg
 view model =
@@ -126,5 +149,5 @@ view model =
                         |> List.singleton
     in
     { title = "Fast Track"
-    , body = body
+    , body = [ show ]
     }
