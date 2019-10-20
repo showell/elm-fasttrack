@@ -1,11 +1,12 @@
 module Example exposing (..)
 
+import AssocList as Dict
+import AssocSet as Set
 import Color
     exposing
         ( nextZoneColor
         , prevZoneColor
         )
-import Dict
 import Expect exposing (Expectation)
 import LegalMove
     exposing
@@ -22,7 +23,6 @@ import Piece
         , otherNonPenPieces
         , swappableLocs
         )
-import Set
 import Test exposing (..)
 import Type
     exposing
@@ -30,8 +30,9 @@ import Type
         , Color
         , FindLocParams
         , MoveType(..)
-        , PieceDict
         , PieceLocation
+        , PieceMap
+        , Zone(..)
         )
 
 
@@ -40,7 +41,19 @@ zoneColors =
     [ "red", "blue", "green" ]
 
 
-getParams : PieceDict -> FindLocParams
+red =
+    NormalColor "red"
+
+
+blue =
+    NormalColor "blue"
+
+
+green =
+    NormalColor "green"
+
+
+getParams : PieceMap -> FindLocParams
 getParams pieceMap =
     { reverseMode = False
     , canFastTrack = False
@@ -99,6 +112,41 @@ testZoneColors =
         ]
 
 
+zoneString z =
+    case z of
+        BullsEyeZone ->
+            "BE"
+
+        NormalColor color ->
+            color
+
+
+locString ( z, id ) =
+    ( zoneString z, id )
+
+
+moveString ( pc, loc1, loc2 ) =
+    ( pc, locString loc1, locString loc2 )
+
+
+locStrings locs =
+    locs
+        |> Set.toList
+        |> List.map locString
+        |> List.sort
+
+
+expectEqMoves set1 set2 =
+    let
+        moveStrings set =
+            set
+                |> Set.toList
+                |> List.map moveString
+                |> List.sort
+    in
+    Expect.equal (moveStrings set1) (moveStrings set2)
+
+
 testGetMovesForCards : Test
 testGetMovesForCards =
     Test.concat
@@ -110,11 +158,11 @@ testGetMovesForCards =
 
                     pieceMap =
                         Dict.empty
-                            |> Dict.insert ( "red", "L0" ) activeColor
-                            |> Dict.insert ( "green", "R3" ) activeColor
-                            |> Dict.insert ( "blue", "L3" ) activeColor
-                            |> Dict.insert ( "blue", "L0" ) activeColor
-                            |> Dict.insert ( "green", "L3" ) "green"
+                            |> Dict.insert ( red, "L0" ) activeColor
+                            |> Dict.insert ( green, "R3" ) activeColor
+                            |> Dict.insert ( blue, "L3" ) activeColor
+                            |> Dict.insert ( blue, "L0" ) activeColor
+                            |> Dict.insert ( green, "L3" ) "green"
 
                     cards =
                         Set.fromList [ "2", "3" ]
@@ -125,17 +173,17 @@ testGetMovesForCards =
 
                     expected =
                         Set.fromList
-                            [ ( "2", ( "red", "L0" ), ( "red", "L2" ) )
-                            , ( "2", ( "green", "R3" ), ( "green", "R1" ) )
-                            , ( "2", ( "blue", "L3" ), ( "blue", "FT" ) )
-                            , ( "2", ( "blue", "L0" ), ( "blue", "L2" ) )
-                            , ( "3", ( "red", "L0" ), ( "red", "L3" ) )
-                            , ( "3", ( "blue", "L3" ), ( "green", "R4" ) )
-                            , ( "3", ( "blue", "L3" ), ( "black", "bullseye" ) )
-                            , ( "3", ( "green", "R3" ), ( "green", "R0" ) )
+                            [ ( "2", ( red, "L0" ), ( red, "L2" ) )
+                            , ( "2", ( green, "R3" ), ( green, "R1" ) )
+                            , ( "2", ( blue, "L3" ), ( blue, "FT" ) )
+                            , ( "2", ( blue, "L0" ), ( blue, "L2" ) )
+                            , ( "3", ( red, "L0" ), ( red, "L3" ) )
+                            , ( "3", ( blue, "L3" ), ( green, "R4" ) )
+                            , ( "3", ( blue, "L3" ), ( BullsEyeZone, "bullseye" ) )
+                            , ( "3", ( green, "R3" ), ( green, "R0" ) )
                             ]
                 in
-                moves |> Expect.equal expected
+                moves |> expectEqMoves expected
         , test "get forced reverse" <|
             \_ ->
                 let
@@ -144,9 +192,9 @@ testGetMovesForCards =
 
                     pieceMap =
                         Dict.empty
-                            |> Dict.insert ( "blue", "B1" ) activeColor
-                            |> Dict.insert ( "blue", "B2" ) activeColor
-                            |> Dict.insert ( "blue", "R0" ) activeColor
+                            |> Dict.insert ( blue, "B1" ) activeColor
+                            |> Dict.insert ( blue, "B2" ) activeColor
+                            |> Dict.insert ( blue, "R0" ) activeColor
 
                     cards =
                         Set.fromList [ "3", "8" ]
@@ -156,12 +204,12 @@ testGetMovesForCards =
                             |> fixMoves
 
                     expected =
-                        Set.fromList
-                            [ ( "R3", ( "blue", "R0" ), ( "blue", "R3" ) )
-                            , ( "R8", ( "blue", "R0" ), ( "red", "L2" ) )
-                            ]
+                        [ ( "R3", ( blue, "R0" ), ( blue, "R3" ) )
+                        , ( "R8", ( blue, "R0" ), ( red, "L2" ) )
+                        ]
+                            |> Set.fromList
                 in
-                moves |> Expect.equal expected
+                moves |> expectEqMoves expected
         , test "reverse with seven" <|
             \_ ->
                 let
@@ -170,9 +218,9 @@ testGetMovesForCards =
 
                     pieceMap =
                         Dict.empty
-                            |> Dict.insert ( "blue", "B3" ) activeColor
-                            |> Dict.insert ( "blue", "B1" ) activeColor
-                            |> Dict.insert ( "blue", "R0" ) activeColor
+                            |> Dict.insert ( blue, "B3" ) activeColor
+                            |> Dict.insert ( blue, "B1" ) activeColor
+                            |> Dict.insert ( blue, "R0" ) activeColor
 
                     cards =
                         Set.fromList [ "7" ]
@@ -183,10 +231,10 @@ testGetMovesForCards =
 
                     expected =
                         Set.fromList
-                            [ ( "R7", ( "blue", "R0" ), ( "red", "L3" ) )
+                            [ ( "R7", ( blue, "R0" ), ( red, "L3" ) )
                             ]
                 in
-                moves |> Expect.equal expected
+                moves |> expectEqMoves expected
         , test "seven with FT edge case" <|
             \_ ->
                 -- when splitting sevens, don't land your first piece on the fast
@@ -199,8 +247,8 @@ testGetMovesForCards =
                     -- then we can move 1, 2, or 3 with B3
                     pieceMap =
                         Dict.empty
-                            |> Dict.insert ( "blue", "B1" ) activeColor
-                            |> Dict.insert ( "blue", "L0" ) activeColor
+                            |> Dict.insert ( blue, "B1" ) activeColor
+                            |> Dict.insert ( blue, "L0" ) activeColor
 
                     cards =
                         Set.fromList [ "7" ]
@@ -211,15 +259,15 @@ testGetMovesForCards =
 
                     expected =
                         Set.fromList
-                            [ ( "SS1", ( "blue", "B1" ), ( "blue", "B2" ) )
-                            , ( "SS2", ( "blue", "B1" ), ( "blue", "B3" ) )
-                            , ( "SS3", ( "blue", "B1" ), ( "blue", "B4" ) )
-                            , ( "SS4", ( "blue", "L0" ), ( "blue", "L4" ) )
-                            , ( "SS6", ( "blue", "L0" ), ( "green", "R4" ) )
-                            , ( "7", ( "blue", "L0" ), ( "green", "R3" ) )
+                            [ ( "SS1", ( blue, "B1" ), ( blue, "B2" ) )
+                            , ( "SS2", ( blue, "B1" ), ( blue, "B3" ) )
+                            , ( "SS3", ( blue, "B1" ), ( blue, "B4" ) )
+                            , ( "SS4", ( blue, "L0" ), ( blue, "L4" ) )
+                            , ( "SS6", ( blue, "L0" ), ( green, "R4" ) )
+                            , ( "7", ( blue, "L0" ), ( green, "R3" ) )
                             ]
                 in
-                moves |> Expect.equal expected
+                moves |> expectEqMoves expected
         ]
 
 
@@ -234,10 +282,10 @@ testGetMovesForMoveType =
 
                     pieceMap =
                         Dict.empty
-                            |> Dict.insert ( "red", "L0" ) activeColor
-                            |> Dict.insert ( "green", "R4" ) activeColor
-                            |> Dict.insert ( "blue", "L3" ) activeColor
-                            |> Dict.insert ( "green", "L3" ) "green"
+                            |> Dict.insert ( red, "L0" ) activeColor
+                            |> Dict.insert ( green, "R4" ) activeColor
+                            |> Dict.insert ( blue, "L3" ) activeColor
+                            |> Dict.insert ( green, "L3" ) "green"
 
                     moveType =
                         WithCard "2"
@@ -248,12 +296,12 @@ testGetMovesForMoveType =
 
                     expected =
                         Set.fromList
-                            [ ( "2", ( "red", "L0" ), ( "red", "L2" ) )
-                            , ( "2", ( "green", "R4" ), ( "green", "R2" ) )
-                            , ( "2", ( "blue", "L3" ), ( "blue", "FT" ) )
+                            [ ( "2", ( red, "L0" ), ( red, "L2" ) )
+                            , ( "2", ( green, "R4" ), ( green, "R2" ) )
+                            , ( "2", ( blue, "L3" ), ( blue, "FT" ) )
                             ]
                 in
-                moves |> Expect.equal expected
+                moves |> expectEqMoves expected
         , test "finish split" <|
             \_ ->
                 let
@@ -261,14 +309,14 @@ testGetMovesForMoveType =
                         "blue"
 
                     excludeLoc =
-                        ( "green", "R4" )
+                        ( green, "R4" )
 
                     pieceMap =
                         Dict.empty
                             |> Dict.insert excludeLoc activeColor
-                            |> Dict.insert ( "blue", "B1" ) activeColor
-                            |> Dict.insert ( "green", "L2" ) activeColor
-                            |> Dict.insert ( "red", "L2" ) "red"
+                            |> Dict.insert ( blue, "B1" ) activeColor
+                            |> Dict.insert ( green, "L2" ) activeColor
+                            |> Dict.insert ( red, "L2" ) "red"
 
                     moveType =
                         FinishSplit 3 excludeLoc
@@ -279,11 +327,11 @@ testGetMovesForMoveType =
 
                     expected =
                         Set.fromList
-                            [ ( "FS3", ( "blue", "B1" ), ( "blue", "B4" ) )
-                            , ( "FS3", ( "green", "L2" ), ( "green", "FT" ) )
+                            [ ( "FS3", ( blue, "B1" ), ( blue, "B4" ) )
+                            , ( "FS3", ( green, "L2" ), ( green, "FT" ) )
                             ]
                 in
-                moves |> Expect.equal expected
+                moves |> expectEqMoves expected
         ]
 
 
@@ -298,27 +346,29 @@ testMovablePieces =
 
                     pieceMap =
                         Dict.empty
-                            |> Dict.insert ( "red", "L0" ) activeColor
-                            |> Dict.insert ( "red", "L2" ) "red"
-                            |> Dict.insert ( "green", "FT" ) activeColor
-                            |> Dict.insert ( "blue", "L3" ) activeColor
-                            |> Dict.insert ( "blue", "L4" ) "green"
-                            |> Dict.insert ( "blue", "HP1" ) activeColor
-                            |> Dict.insert ( "blue", "HP2" ) activeColor
-                            |> Dict.insert ( "blue", "B2" ) activeColor
-                            |> Dict.insert ( "blue", "FT" ) "red"
+                            |> Dict.insert ( red, "L0" ) activeColor
+                            |> Dict.insert ( red, "L2" ) "red"
+                            |> Dict.insert ( green, "FT" ) activeColor
+                            |> Dict.insert ( blue, "L3" ) activeColor
+                            |> Dict.insert ( blue, "L4" ) "green"
+                            |> Dict.insert ( blue, "HP1" ) activeColor
+                            |> Dict.insert ( blue, "HP2" ) activeColor
+                            |> Dict.insert ( blue, "B2" ) activeColor
+                            |> Dict.insert ( blue, "FT" ) "red"
 
                     locs =
                         movablePieces pieceMap activeColor
+                            |> locStrings
 
                     expected =
                         Set.fromList
-                            [ ( "red", "L0" )
-                            , ( "green", "FT" )
-                            , ( "blue", "L3" )
-                            , ( "blue", "HP2" )
-                            , ( "blue", "B2" )
+                            [ ( red, "L0" )
+                            , ( green, "FT" )
+                            , ( blue, "L3" )
+                            , ( blue, "HP2" )
+                            , ( blue, "B2" )
                             ]
+                            |> locStrings
                 in
                 locs |> Expect.equal expected
         ]
@@ -334,26 +384,28 @@ testOtherNonPenPieces =
                         "blue"
 
                     loc =
-                        ( "red", "L1" )
+                        ( red, "L1" )
 
                     pieceMap =
                         Dict.empty
                             |> Dict.insert loc activeColor
-                            |> Dict.insert ( "green", "FT" ) activeColor
-                            |> Dict.insert ( "blue", "L3" ) activeColor
-                            |> Dict.insert ( "blue", "HP1" ) activeColor
-                            |> Dict.insert ( "blue", "B2" ) activeColor
-                            |> Dict.insert ( "blue", "FT" ) "red"
+                            |> Dict.insert ( green, "FT" ) activeColor
+                            |> Dict.insert ( blue, "L3" ) activeColor
+                            |> Dict.insert ( blue, "HP1" ) activeColor
+                            |> Dict.insert ( blue, "B2" ) activeColor
+                            |> Dict.insert ( blue, "FT" ) "red"
 
                     locs =
                         otherNonPenPieces pieceMap activeColor loc
+                            |> locStrings
 
                     expected =
                         Set.fromList
-                            [ ( "green", "FT" )
-                            , ( "blue", "L3" )
-                            , ( "blue", "B2" )
+                            [ ( green, "FT" )
+                            , ( blue, "L3" )
+                            , ( blue, "B2" )
                             ]
+                            |> locStrings
                 in
                 locs |> Expect.equal expected
         ]
@@ -378,13 +430,18 @@ testEndLocs =
                         getParams pieceMap
 
                     loc =
-                        ( "red", "L1" )
+                        ( red, "L1" )
 
                     expected =
-                        Set.fromList [ ( "blue", "R1" ) ]
+                        Set.fromList [ ( blue, "R1" ) ]
+                            |> locStrings
+
+                    locs =
+                        endLocations params loc 8
+                            |> Set.fromList
+                            |> locStrings
                 in
-                endLocations params loc 8
-                    |> Set.fromList
+                locs
                     |> Expect.equal expected
         , test "seven full" <|
             \_ ->
@@ -393,7 +450,7 @@ testEndLocs =
                         "blue"
 
                     loc =
-                        ( "blue", "L2" )
+                        ( blue, "L2" )
 
                     pieceMap =
                         Dict.empty
@@ -405,11 +462,13 @@ testEndLocs =
                     locs =
                         getMovesFromLocation moveType pieceMap zoneColors loc
                             |> toEndLocs
+                            |> locStrings
 
                     expected =
                         Set.fromList
-                            [ ( "green", "R1" )
+                            [ ( green, "R1" )
                             ]
+                            |> locStrings
                 in
                 locs |> Expect.equal expected
         , test "seven split" <|
@@ -419,11 +478,11 @@ testEndLocs =
                         "blue"
 
                     loc =
-                        ( "blue", "B1" )
+                        ( blue, "B1" )
 
                     pieceMap =
                         Dict.empty
-                            |> Dict.insert ( "blue", "R1" ) activeColor
+                            |> Dict.insert ( blue, "R1" ) activeColor
                             |> Dict.insert loc activeColor
 
                     moveType =
@@ -432,12 +491,14 @@ testEndLocs =
                     locs =
                         getMovesFromLocation moveType pieceMap zoneColors loc
                             |> toEndLocs
+                            |> locStrings
 
                     expected =
                         Set.fromList
-                            [ ( "blue", "B3" )
-                            , ( "blue", "B4" )
+                            [ ( blue, "B3" )
+                            , ( blue, "B4" )
                             ]
+                            |> locStrings
                 in
                 locs |> Expect.equal expected
         , test "can only move FT piece" <|
@@ -447,11 +508,11 @@ testEndLocs =
                         "blue"
 
                     loc =
-                        ( "red", "L1" )
+                        ( red, "L1" )
 
                     pieceMap =
                         Dict.empty
-                            |> Dict.insert ( "green", "FT" ) activeColor
+                            |> Dict.insert ( green, "FT" ) activeColor
                             |> Dict.insert loc activeColor
 
                     moveType =
@@ -470,13 +531,13 @@ testEndLocs =
                 let
                     pieceMap =
                         Dict.empty
-                            |> Dict.insert ( "blue", "R3" ) "blue"
+                            |> Dict.insert ( blue, "R3" ) "blue"
 
                     params =
                         getParams pieceMap
 
                     loc =
-                        ( "red", "L1" )
+                        ( red, "L1" )
 
                     expected =
                         Set.empty
@@ -494,7 +555,7 @@ testHasPieceOnFastTrack =
             \_ ->
                 let
                     loc =
-                        ( "red", "FT" )
+                        ( red, "FT" )
 
                     activeColor =
                         "blue"
@@ -511,7 +572,7 @@ testHasPieceOnFastTrack =
             \_ ->
                 let
                     loc =
-                        ( "red", "FT" )
+                        ( red, "FT" )
 
                     activeColor =
                         "blue"
@@ -528,10 +589,10 @@ testHasPieceOnFastTrack =
             \_ ->
                 let
                     loc1 =
-                        ( "blue", "L0" )
+                        ( blue, "L0" )
 
                     loc2 =
-                        ( "green", "R4" )
+                        ( green, "R4" )
 
                     activeColor =
                         "blue"
@@ -559,24 +620,26 @@ testSwappableLocs =
 
                     pieceMap =
                         Dict.empty
-                            |> Dict.insert ( "blue", "L0" ) activeColor
-                            |> Dict.insert ( "green", "L1" ) activeColor
-                            |> Dict.insert ( "green", "HP1" ) "green"
-                            |> Dict.insert ( "red", "HP1" ) "red"
-                            |> Dict.insert ( "red", "B1" ) "red"
-                            |> Dict.insert ( "green", "L0" ) "green"
-                            |> Dict.insert ( "blue", "L1" ) "green"
-                            |> Dict.insert ( "red", "R3" ) "red"
+                            |> Dict.insert ( blue, "L0" ) activeColor
+                            |> Dict.insert ( green, "L1" ) activeColor
+                            |> Dict.insert ( green, "HP1" ) "green"
+                            |> Dict.insert ( red, "HP1" ) "red"
+                            |> Dict.insert ( red, "B1" ) "red"
+                            |> Dict.insert ( green, "L0" ) "green"
+                            |> Dict.insert ( blue, "L1" ) "green"
+                            |> Dict.insert ( red, "R3" ) "red"
 
                     swapLocs =
                         swappableLocs pieceMap activeColor
+                            |> locStrings
 
                     expected =
-                        Set.fromList
-                            [ ( "green", "L0" )
-                            , ( "blue", "L1" )
-                            , ( "red", "R3" )
-                            ]
+                        [ ( green, "L0" )
+                        , ( blue, "L1" )
+                        , ( red, "R3" )
+                        ]
+                            |> Set.fromList
+                            |> locStrings
                 in
                 swapLocs |> Expect.equal expected
         ]
@@ -589,7 +652,7 @@ testCanGoNSpaces =
             \_ ->
                 let
                     loc =
-                        ( "red", "L1" )
+                        ( red, "L1" )
 
                     pieceMap =
                         Dict.empty
@@ -603,10 +666,10 @@ testCanGoNSpaces =
             \_ ->
                 let
                     loc =
-                        ( "red", "L1" )
+                        ( red, "L1" )
 
                     blockedLoc =
-                        ( "green", "FT" )
+                        ( green, "FT" )
 
                     pieceMap =
                         Dict.empty
@@ -621,10 +684,10 @@ testCanGoNSpaces =
             \_ ->
                 let
                     loc =
-                        ( "red", "L1" )
+                        ( red, "L1" )
 
                     blockedLoc =
-                        ( "red", "L3" )
+                        ( red, "L3" )
 
                     pieceMap =
                         Dict.empty
@@ -639,7 +702,7 @@ testCanGoNSpaces =
             \_ ->
                 let
                     loc =
-                        ( "blue", "DS" )
+                        ( blue, "DS" )
 
                     pieceMap =
                         Dict.empty
@@ -653,10 +716,10 @@ testCanGoNSpaces =
             \_ ->
                 let
                     loc =
-                        ( "red", "L1" )
+                        ( red, "L1" )
 
                     blockedLoc =
-                        ( "blue", "R4" )
+                        ( blue, "R4" )
 
                     pieceMap =
                         Dict.empty
@@ -671,10 +734,10 @@ testCanGoNSpaces =
             \_ ->
                 let
                     loc =
-                        ( "red", "L1" )
+                        ( red, "L1" )
 
                     blockedLoc =
-                        ( "blue", "R4" )
+                        ( blue, "R4" )
 
                     pieceMap =
                         Dict.empty
