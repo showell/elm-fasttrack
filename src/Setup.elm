@@ -12,6 +12,7 @@ import Type
         ( Card
         , Color
         , PieceLocation
+        , Zone(..)
         )
 
 
@@ -47,7 +48,7 @@ startingLocations color =
     let
         inMyZone ids =
             ids
-                |> List.map (\id -> ( color, id ))
+                |> List.map (\id -> ( NormalColor color, id ))
     in
     case initSetup of
         ForcedToReverse ->

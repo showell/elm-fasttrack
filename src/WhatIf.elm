@@ -3,6 +3,7 @@ module WhatIf exposing
     , getWhatIfGameStates
     )
 
+import AssocSet as Set
 import Config
     exposing
         ( isMoveAgainCard
@@ -28,7 +29,6 @@ import Player
     exposing
         ( getActivePlayer
         )
-import Set
 import Type
     exposing
         ( Card
@@ -36,8 +36,8 @@ import Type
         , Game
         , Move
         , MoveType(..)
-        , PieceMap
         , PieceLocation
+        , PieceMap
         )
 
 

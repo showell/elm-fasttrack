@@ -1,5 +1,6 @@
 module View exposing (gameView)
 
+import AssocSet as Set exposing (Set)
 import Color
     exposing
         ( rotateList
@@ -54,7 +55,6 @@ import Polygon
         ( getCenterOffset
         , makePolygon
         )
-import Set exposing (Set)
 import Svg
     exposing
         ( circle
@@ -85,11 +85,12 @@ import Type
         , GameMsg(..)
         , Location
         , MoveType(..)
-        , PieceMap
         , PieceLocation
+        , PieceMap
         , PlayType(..)
         , Player
         , Turn(..)
+        , Zone(..)
         )
 
 
@@ -165,8 +166,12 @@ boardView pieceMap zoneColors activePlayer activeColor =
         endLocs =
             endLocsForPlayer activePlayer
 
+        normalZones =
+            zoneColors
+                |> List.map NormalColor
+
         zoneLocations =
-            List.map (zoneView pieceMap startLocs endLocs activeColor startLocation) zoneColors
+            List.map (zoneView pieceMap startLocs endLocs activeColor startLocation) normalZones
                 |> makePolygon panelWidth panelHeight
 
         sideCount =
@@ -213,20 +218,20 @@ nudge board =
     g [ transform translate ] [ board ]
 
 
-zoneView : PieceMap -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Color -> Html GameMsg
-zoneView pieceMap startLocs endLocs activeColor startLocation zoneColor =
+zoneView : PieceMap -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Zone -> Html GameMsg
+zoneView pieceMap startLocs endLocs activeColor startLocation zone =
     let
         locations =
             configLocations
 
         drawnLocations =
-            List.map (locationView pieceMap zoneColor startLocs endLocs activeColor startLocation) locations
+            List.map (locationView pieceMap zone startLocs endLocs activeColor startLocation) locations
     in
     g [] drawnLocations
 
 
-locationView : PieceMap -> Color -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html GameMsg
-locationView pieceMap zoneColor startLocs endLocs activeColor selectedLocation locationInfo =
+locationView : PieceMap -> Zone -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html GameMsg
+locationView pieceMap zone startLocs endLocs activeColor selectedLocation locationInfo =
     let
         cx_ =
             locationInfo.x * squareSize
@@ -237,7 +242,7 @@ locationView pieceMap zoneColor startLocs endLocs activeColor selectedLocation l
         id =
             locationInfo.id
     in
-    drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_
+    drawLocationAtCoords pieceMap zone id startLocs endLocs activeColor selectedLocation cx_ cy_
 
 
 bullsEyeView : PieceMap -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Html GameMsg
@@ -249,20 +254,25 @@ bullsEyeView pieceMap startLocs endLocs activeColor selectedLocation centerOffse
         cy_ =
             centerOffset
 
-        zoneColor =
-            "black"
+        zone =
+            NormalColor "black"
 
         id =
             "bullseye"
     in
-    drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_
+    drawLocationAtCoords pieceMap zone id startLocs endLocs activeColor selectedLocation cx_ cy_
 
 
-drawLocationAtCoords : PieceMap -> Color -> String -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Float -> Html GameMsg
-drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_ =
+drawLocationAtCoords : PieceMap -> Zone -> String -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Float -> Html GameMsg
+drawLocationAtCoords pieceMap zone id startLocs endLocs activeColor selectedLocation cx_ cy_ =
     let
         pieceLocation =
-            ( zoneColor, id )
+            ( zone, id )
+
+        zoneColor =
+            case zone of
+                NormalColor color ->
+                    color
 
         w =
             squareSize - gutterSize

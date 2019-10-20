@@ -8,6 +8,7 @@ module LegalMove exposing
     , getMovesFromLocation
     )
 
+import AssocSet as Set exposing (Set)
 import Color
     exposing
         ( nextZoneColor
@@ -37,7 +38,6 @@ import Piece
         , otherNonPenPieces
         , swappableLocs
         )
-import Set exposing (Set)
 import Type
     exposing
         ( Card
@@ -45,10 +45,11 @@ import Type
         , FindLocParams
         , Move
         , MoveType(..)
-        , PieceMap
         , PieceLocation
+        , PieceMap
         , PlayType(..)
         , Turn(..)
+        , Zone(..)
         )
 
 
@@ -301,7 +302,7 @@ getMovesForSeven params startLoc =
 
                     candidateMoves =
                         getLocs moveCount
-                            |> List.filter (\endLoc -> endLoc /= ( "black", "bullseye" ))
+                            |> List.filter (\endLoc -> endLoc /= ( NormalColor "black", "bullseye" ))
                             |> List.map (\endLoc -> ( moveType, startLoc, endLoc ))
                 in
                 candidateMoves
@@ -331,136 +332,145 @@ endLocations params startLoc movesLeft =
 getNextLocs : FindLocParams -> PieceLocation -> List PieceLocation
 getNextLocs params loc =
     let
-        ( zoneColor, id ) =
+        ( zone, id ) =
             loc
 
         zoneColors =
             params.zoneColors
-
-        nextColor =
-            nextZoneColor zoneColor zoneColors
-
-        pieceColor =
-            params.pieceColor
-
-        canFastTrack =
-            params.canFastTrack
-
-        canLeavePen =
-            params.canLeavePen
-
-        canLeaveBullsEye =
-            params.canLeaveBullsEye
-
-        pieceMap =
-            params.pieceMap
-
-        isFree loc_ =
-            isLocFree pieceMap pieceColor loc_
-
-        filter lst =
-            lst
-                |> List.filter isFree
     in
-    if isHoldingPenId id then
-        if canLeavePen then
-            filter [ ( zoneColor, "L0" ) ]
+    case zone of
+        NormalColor zoneColor ->
+            let
+                nextColor =
+                    nextZoneColor zoneColor zoneColors
 
-        else
-            []
+                nextZone =
+                    NormalColor nextColor
 
-    else if id == "FT" then
-        if pieceColor == zoneColor then
-            if canFastTrack then
-                filter
-                    [ ( nextColor, "FT" )
-                    , ( nextColor, "R4" )
-                    , ( "black", "bullseye" )
-                    ]
+                pieceColor =
+                    params.pieceColor
+
+                canFastTrack =
+                    params.canFastTrack
+
+                canLeavePen =
+                    params.canLeavePen
+
+                canLeaveBullsEye =
+                    params.canLeaveBullsEye
+
+                pieceMap =
+                    params.pieceMap
+
+                isFree loc_ =
+                    isLocFree pieceMap pieceColor loc_
+
+                filter lst =
+                    lst
+                        |> List.filter isFree
+            in
+            if isHoldingPenId id then
+                if canLeavePen then
+                    filter [ ( zone, "L0" ) ]
+
+                else
+                    []
+
+            else if id == "FT" then
+                if pieceColor == zoneColor then
+                    if canFastTrack then
+                        filter
+                            [ ( nextZone, "FT" )
+                            , ( nextZone, "R4" )
+                            , ( NormalColor "black", "bullseye" )
+                            ]
+
+                    else
+                        filter
+                            [ ( nextZone, "R4" )
+                            , ( NormalColor "black", "bullseye" )
+                            ]
+
+                else if canFastTrack && (NormalColor pieceColor /= nextZone) then
+                    filter
+                        [ ( nextZone, "FT" )
+                        , ( nextZone, "R4" )
+                        ]
+
+                else
+                    filter
+                        [ ( nextZone, "R4" )
+                        ]
+
+            else if id == "bullseye" then
+                if canLeaveBullsEye then
+                    let
+                        prevColor =
+                            prevZoneColor pieceColor zoneColors
+                    in
+                    filter
+                        [ ( NormalColor prevColor, "FT" )
+                        ]
+
+                else
+                    []
 
             else
-                filter
-                    [ ( nextColor, "R4" )
-                    , ( "black", "bullseye" )
-                    ]
-
-        else if canFastTrack && (pieceColor /= nextColor) then
-            filter
-                [ ( nextColor, "FT" )
-                , ( nextColor, "R4" )
-                ]
-
-        else
-            filter
-                [ ( nextColor, "R4" )
-                ]
-
-    else if id == "bullseye" then
-        if canLeaveBullsEye then
-            let
-                prevColor =
-                    prevZoneColor pieceColor zoneColors
-            in
-            filter
-                [ ( prevColor, "FT" )
-                ]
-
-        else
-            []
-
-    else
-        let
-            nextIds =
-                nextIdsInZone id pieceColor zoneColor
-        in
-        List.map (\id_ -> ( zoneColor, id_ )) nextIds
-            |> filter
+                let
+                    nextIds =
+                        nextIdsInZone id pieceColor zoneColor
+                in
+                List.map (\id_ -> ( NormalColor zoneColor, id_ )) nextIds
+                    |> filter
 
 
 getPrevLocs : FindLocParams -> PieceLocation -> List PieceLocation
 getPrevLocs params loc =
     let
-        ( zoneColor, id ) =
+        ( zone, id ) =
             loc
-
-        zoneColors =
-            params.zoneColors
-
-        prevColor =
-            prevZoneColor zoneColor zoneColors
-
-        pieceColor =
-            params.pieceColor
-
-        pieceMap =
-            params.pieceMap
-
-        isFree loc_ =
-            isLocFree pieceMap pieceColor loc_
-
-        filter lst =
-            lst
-                |> List.filter isFree
     in
-    if isHoldingPenId id then
-        []
+    case zone of
+        NormalColor zoneColor ->
+            let
+                zoneColors =
+                    params.zoneColors
 
-    else if isBaseId id then
-        []
+                prevColor =
+                    prevZoneColor zoneColor zoneColors
 
-    else if id == "bullseye" then
-        []
+                pieceColor =
+                    params.pieceColor
 
-    else if id == "R4" then
-        filter [ ( prevColor, "FT" ) ]
+                pieceMap =
+                    params.pieceMap
 
-    else
-        let
-            prevId =
-                prevIdInZone id
-        in
-        [ ( zoneColor, prevId ) ]
-            |> filter
+                isFree loc_ =
+                    isLocFree pieceMap pieceColor loc_
+
+                filter lst =
+                    lst
+                        |> List.filter isFree
+            in
+            if isHoldingPenId id then
+                []
+
+            else if isBaseId id then
+                []
+
+            else if id == "bullseye" then
+                []
+
+            else if id == "R4" then
+                filter [ ( NormalColor prevColor, "FT" ) ]
+
+            else
+                let
+                    prevId =
+                        prevIdInZone id
+                in
+                [ ( NormalColor zoneColor, prevId ) ]
+                    |> filter
 
 
 getCardForPlayType : PlayType -> Card

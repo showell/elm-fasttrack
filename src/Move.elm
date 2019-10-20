@@ -4,6 +4,7 @@ module Move exposing
     , moveToEndLoc
     )
 
+import AssocSet as Set
 import Config
     exposing
         ( numCreditsToGetOut
@@ -24,7 +25,6 @@ import Player
         , getPlayerMoveType
         , updateActivePlayer
         )
-import Set
 import Type
     exposing
         ( Game

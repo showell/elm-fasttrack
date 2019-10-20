@@ -21,6 +21,7 @@ module Player exposing
     , updateActivePlayer
     )
 
+import AssocSet as Set exposing (Set)
 import Config
     exposing
         ( fullDeck
@@ -35,7 +36,6 @@ import LegalMove
         )
 import List.Extra
 import Random
-import Set exposing (Set)
 import Setup
     exposing
         ( startingHand
@@ -47,8 +47,8 @@ import Type
         , Game
         , Move
         , MoveType(..)
-        , PieceMap
         , PieceLocation
+        , PieceMap
         , PlayType(..)
         , Player
         , PlayerDict

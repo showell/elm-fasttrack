@@ -13,6 +13,7 @@
             "elm/svg": "1.0.1",
             "elm/time": "1.0.0",
             "elm-community/list-extra": "8.2.2",
+            "erlandsona/assoc-set": "1.0.0",
             "pzp1997/assoc-list": "1.0.0"
         },
         "indirect": {

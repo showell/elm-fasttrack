@@ -12,15 +12,15 @@ module Piece exposing
     , swappableLocs
     )
 
+import AssocList as Dict
+import AssocSet as Set
 import Config
     exposing
         ( holdingPenLocations
         , isBaseId
         , isHoldingPenId
         )
-import AssocList as Dict
 import List.Extra
-import Set exposing (Set)
 import Setup
     exposing
         ( startingLocations
@@ -31,14 +31,15 @@ import Type
         , Move
         , MoveFlavor(..)
         , MoveType(..)
-        , PieceMap
         , PieceLocation
+        , PieceMap
+        , Zone(..)
         )
 
 
 fakeLocation : PieceLocation
 fakeLocation =
-    ( "bogus", "bogus" )
+    ( NormalColor "bogus", "bogus" )
 
 
 getPiece : PieceMap -> PieceLocation -> Maybe String
@@ -73,13 +74,13 @@ pieceToMoveOutOfPen : PieceMap -> Color -> Maybe PieceLocation
 pieceToMoveOutOfPen pieceMap color =
     let
         isOccupied id =
-            getPiece pieceMap ( color, id ) /= Nothing
+            getPiece pieceMap ( NormalColor color, id ) /= Nothing
     in
     holdingPenLocations
         |> List.filter isOccupied
         |> List.reverse
         |> List.head
-        |> Maybe.map (\id -> ( color, id ))
+        |> Maybe.map (\id -> ( NormalColor color, id ))
 
 
 openHoldingPenLocation : PieceMap -> Color -> PieceLocation
@@ -88,10 +89,10 @@ openHoldingPenLocation pieceMap color =
     -- piece home, so there should always be a square.
     let
         isOpen id =
-            isOpenLocation pieceMap ( color, id )
+            isOpenLocation pieceMap ( NormalColor color, id )
     in
     List.Extra.find isOpen holdingPenLocations
-        |> Maybe.andThen (\id -> Just ( color, id ))
+        |> Maybe.andThen (\id -> Just ( NormalColor color, id ))
         |> Maybe.withDefault fakeLocation
 
 
@@ -109,7 +110,7 @@ isNormalLoc ( _, id ) =
     not (isHoldingPenId id) && not (isBaseId id)
 
 
-swappableLocs : PieceMap -> Color -> Set PieceLocation
+swappableLocs : PieceMap -> Color -> Set.Set PieceLocation
 swappableLocs pieceMap activeColor =
     let
         isThem loc =
@@ -121,14 +122,14 @@ swappableLocs pieceMap activeColor =
         |> Set.fromList
 
 
-myPieces : PieceMap -> Color -> Set PieceLocation
+myPieces : PieceMap -> Color -> Set.Set PieceLocation
 myPieces pieceMap activeColor =
     Dict.keys pieceMap
         |> List.filter (isColor pieceMap activeColor)
         |> Set.fromList
 
 
-movablePieces : PieceMap -> Color -> Set PieceLocation
+movablePieces : PieceMap -> Color -> Set.Set PieceLocation
 movablePieces pieceMap color =
     -- This excludes redundant pieces from the holding pen.
     let
@@ -143,7 +144,7 @@ movablePieces pieceMap color =
             Set.insert pen_loc pieces
 
 
-nonPenPieces : PieceMap -> Color -> Set PieceLocation
+nonPenPieces : PieceMap -> Color -> Set.Set PieceLocation
 nonPenPieces pieceMap activeColor =
     let
         isMobile ( _, id ) =
@@ -153,7 +154,7 @@ nonPenPieces pieceMap activeColor =
         |> Set.filter isMobile
 
 
-otherNonPenPieces : PieceMap -> Color -> PieceLocation -> Set PieceLocation
+otherNonPenPieces : PieceMap -> Color -> PieceLocation -> Set.Set PieceLocation
 otherNonPenPieces pieceMap activeColor loc =
     nonPenPieces pieceMap activeColor
         |> Set.remove loc
@@ -202,7 +203,7 @@ bringPlayerOut color pieceMap =
         Just startLoc ->
             let
                 endLoc =
-                    ( color, "L0" )
+                    ( NormalColor color, "L0" )
             in
             pieceMap
                 |> executeMove RegularMove startLoc endLoc

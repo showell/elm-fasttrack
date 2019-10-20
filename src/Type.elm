@@ -11,21 +11,22 @@ module Type exposing
     , MoveFlavor(..)
     , MoveType(..)
     , Msg(..)
-    , PieceMap
     , PieceLocation
+    , PieceMap
     , PlayType(..)
     , Player
     , PlayerDict
     , Turn(..)
     , TurnNeedEndLocInfo
     , TurnNeedStartLocInfo
+    , Zone(..)
     )
 
 import AssocList
+import AssocSet as Set exposing (Set)
 import Dict exposing (Dict)
 import History exposing (History)
 import Random
-import Set exposing (Set)
 import Time
 
 
@@ -44,8 +45,12 @@ type alias Location =
     }
 
 
+type Zone
+    = NormalColor String
+
+
 type alias PieceLocation =
-    ( Color, String )
+    ( Zone, String )
 
 
 type alias PieceMap =
