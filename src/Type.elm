@@ -11,7 +11,7 @@ module Type exposing
     , MoveFlavor(..)
     , MoveType(..)
     , Msg(..)
-    , PieceDict
+    , PieceMap
     , PieceLocation
     , PlayType(..)
     , Player
@@ -21,6 +21,7 @@ module Type exposing
     , TurnNeedStartLocInfo
     )
 
+import AssocList
 import Dict exposing (Dict)
 import History exposing (History)
 import Random
@@ -47,8 +48,8 @@ type alias PieceLocation =
     ( Color, String )
 
 
-type alias PieceDict =
-    Dict PieceLocation Color
+type alias PieceMap =
+    AssocList.Dict PieceLocation Color
 
 
 
@@ -145,14 +146,14 @@ type alias FindLocParams =
     , canLeaveBullsEye : Bool
     , reverseMode : Bool
     , pieceColor : Color
-    , pieceMap : PieceDict
+    , pieceMap : PieceMap
     , zoneColors : List Color
     }
 
 
 type alias Game =
     { zoneColors : List Color
-    , pieceMap : PieceDict
+    , pieceMap : PieceMap
     , players : PlayerDict
     , seed : Random.Seed
     , activePlayerIdx : Int

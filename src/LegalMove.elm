@@ -45,14 +45,14 @@ import Type
         , FindLocParams
         , Move
         , MoveType(..)
-        , PieceDict
+        , PieceMap
         , PieceLocation
         , PlayType(..)
         , Turn(..)
         )
 
 
-getCanGoNSpaces : PieceDict -> PieceLocation -> List Color -> Int -> Bool
+getCanGoNSpaces : PieceMap -> PieceLocation -> List Color -> Int -> Bool
 getCanGoNSpaces pieceMap loc zoneColors n =
     -- This function should only be called in the context of splitting
     -- sevens, so we don't account for cards being able to leave the
@@ -94,7 +94,7 @@ getCanGoNSpaces pieceMap loc zoneColors n =
         False
 
 
-getMovesForCards : Set Card -> PieceDict -> List Color -> Color -> List Move
+getMovesForCards : Set Card -> PieceMap -> List Color -> Color -> List Move
 getMovesForCards cards pieceMap zoneColors activeColor =
     let
         normalMoveType : Card -> MoveType
@@ -134,7 +134,7 @@ getMovesForCards cards pieceMap zoneColors activeColor =
         f Reverse
 
 
-getMovesForMoveType : MoveType -> PieceDict -> List Color -> Color -> List Move
+getMovesForMoveType : MoveType -> PieceMap -> List Color -> Color -> List Move
 getMovesForMoveType moveType pieceMap zoneColors activeColor =
     let
         startLocs : Set PieceLocation
@@ -156,7 +156,7 @@ getMovesForMoveType moveType pieceMap zoneColors activeColor =
         |> List.concat
 
 
-getMovesFromLocation : MoveType -> PieceDict -> List Color -> PieceLocation -> List Move
+getMovesFromLocation : MoveType -> PieceMap -> List Color -> PieceLocation -> List Move
 getMovesFromLocation moveType pieceMap zoneColors startLoc =
     let
         ( _, id ) =
@@ -221,7 +221,7 @@ getMovesFromLocation moveType pieceMap zoneColors startLoc =
         []
 
 
-canFinishSplit : List Color -> Set PieceLocation -> PieceDict -> Int -> Move -> Bool
+canFinishSplit : List Color -> Set PieceLocation -> PieceMap -> Int -> Move -> Bool
 canFinishSplit zoneColors otherLocs pieceMap count move =
     let
         modifiedPieceMap =
@@ -512,7 +512,7 @@ moveCountForMoveType moveType id =
             0
 
 
-isLocFree : PieceDict -> Color -> PieceLocation -> Bool
+isLocFree : PieceMap -> Color -> PieceLocation -> Bool
 isLocFree pieceMap pieceColor loc =
     let
         otherPiece =

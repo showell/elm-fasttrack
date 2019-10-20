@@ -47,7 +47,7 @@ import Type
         , Game
         , Move
         , MoveType(..)
-        , PieceDict
+        , PieceMap
         , PieceLocation
         , PlayType(..)
         , Player
@@ -157,7 +157,7 @@ getActivePlayerColor game =
     (getActivePlayer game).color
 
 
-getMovesForPlayer : Player -> PieceDict -> List Color -> List Move
+getMovesForPlayer : Player -> PieceMap -> List Color -> List Move
 getMovesForPlayer player pieceMap zoneColors =
     let
         activeColor =
@@ -169,7 +169,7 @@ getMovesForPlayer player pieceMap zoneColors =
     getMovesForCards cards pieceMap zoneColors activeColor
 
 
-turnNeedCard : PieceDict -> List Color -> Player -> Player
+turnNeedCard : PieceMap -> List Color -> Player -> Player
 turnNeedCard pieceMap zoneColors player =
     let
         moves =
@@ -199,7 +199,7 @@ turnNeedCard pieceMap zoneColors player =
         }
 
 
-maybeFinishTurn : Card -> PieceDict -> List Color -> Player -> Player
+maybeFinishTurn : Card -> PieceMap -> List Color -> Player -> Player
 maybeFinishTurn card pieceMap zoneColors player =
     if isMoveAgainCard card then
         player
@@ -244,7 +244,7 @@ setTurnToNeedCard game =
         game
 
 
-finishSevenSplit : PieceDict -> List Color -> Color -> Int -> PieceLocation -> Turn
+finishSevenSplit : PieceMap -> List Color -> Color -> Int -> PieceLocation -> Turn
 finishSevenSplit pieceMap zoneColors activeColor distance endLoc =
     let
         moveCount =
@@ -293,7 +293,7 @@ clearCredits player =
     }
 
 
-finishMove : PieceDict -> List Color -> Move -> Player -> Player
+finishMove : PieceMap -> List Color -> Move -> Player -> Player
 finishMove pieceMap zoneColors move player =
     let
         activeColor =

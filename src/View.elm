@@ -85,7 +85,7 @@ import Type
         , GameMsg(..)
         , Location
         , MoveType(..)
-        , PieceDict
+        , PieceMap
         , PieceLocation
         , PlayType(..)
         , Player
@@ -153,7 +153,7 @@ gameView game showUndoButton =
         ]
 
 
-boardView : PieceDict -> List Color -> Player -> Color -> Html GameMsg
+boardView : PieceMap -> List Color -> Player -> Color -> Html GameMsg
 boardView pieceMap zoneColors activePlayer activeColor =
     let
         startLocation =
@@ -213,7 +213,7 @@ nudge board =
     g [ transform translate ] [ board ]
 
 
-zoneView : PieceDict -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Color -> Html GameMsg
+zoneView : PieceMap -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Color -> Html GameMsg
 zoneView pieceMap startLocs endLocs activeColor startLocation zoneColor =
     let
         locations =
@@ -225,7 +225,7 @@ zoneView pieceMap startLocs endLocs activeColor startLocation zoneColor =
     g [] drawnLocations
 
 
-locationView : PieceDict -> Color -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html GameMsg
+locationView : PieceMap -> Color -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Location -> Html GameMsg
 locationView pieceMap zoneColor startLocs endLocs activeColor selectedLocation locationInfo =
     let
         cx_ =
@@ -240,7 +240,7 @@ locationView pieceMap zoneColor startLocs endLocs activeColor selectedLocation l
     drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_
 
 
-bullsEyeView : PieceDict -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Html GameMsg
+bullsEyeView : PieceMap -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Html GameMsg
 bullsEyeView pieceMap startLocs endLocs activeColor selectedLocation centerOffset =
     let
         cx_ =
@@ -258,7 +258,7 @@ bullsEyeView pieceMap startLocs endLocs activeColor selectedLocation centerOffse
     drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_
 
 
-drawLocationAtCoords : PieceDict -> Color -> String -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Float -> Html GameMsg
+drawLocationAtCoords : PieceMap -> Color -> String -> Set PieceLocation -> Set PieceLocation -> Color -> Maybe PieceLocation -> Float -> Float -> Html GameMsg
 drawLocationAtCoords pieceMap zoneColor id startLocs endLocs activeColor selectedLocation cx_ cy_ =
     let
         pieceLocation =

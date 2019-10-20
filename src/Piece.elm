@@ -18,7 +18,7 @@ import Config
         , isBaseId
         , isHoldingPenId
         )
-import Dict
+import AssocList as Dict
 import List.Extra
 import Set exposing (Set)
 import Setup
@@ -31,7 +31,7 @@ import Type
         , Move
         , MoveFlavor(..)
         , MoveType(..)
-        , PieceDict
+        , PieceMap
         , PieceLocation
         )
 
@@ -41,12 +41,12 @@ fakeLocation =
     ( "bogus", "bogus" )
 
 
-getPiece : PieceDict -> PieceLocation -> Maybe String
+getPiece : PieceMap -> PieceLocation -> Maybe String
 getPiece pieceMap pieceLoc =
     Dict.get pieceLoc pieceMap
 
 
-getThePiece : PieceDict -> PieceLocation -> String
+getThePiece : PieceMap -> PieceLocation -> String
 getThePiece pieceMap pieceLoc =
     -- This should be called ONLY when we know there's
     -- a piece at the location.  Most use cases are when
@@ -57,7 +57,7 @@ getThePiece pieceMap pieceLoc =
         |> Maybe.withDefault "bogus"
 
 
-isOpenLocation : PieceDict -> PieceLocation -> Bool
+isOpenLocation : PieceMap -> PieceLocation -> Bool
 isOpenLocation pieceMap pieceLoc =
     case
         getPiece pieceMap pieceLoc
@@ -69,7 +69,7 @@ isOpenLocation pieceMap pieceLoc =
             False
 
 
-pieceToMoveOutOfPen : PieceDict -> Color -> Maybe PieceLocation
+pieceToMoveOutOfPen : PieceMap -> Color -> Maybe PieceLocation
 pieceToMoveOutOfPen pieceMap color =
     let
         isOccupied id =
@@ -82,7 +82,7 @@ pieceToMoveOutOfPen pieceMap color =
         |> Maybe.map (\id -> ( color, id ))
 
 
-openHoldingPenLocation : PieceDict -> Color -> PieceLocation
+openHoldingPenLocation : PieceMap -> Color -> PieceLocation
 openHoldingPenLocation pieceMap color =
     -- We expect to only be called when we know we're sending a
     -- piece home, so there should always be a square.
@@ -95,7 +95,7 @@ openHoldingPenLocation pieceMap color =
         |> Maybe.withDefault fakeLocation
 
 
-isColor : PieceDict -> Color -> PieceLocation -> Bool
+isColor : PieceMap -> Color -> PieceLocation -> Bool
 isColor pieceMap color loc =
     let
         locColor =
@@ -109,7 +109,7 @@ isNormalLoc ( _, id ) =
     not (isHoldingPenId id) && not (isBaseId id)
 
 
-swappableLocs : PieceDict -> Color -> Set PieceLocation
+swappableLocs : PieceMap -> Color -> Set PieceLocation
 swappableLocs pieceMap activeColor =
     let
         isThem loc =
@@ -121,14 +121,14 @@ swappableLocs pieceMap activeColor =
         |> Set.fromList
 
 
-myPieces : PieceDict -> Color -> Set PieceLocation
+myPieces : PieceMap -> Color -> Set PieceLocation
 myPieces pieceMap activeColor =
     Dict.keys pieceMap
         |> List.filter (isColor pieceMap activeColor)
         |> Set.fromList
 
 
-movablePieces : PieceDict -> Color -> Set PieceLocation
+movablePieces : PieceMap -> Color -> Set PieceLocation
 movablePieces pieceMap color =
     -- This excludes redundant pieces from the holding pen.
     let
@@ -143,7 +143,7 @@ movablePieces pieceMap color =
             Set.insert pen_loc pieces
 
 
-nonPenPieces : PieceDict -> Color -> Set PieceLocation
+nonPenPieces : PieceMap -> Color -> Set PieceLocation
 nonPenPieces pieceMap activeColor =
     let
         isMobile ( _, id ) =
@@ -153,13 +153,13 @@ nonPenPieces pieceMap activeColor =
         |> Set.filter isMobile
 
 
-otherNonPenPieces : PieceDict -> Color -> PieceLocation -> Set PieceLocation
+otherNonPenPieces : PieceMap -> Color -> PieceLocation -> Set PieceLocation
 otherNonPenPieces pieceMap activeColor loc =
     nonPenPieces pieceMap activeColor
         |> Set.remove loc
 
 
-hasPieceOnFastTrack : PieceDict -> Color -> Bool
+hasPieceOnFastTrack : PieceMap -> Color -> Bool
 hasPieceOnFastTrack pieceMap activeColor =
     let
         isFt ( _, id ) =
@@ -170,7 +170,7 @@ hasPieceOnFastTrack pieceMap activeColor =
         |> List.any isFt
 
 
-configZonePieces : String -> PieceDict -> PieceDict
+configZonePieces : String -> PieceMap -> PieceMap
 configZonePieces color pieceMap =
     let
         assign loc =
@@ -179,7 +179,7 @@ configZonePieces color pieceMap =
     List.foldl assign pieceMap (startingLocations color)
 
 
-configPieces : List Color -> PieceDict
+configPieces : List Color -> PieceMap
 configPieces zoneColors =
     let
         dct =
@@ -188,7 +188,7 @@ configPieces zoneColors =
     List.foldl configZonePieces dct zoneColors
 
 
-bringPlayerOut : Color -> PieceDict -> PieceDict
+bringPlayerOut : Color -> PieceMap -> PieceMap
 bringPlayerOut color pieceMap =
     let
         penLoc =
@@ -208,7 +208,7 @@ bringPlayerOut color pieceMap =
                 |> executeMove RegularMove startLoc endLoc
 
 
-movePiece : Move -> PieceDict -> PieceDict
+movePiece : Move -> PieceMap -> PieceMap
 movePiece move pieceMap =
     let
         ( moveType, startLoc, endLoc ) =
@@ -226,7 +226,7 @@ movePiece move pieceMap =
         |> executeMove moveFlavor startLoc endLoc
 
 
-executeMove : MoveFlavor -> PieceLocation -> PieceLocation -> PieceDict -> PieceDict
+executeMove : MoveFlavor -> PieceLocation -> PieceLocation -> PieceMap -> PieceMap
 executeMove moveFlavor startLoc endLoc pieceMap =
     let
         startColor =

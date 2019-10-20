@@ -36,7 +36,7 @@ import Type
         , Game
         , Move
         , MoveType(..)
-        , PieceDict
+        , PieceMap
         , PieceLocation
         )
 
@@ -58,7 +58,7 @@ type Action
 type alias GameState =
     { zoneColors : List Color
     , activeColor : Color
-    , pieceMap : PieceDict
+    , pieceMap : PieceMap
     , cards : List Card
     , credits : Int
     , nextStep : NextStep
