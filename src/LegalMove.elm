@@ -302,7 +302,7 @@ getMovesForSeven params startLoc =
 
                     candidateMoves =
                         getLocs moveCount
-                            |> List.filter (\endLoc -> endLoc /= ( NormalColor "black", "bullseye" ))
+                            |> List.filter (\endLoc -> endLoc /= ( BullsEyeZone, "bullseye" ))
                             |> List.map (\endLoc -> ( moveType, startLoc, endLoc ))
                 in
                 candidateMoves
@@ -337,8 +337,34 @@ getNextLocs params loc =
 
         zoneColors =
             params.zoneColors
+
+        pieceColor =
+            params.pieceColor
+
+        pieceMap =
+            params.pieceMap
+
+        isFree loc_ =
+            isLocFree pieceMap pieceColor loc_
+
+        filter lst =
+            lst
+                |> List.filter isFree
     in
     case zone of
+        BullsEyeZone ->
+            if params.canLeaveBullsEye then
+                let
+                    prevColor =
+                        prevZoneColor pieceColor zoneColors
+                in
+                filter
+                    [ ( NormalColor prevColor, "FT" )
+                    ]
+
+            else
+                []
+
         NormalColor zoneColor ->
             let
                 nextColor =
@@ -347,27 +373,11 @@ getNextLocs params loc =
                 nextZone =
                     NormalColor nextColor
 
-                pieceColor =
-                    params.pieceColor
-
                 canFastTrack =
                     params.canFastTrack
 
                 canLeavePen =
                     params.canLeavePen
-
-                canLeaveBullsEye =
-                    params.canLeaveBullsEye
-
-                pieceMap =
-                    params.pieceMap
-
-                isFree loc_ =
-                    isLocFree pieceMap pieceColor loc_
-
-                filter lst =
-                    lst
-                        |> List.filter isFree
             in
             if isHoldingPenId id then
                 if canLeavePen then
@@ -382,13 +392,13 @@ getNextLocs params loc =
                         filter
                             [ ( nextZone, "FT" )
                             , ( nextZone, "R4" )
-                            , ( NormalColor "black", "bullseye" )
+                            , ( BullsEyeZone, "bullseye" )
                             ]
 
                     else
                         filter
                             [ ( nextZone, "R4" )
-                            , ( NormalColor "black", "bullseye" )
+                            , ( BullsEyeZone, "bullseye" )
                             ]
 
                 else if canFastTrack && (NormalColor pieceColor /= nextZone) then
@@ -401,19 +411,6 @@ getNextLocs params loc =
                     filter
                         [ ( nextZone, "R4" )
                         ]
-
-            else if id == "bullseye" then
-                if canLeaveBullsEye then
-                    let
-                        prevColor =
-                            prevZoneColor pieceColor zoneColors
-                    in
-                    filter
-                        [ ( NormalColor prevColor, "FT" )
-                        ]
-
-                else
-                    []
 
             else
                 let
@@ -431,6 +428,9 @@ getPrevLocs params loc =
             loc
     in
     case zone of
+        BullsEyeZone ->
+            []
+
         NormalColor zoneColor ->
             let
                 zoneColors =
@@ -456,9 +456,6 @@ getPrevLocs params loc =
                 []
 
             else if isBaseId id then
-                []
-
-            else if id == "bullseye" then
                 []
 
             else if id == "R4" then

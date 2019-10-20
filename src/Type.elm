@@ -47,6 +47,7 @@ type alias Location =
 
 type Zone
     = NormalColor String
+    | BullsEyeZone
 
 
 type alias PieceLocation =

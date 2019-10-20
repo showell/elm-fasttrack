@@ -255,7 +255,7 @@ bullsEyeView pieceMap startLocs endLocs activeColor selectedLocation centerOffse
             centerOffset
 
         zone =
-            NormalColor "black"
+            BullsEyeZone
 
         id =
             "bullseye"
@@ -271,6 +271,9 @@ drawLocationAtCoords pieceMap zone id startLocs endLocs activeColor selectedLoca
 
         zoneColor =
             case zone of
+                BullsEyeZone ->
+                    "black"
+
                 NormalColor color ->
                     color
 
