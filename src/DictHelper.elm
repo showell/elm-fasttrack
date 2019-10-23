@@ -2,8 +2,10 @@ module DictHelper exposing (..)
 
 import NewDict exposing (..)
 
+
 type alias Color =
     String
+
 
 type alias InternalNode k v =
     { k : k
@@ -12,19 +14,23 @@ type alias InternalNode k v =
     , path : String
     }
 
+
 type ShapeTree
-    = Node String (ShapeTree) (ShapeTree)
+    = Node String ShapeTree ShapeTree
     | Empty
 
-type StatsTree =
-    StatsTree { depth : Int
-    , blackDepth : Int
-    , size : Int
-    , color : Color
-    , left: Maybe StatsTree
-    , right: Maybe StatsTree
-    , sig: String
-    }
+
+type StatsTree
+    = StatsTree
+        { depth : Int
+        , blackDepth : Int
+        , size : Int
+        , color : Color
+        , left : Maybe StatsTree
+        , right : Maybe StatsTree
+        , sig : String
+        }
+
 
 emptyStatsTree : StatsTree
 emptyStatsTree =
@@ -42,7 +48,7 @@ emptyStatsTree =
 listToStats : List comparable -> StatsTree
 listToStats lst =
     lst
-        |> List.map (\k -> (k, ""))
+        |> List.map (\k -> ( k, "" ))
         |> fromList
         |> toInternalRepresentation
         |> toShapeTree
@@ -79,8 +85,12 @@ shapeToStats shapeTree =
                     1 + left.size + right.size
 
                 sig =
-                    -- TODO
                     color
+                        ++ " ("
+                        ++ left.sig
+                        ++ ", "
+                        ++ right.sig
+                        ++ ")"
             in
             StatsTree
                 { depth = depth
@@ -100,7 +110,6 @@ toShapeTree internals =
             internals
                 |> List.filter (\node -> String.left 1 node.path == "")
                 |> List.head
-
     in
     case top_ of
         Nothing ->
@@ -111,25 +120,26 @@ toShapeTree internals =
                 slicePath internalNode =
                     { internalNode
                         | path = String.dropLeft 1 internalNode.path
-                        }
+                    }
 
                 getSubTree dir =
                     internals
                         |> List.filter (\node -> String.left 1 node.path == dir)
                         |> List.map slicePath
                         |> toShapeTree
-
             in
-                Node
-                    top.color
-                    (getSubTree "l")
-                    (getSubTree "r")
+            Node
+                top.color
+                (getSubTree "l")
+                (getSubTree "r")
+
 
 show =
     let
         internals =
-            [0, 1, 2, 3, 4]
+            [ 0, 1, 2, 3, 4 ]
                 |> listToStats
+
         x =
             Debug.log "repr" internals
     in

@@ -70,6 +70,9 @@ Dict.fromList
 [ ( "Alice", User "Alice" 28 1.65 )
 , ( "Bob", User "Bob" 19 1.82 )
 , ( "Chuck", User "Chuck" 33 1.75 )
+][ ( "Alice", User "Alice" 28 1.65 )
+, ( "Bob", User "Bob" 19 1.82 )
+, ( "Chuck", User "Chuck" 33 1.75 )
 ]
 type alias User =
 { name : String
@@ -676,6 +679,7 @@ fromList : List ( comparable, v ) -> Dict comparable v
 fromList assocs =
     List.foldl (\( key, value ) dict -> insert key value dict) empty assocs
 
+
 type alias InternalNode k v =
     { k : k
     , v : v
@@ -683,12 +687,13 @@ type alias InternalNode k v =
     , path : String
     }
 
+
 {-| Reveal internal representation of Dict for advanced testing/debugging.
-This returns a list of nodes in sorted order.  Each node has k/v, plus
+This returns a list of nodes in sorted order. Each node has k/v, plus
 a path to the node that looks something like "llr", and the color of
 the node ("R" or "B").
 -}
-toInternalRepresentation: Dict k v -> List (InternalNode k v)
+toInternalRepresentation : Dict k v -> List (InternalNode k v)
 toInternalRepresentation dict =
     let
         nodeList : String -> Dict k v -> List (InternalNode k v)
@@ -703,17 +708,19 @@ toInternalRepresentation dict =
 
                                 Black ->
                                     "B"
+
                         node =
                             { k = k
                             , v = v
                             , color = color
                             , path = path
                             }
-                        in
-                        nodeList (path ++ "l") left ++
-                        [ node ] ++
-                        nodeList (path ++ "r") right
+                    in
+                    nodeList (path ++ "l") left
+                        ++ [ node ]
+                        ++ nodeList (path ++ "r") right
+
                 _ ->
                     []
     in
-    nodeList ""  dict
+    nodeList "" dict

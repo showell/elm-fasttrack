@@ -51,7 +51,7 @@ init _ =
             , history = History.init
             }
     in
-    ( model, Cmd.none)
+    ( model, Cmd.none )
 
 
 
@@ -110,6 +110,7 @@ type alias SingleGenerationResult =
     }
 
 
+
 -- SUBSCRIPTIONS
 
 
@@ -121,11 +122,13 @@ subscriptions _ =
 
 -- VIEW (see View.elm for the "guts")
 
+
 show =
     DictHelper.show
         |> Html.text
         |> List.singleton
         |> Html.pre []
+
 
 view : Model -> Browser.Document Msg
 view model =

@@ -1,9 +1,12 @@
+module Main exposing (Tree, TreeCollection, analyzeDict, cartesianMap, combineTwo, dictString, expandTrees, expandTwo, filterTrees, firstLine, letterFromIdx, permuteList, show, show1, show2, smallTrees, uniqueReverseMap)
+
 
 firstLine s =
     s
         |> String.split "\n"
         |> List.head
         |> Maybe.withDefault ""
+
 
 dictString : Dict String String -> Dict k v -> String
 dictString aliases dct =
@@ -21,11 +24,11 @@ dictString aliases dct =
                         delta =
                             if color == "B" then
                                 1
+
                             else
                                 0
                     in
                     delta + depth left
-
 
         size repr =
             case repr of
@@ -38,7 +41,8 @@ dictString aliases dct =
         remapRed s =
             if String.left 1 s == "R" then
                 let
-                    s2 = "B" ++ String.dropLeft 1 s
+                    s2 =
+                        "B" ++ String.dropLeft 1 s
                 in
                 case get s2 aliases of
                     Just v ->
@@ -52,9 +56,9 @@ dictString aliases dct =
 
         remap s =
             s
-            -- get s aliases
-            --    |> Maybe.withDefault (remapRed s)
 
+        -- get s aliases
+        --    |> Maybe.withDefault (remapRed s)
         reprToString repr =
             let
                 helper color left right =
@@ -71,9 +75,20 @@ dictString aliases dct =
                         dd =
                             depth repr |> String.fromInt
                     in
-                    dd ++ " " ++ cnt ++ " " ++ color ++ " (" ++ l ++ ", " ++ r ++ ")" ++
-                    "\n" ++ l ++
-                    "\n" ++ r
+                    dd
+                        ++ " "
+                        ++ cnt
+                        ++ " "
+                        ++ color
+                        ++ " ("
+                        ++ l
+                        ++ ", "
+                        ++ r
+                        ++ ")"
+                        ++ "\n"
+                        ++ l
+                        ++ "\n"
+                        ++ r
             in
             case repr of
                 InternalDictRepr (Just ( color, _, ( left, right ) )) ->
@@ -156,7 +171,7 @@ letterFromIdx idx =
 
 
 analyzeDict : Int -> DictGeneration
-analyzeDict maxN=
+analyzeDict maxN =
     let
         toReprTuple aliases lst =
             let
@@ -263,6 +278,7 @@ analyzeDict maxN=
     in
     result
 
+
 type alias Tree =
     { count : Int
     , depth : Int
@@ -274,35 +290,36 @@ type alias Tree =
     , sig : String
     }
 
+
 type alias TreeCollection =
     { trees : List Tree
     }
 
+
 smallTrees : TreeCollection
 smallTrees =
     { trees =
-        [
-            { count = 1
-            , depth = 1
-            , color = "B"
-            , l = "_"
-            , r = "_"
-            , lColor = "_"
-            , rColor = "_"
-            , sig = "B"
-            }
-        ,
-            { count = 2
-            , depth = 1
-            , color = "B"
-            , l = "R"
-            , r = "_"
-            , lColor = "R"
-            , rColor = "_"
-            , sig = "BR_"
-            }
+        [ { count = 1
+          , depth = 1
+          , color = "B"
+          , l = "_"
+          , r = "_"
+          , lColor = "_"
+          , rColor = "_"
+          , sig = "B"
+          }
+        , { count = 2
+          , depth = 1
+          , color = "B"
+          , l = "R"
+          , r = "_"
+          , lColor = "R"
+          , rColor = "_"
+          , sig = "BR_"
+          }
         ]
     }
+
 
 combineTwo : String -> Tree -> Tree -> Maybe Tree
 combineTwo color left right =
@@ -331,7 +348,7 @@ combineTwo color left right =
                     left.depth + 1
 
                 else
-                   left.depth
+                    left.depth
         in
         Just
             { count = count
@@ -344,7 +361,8 @@ combineTwo color left right =
             , rColor = right.color
             }
 
-cartesianMap : (a -> a -> b) -> (List a) -> (List a) -> (List b)
+
+cartesianMap : (a -> a -> b) -> List a -> List a -> List b
 cartesianMap f lst1 lst2 =
     let
         expand elem =
@@ -354,11 +372,13 @@ cartesianMap f lst1 lst2 =
         |> List.map expand
         |> List.concat
 
+
 filterTrees : List (Maybe Tree) -> List Tree
 filterTrees trees =
     trees
         |> List.filterMap identity
         |> List.filter (\t -> t.count < 12)
+
 
 expandTwo : TreeCollection -> TreeCollection
 expandTwo p =
@@ -379,7 +399,8 @@ expandTwo p =
     { trees = newBlack ++ newMixed
     }
 
-expandTrees (all, p) =
+
+expandTrees ( all, p ) =
     let
         newParams =
             expandTwo p
@@ -387,7 +408,8 @@ expandTrees (all, p) =
         newAll =
             all ++ newParams.trees
     in
-    (newAll, newParams)
+    ( newAll, newParams )
+
 
 show1 =
     let
@@ -400,7 +422,7 @@ show1 =
                 |> expandTrees
                 |> Tuple.first
                 |> List.sortBy (\t -> t.count)
-                |> List.map (\t -> (t.count, t.l, t.r))
+                |> List.map (\t -> ( t.count, t.l, t.r ))
 
         x =
             trees
@@ -409,13 +431,15 @@ show1 =
     in
     Html.div [] []
 
+
 show2 =
     analyzeDict 150
         |> (\params -> Html.pre [] [ Html.text params.humanOutput ])
 
+
 show =
     let
-        x = show1
+        x =
+            show1
     in
     show2
-
