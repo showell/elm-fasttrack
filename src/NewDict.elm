@@ -70,9 +70,6 @@ Dict.fromList
 [ ( "Alice", User "Alice" 28 1.65 )
 , ( "Bob", User "Bob" 19 1.82 )
 , ( "Chuck", User "Chuck" 33 1.75 )
-][ ( "Alice", User "Alice" 28 1.65 )
-, ( "Bob", User "Bob" 19 1.82 )
-, ( "Chuck", User "Chuck" 33 1.75 )
 ]
 type alias User =
 { name : String

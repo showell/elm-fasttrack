@@ -32,6 +32,14 @@ type StatsTree
         }
 
 
+type DescribeTree
+    = Broken
+    | Nada
+    | Tree1 Int
+    | Tree2 Int Int
+    | Tree3 Int Int Int
+
+
 emptyStatsTree : StatsTree
 emptyStatsTree =
     StatsTree
@@ -43,6 +51,77 @@ emptyStatsTree =
         , right = Nothing
         , sig = "_"
         }
+
+
+unboxStats (StatsTree stats) =
+    stats
+
+
+listToDescription lst =
+    let
+        stats =
+            listToStats lst |> unboxStats
+
+        subTree f tree =
+            tree
+                |> f
+                |> Maybe.withDefault emptyStatsTree
+                |> unboxStats
+
+        lColor =
+            stats.left
+                |> Maybe.map unboxStats
+                |> Maybe.map .color
+
+        rColor =
+            stats.right
+                |> Maybe.map unboxStats
+                |> Maybe.map .color
+
+    in
+    case ( lColor, rColor ) of
+        ( Nothing, Nothing ) ->
+            Nada
+
+        ( Just "B", Nothing ) ->
+            Tree1 stats.size
+
+        ( Just "B", Just "B" ) ->
+            let
+                lSize =
+                    stats
+                        |> subTree .left
+                        |> .size
+
+                rSize =
+                    stats
+                        |> subTree .right
+                        |> .size
+            in
+            Tree2 lSize rSize
+
+        ( Just "R", Just "B" ) ->
+            let
+                llSize =
+                    stats
+                        |> subTree .left
+                        |> subTree .left
+                        |> .size
+                lrSize =
+                    stats
+                        |> subTree .left
+                        |> subTree .right
+                        |> .size
+
+                rSize =
+                    stats
+                        |> subTree .right
+                        |> .size
+            in
+            Tree3 llSize lrSize rSize
+
+        _ ->
+            Broken
 
 
 listToStats : List comparable -> StatsTree
@@ -66,14 +145,11 @@ shapeToStats shapeTree =
                 box stats =
                     Just (StatsTree stats)
 
-                unbox (StatsTree stats) =
-                    stats
-
                 left =
-                    shapeToStats lShape |> unbox
+                    shapeToStats lShape |> unboxStats
 
                 right =
-                    shapeToStats rShape |> unbox
+                    shapeToStats rShape |> unboxStats
 
                 depth =
                     1 + min left.depth right.depth
@@ -138,7 +214,7 @@ show =
     let
         internals =
             [ 0, 1, 2, 3, 4 ]
-                |> listToStats
+                |> listToDescription
 
         x =
             Debug.log "repr" internals
