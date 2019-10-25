@@ -84,7 +84,7 @@ I have this deployed using [github pages](https://showell.github.io/ft.html).
 
 My command for doing it is this:
 
-    cd ../fast_track/ && cp ../elm/ft.html . && git commit -am 'latest' && git push origin master && cd -
+    (cd ~/PROJECTS/website/ && cp ~/elm/ft.html . && git commit -am 'latest' && git push origin master)
 
 As of this writing, it's a fully self-contained single HTML file.
 
